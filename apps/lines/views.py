@@ -23,9 +23,12 @@ def home(request):
 
 def callback(request):
     header = request.headers
-    body = request.body
-    a = type(header)
-    print(request.body)
-    # print(request.data)
+    body = request.META
+    print('SCHEME = ', request.scheme)
+    print('BODY = ', request.body)
+    print('PATH = ', request.path)
+    print('POST = ', request.GET)
+    print('GET = ', request.POST)
+    print('---------------------')
 
     return HttpResponse('{}\n\n{}'.format(header, body))
