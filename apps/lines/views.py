@@ -10,6 +10,8 @@ from linebot.models import (
 
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 # line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
 # handler = WebhookHandler('YOUR_CHANNEL_SECRET')
@@ -20,7 +22,8 @@ handler = WebhookHandler('cee5f9aa47f1c46beeb2c7b2016843fb')
 def home(request):
     return HttpResponse('Hi!')
 
-
+# @require_http_methods(["GET", "POST"])
+@csrf_exempt
 def callback(request):
     header = request.headers
     body = request.META
