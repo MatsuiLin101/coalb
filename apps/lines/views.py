@@ -1,3 +1,5 @@
+import json
+
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -26,7 +28,9 @@ def home(request):
 @csrf_exempt
 def callback(request):
     header = request.headers
-    body = request.META
+    body = request.body.decode('utf-8')
+    print('BODY TYPE = ', type(body))
+    print('JSON BODY = ', type(json.loads(body)))
     print('SCHEME = ', request.scheme)
     print('BODY = ', request.body)
     print('PATH = ', request.path)
