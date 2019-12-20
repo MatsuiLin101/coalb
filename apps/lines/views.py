@@ -27,15 +27,15 @@ def home(request):
 # @require_http_methods(["GET", "POST"])
 @csrf_exempt
 def callback(request):
-    header = request.headers
-    body = request.body.decode('utf-8')
-    print('BODY TYPE = ', type(body))
-    print('JSON BODY = ', type(json.loads(body)))
-    print('SCHEME = ', request.scheme)
-    print('BODY = ', request.body)
-    print('PATH = ', request.path)
-    print('POST = ', request.GET)
-    print('GET = ', request.POST)
-    print('---------------------')
 
-    return HttpResponse('{}\n\n{}'.format(header, body))
+    try:
+        signature = request.headers['X-Line-Signature']
+        body = request.body.decode('utf-8')
+        print('signature = ', signature)
+        print('body = ', json.loads(body))
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        response = 'Invalid signature. Please check your channel access token/channel secret.'
+        return HttpResponse(status=400, content=response)
+
+    return HttpResponse(status=200, content='OK')
