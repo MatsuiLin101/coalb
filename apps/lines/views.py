@@ -39,7 +39,7 @@ def callback(request):
         response = 'Invalid signature. Please check your channel access token/channel secret.'
         return HttpResponse(status=400, content=response)
 
-    return HttpResponse(status=200, content='OK')
+    # return HttpResponse(status=200, content='OK')
 
 
 @handler.add(MessageEvent, message=TextMessage)
