@@ -210,11 +210,15 @@ class WebhookHandler(object):
         :rtype: func
         :return: decorator
         """
+        print('WebhookHandler ADD')
         def decorator(func):
+            print('WebhookHandler ADD DECORATOR')
             if isinstance(message, (list, tuple)):
+                print('if message = ', message)
                 for it in message:
                     self.__add_handler(func, event, message=it)
             else:
+                print('else message = ', message)
                 self.__add_handler(func, event, message=message)
 
             return func
@@ -227,7 +231,11 @@ class WebhookHandler(object):
         :rtype: func
         :return: decorator
         """
+        print('WebhookHandler DEFAULT')
+        print('self._default = ', self._default)
         def decorator(func):
+            print('WebhookHandler DEFAULT DECORATOR')
+            print('self._default = ', self._default)
             self._default = func
             return func
 
