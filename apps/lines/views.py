@@ -6,8 +6,36 @@ from linebot import (
 from linebot.exceptions import (
     InvalidSignatureError
 )
-from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage, StickerMessage,
+from linebot.models.events import (
+    MessageEvent,
+    FollowEvent,
+    UnfollowEvent,
+    JoinEvent,
+    LeaveEvent,
+    PostbackEvent,
+    AccountLinkEvent,
+    MemberJoinedEvent,
+    MemberLeftEvent,
+    BeaconEvent,
+    ThingsEvent,
+)
+from linebot.models.messages import (
+    TextMessage,
+    ImageMessage,
+    VideoMessage,
+    AudioMessage,
+    LocationMessage,
+    StickerMessage,
+    FileMessage
+)
+from linebot.models.send_messages import (
+    SendMessage,
+    TextSendMessage,
+    ImageSendMessage,
+    VideoSendMessage,
+    AudioSendMessage,
+    LocationSendMessage,
+    StickerSendMessage,
 )
 
 from django.shortcuts import render
@@ -15,7 +43,6 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from .webhook import WebhookHandler
 
 # line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
 # handler = WebhookHandler('YOUR_CHANNEL_SECRET')
@@ -26,19 +53,17 @@ handler = WebhookHandler('cee5f9aa47f1c46beeb2c7b2016843fb')
 def home(request):
     return HttpResponse('Hi!')
 
-# @require_http_methods(["GET", "POST"])
+
 @csrf_exempt
 def callback(request):
 
     try:
         signature = request.headers['X-Line-Signature']
         body = request.body.decode('utf-8')
-        print('signature = ', signature)
-        print('body = ', json.loads(body))
         handler.handle(body, signature)
-        print('handleer ok')
+        print('handler ok')
     except InvalidSignatureError:
-        print('error')
+        print('handler error')
         response = 'Invalid signature. Please check your channel access token/channel secret.'
         return HttpResponse(status=400, content=response)
 
