@@ -245,16 +245,22 @@ class WebhookHandler(object):
         payload = self.parser.parse(body, signature, as_payload=True)
         print('AFTER self.parser.parse')
         print('payload = ', payload)
+        print('payload.events = ', payload.events)
         for event in payload.events:
+            print('FOR event = ', event)
             func = None
             key = None
 
             if isinstance(event, MessageEvent):
                 print('if 1')
+                print('event.__class__ = ', event.__class__)
+                print('event.message.__class__ = ', event.message.__class__)
                 key = self.__get_handler_key(
                     event.__class__, event.message.__class__)
+                print('key = ', key)
                 func = self._handlers.get(key, None)
                 print('if 1 end, func = ', func)
+                print('self._handlers = ', self._handlers)
 
             if func is None:
                 print('if 2')
@@ -303,6 +309,11 @@ class WebhookHandler(object):
     @staticmethod
     def __get_handler_key(event, message=None):
         if message is None:
+            print('if message is None:')
+            print('event.__name__ = ', event.__name__)
             return event.__name__
         else:
+            print('else message is None:')
+            print('event.__name__ = ', event.__name__)
+            print('message.__name__ = ', message.__name__)
             return event.__name__ + '_' + message.__name__
