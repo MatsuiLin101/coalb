@@ -1,7 +1,7 @@
 import json
 
 from linebot import (
-    LineBotApi, WebhookHandler
+    LineBotApi#, WebhookHandler
 )
 from linebot.exceptions import (
     InvalidSignatureError
@@ -14,6 +14,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+
+from .webhook import WebhookHandler
 
 # line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
 # handler = WebhookHandler('YOUR_CHANNEL_SECRET')
