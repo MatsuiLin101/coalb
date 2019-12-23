@@ -258,7 +258,9 @@ class WebhookHandler(object):
                 key = self.__get_handler_key(
                     event.__class__, event.message.__class__)
                 print('key = ', key)
+                print('self._handlers = ', self._handlers)
                 func = self._handlers.get(key, None)
+                print('self._handlers = ', self._handlers)
                 print('if 1 end, func = ', func)
                 print('self._handlers = ', self._handlers)
 
@@ -286,6 +288,7 @@ class WebhookHandler(object):
                     print('if 1 end, func = ', func)
                 elif args_count == 1:
                     print('else if 2')
+                    print('event = ', event)
                     func(event)
                     print('if 2 end, func = ', func)
                 else:
