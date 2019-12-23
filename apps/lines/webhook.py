@@ -244,33 +244,48 @@ class WebhookHandler(object):
         print('BEFORE self.parser.parse')
         payload = self.parser.parse(body, signature, as_payload=True)
         print('AFTER self.parser.parse')
-
+        print('payload = ', payload)
         for event in payload.events:
             func = None
             key = None
 
             if isinstance(event, MessageEvent):
+                print('if 1')
                 key = self.__get_handler_key(
                     event.__class__, event.message.__class__)
                 func = self._handlers.get(key, None)
+                print('if 1 end, func = ', func)
 
             if func is None:
+                print('if 2')
                 key = self.__get_handler_key(event.__class__)
                 func = self._handlers.get(key, None)
+                print('if 2 end, func = ', func)
 
             if func is None:
+                print('if 3')
                 func = self._default
+                print('if 3 end, func = ', func)
 
             if func is None:
+                print('if 4')
                 LOGGER.info('No handler of ' + key + ' and no default handler')
+                print('if 4 end, func = ', func)
             else:
+                print('else')
                 args_count = self.__get_args_count(func)
                 if args_count == 0:
+                    print('else if 1')
                     func()
+                    print('if 1 end, func = ', func)
                 elif args_count == 1:
+                    print('else if 2')
                     func(event)
+                    print('if 2 end, func = ', func)
                 else:
+                    print('else else')
                     func(event, payload.destination)
+                    print('else else end, func = ', func)
 
     def __add_handler(self, func, event, message=None):
         key = self.__get_handler_key(event, message=message)
