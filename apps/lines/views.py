@@ -1,7 +1,7 @@
 import json
 
 from linebot import (
-    LineBotApi#, WebhookHandler
+    LineBotApi, WebhookHandler
 )
 from linebot.exceptions import (
     InvalidSignatureError
