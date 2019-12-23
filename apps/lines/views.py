@@ -33,13 +33,13 @@ def callback(request):
         body = request.body.decode('utf-8')
         print('signature = ', signature)
         print('body = ', json.loads(body))
-        hook = handler.handle(body, signature)
-        print(hook)
+        return HttpResponse(status=200, content='OK')
+        handler.handle(body, signature)
     except InvalidSignatureError:
         response = 'Invalid signature. Please check your channel access token/channel secret.'
         return HttpResponse(status=400, content=response)
 
-    # return HttpResponse(status=200, content='OK')
+    return HttpResponse(status=200, content='OK')
 
 
 @handler.add(MessageEvent, message=TextMessage)
