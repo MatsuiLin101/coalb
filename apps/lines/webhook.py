@@ -138,11 +138,14 @@ class WebhookParser(object):
             | :py:class:`linebot.webhook.WebhookPayload`
         :return: Events list, or WebhookPayload instance
         """
+        print('BEFORE self.signature_validator.validate(body, signature):')
         if not self.signature_validator.validate(body, signature):
             raise InvalidSignatureError(
                 'Invalid signature. signature=' + signature)
+        print('AFTER self.signature_validator.validate(body, signature):')
 
         body_json = json.loads(body)
+        print('body_json = ', body_json)
         events = []
         for event in body_json['events']:
             event_type = event['type']
@@ -170,10 +173,12 @@ class WebhookParser(object):
                 events.append(ThingsEvent.new_from_json_dict(event))
             else:
                 LOGGER.warn('Unknown event type. type=' + event_type)
-
+        print('events = ', events)
         if as_payload:
+            print('if as_payload:')
             return WebhookPayload(events=events, destination=body_json.get('destination'))
         else:
+            print('else as_payload:')
             return events
 
 
@@ -234,7 +239,11 @@ class WebhookHandler(object):
         :param str body: Webhook request body (as text)
         :param str signature: X-Line-Signature value (as text)
         """
+        print('body = ', body)
+        print('signature = ', signature)
+        print('BEFORE self.parser.parse')
         payload = self.parser.parse(body, signature, as_payload=True)
+        print('AFTER self.parser.parse')
 
         for event in payload.events:
             func = None
