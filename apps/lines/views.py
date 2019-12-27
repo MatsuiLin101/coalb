@@ -98,11 +98,11 @@ def handle_message_text(event):
             actions = [{
                 'type': 'postback',
                 'label': category.get(id=18).name,
-                'data': f"id={category.get(id=18).id}, lay=1",
+                'data': f"id={category.get(id=18).id}, layer=1",
             }, {
                 'type': 'postback',
                 'label': category.get(id=25).name,
-                'data': f"id={category.get(id=25).id}, lay=1",
+                'data': f"id={category.get(id=25).id}, layer=1",
             }]
         )
         print(template)
@@ -132,22 +132,22 @@ def handle_postback(event):
     print(f'PostbackEvent TextMessage {data}')
     id = int(data[0].replace("id=", ""))
     print(id)
-    lay = int(data[1].replace("lay=", ""))
-    print(lay)
+    layer = int(data[1].replace("layer=", ""))
+    print(layer)
 
-    options = SD.objects.get(id=id).sd_set.filter(lay=lay)
+    options = SD.objects.get(id=id).sd_set.filter(`layer`=layer)
     print('options ok')
     actions = list()
     for obj in options:
         actions.append({
             'type': 'postback',
             'label': obj.name,
-            'data': f"id=obj.id, lay={lay + 1}",
+            'data': f"id=obj.id, layer={layer + 1}",
         })
     print('actions ok')
 
     template = ButtonsTemplate(
-        title = f"分類{lay}",
+        title = f"分類{layer}",
         text = "請選擇分類",
         actions = actions
     )
