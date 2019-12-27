@@ -135,7 +135,7 @@ def handle_postback(event):
     layer = int(data[1].replace("layer=", ""))
     print(layer)
 
-    options = SD.objects.get(id=id).sd_set.filter(`layer`=layer)
+    options = SD.objects.get(id=id).sd_set.filter(layer=layer)
     print('options ok')
     actions = list()
     for obj in options:
