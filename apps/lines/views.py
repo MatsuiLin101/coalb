@@ -128,17 +128,15 @@ def handle_message_sticker(event):
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    print('1', event.postback)
-    print('type = ', type(event.postback))
-    # print('2', event.postback['data'])
-    print('3', event.postback.data)
-    data = event.postback.data#.split[","]
-    data = data.split(",")
+    data = event.postback.data.split(",")
     print(f'PostbackEvent TextMessage {data}')
     id = int(data[0].replace("id=", ""))
+    print(id)
     lay = int(data[1].replace("lay=", ""))
+    print(lay)
 
     options = SD.objects.get(id=id).sd_set.filter(lay=lay)
+    print('options ok')
     actions = list()
     for obj in options:
         actions.append({
@@ -146,12 +144,14 @@ def handle_postback(event):
             'label': obj.name,
             'data': f"id=obj.id, lay={lay + 1}",
         })
+    print('actions ok')
 
     template = ButtonsTemplate(
         title = f"分類{lay}",
         text = "請選擇分類",
         actions = actions
     )
+    print('template ok')
 
     line_bot_api.reply_message(
         event.reply_token,
