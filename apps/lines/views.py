@@ -91,19 +91,18 @@ def handle_message_text(event):
 
     if text == '選單':
         category = SD.objects.filter(layer=None, parent=None)
-        print(category)
 
         template = ButtonsTemplate(
             title = '選單',
             text = '請選擇要查的資料',
             actions = [{
                 'type': 'postback',
-                'label': category.filter(id=18).name,
-                'data': category.filter(id=18).value,
+                'label': category.get(id=18).name,
+                'data': category.get(id=18).value,
             }, {
                 'type': 'postback',
-                'label': category.filter(id=25).name,
-                'data': category.filter(id=25).value,
+                'label': category.get(id=25).name,
+                'data': category.get(id=25).value,
             }]
         )
         print(template)
