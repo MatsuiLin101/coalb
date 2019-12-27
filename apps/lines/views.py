@@ -37,6 +37,9 @@ from linebot.models.send_messages import (
     LocationSendMessage,
     StickerSendMessage,
 )
+from linebot.models.template import (
+    TemplateSendMessage,
+)
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -83,7 +86,24 @@ def handle_message(event):
     print(category)
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=category.values("id", "name"))
+        TemplateSendMessage(
+            alt_text='Buttons template',
+            template=ButtonsTemplate(
+                # thumbnail_image_url='https://example.com/image.jpg',
+                title='Menu',
+                text='Please select',
+                actions=[{
+                    'type': 'postback',
+                    'label': category.first().name,
+                    'data': category.first().value,
+                }, {
+                    'type': 'postback',
+                    'label': category.last().name,
+                    'data': category.last().value,
+                }]
+            )
+        )
+        # TextSendMessage(text=category.values("id", "name"))
         # TextSendMessage(text=event.message.text)
     )
 
