@@ -86,6 +86,7 @@ def callback(request):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print('MessageEvent TextMessage')
     category = SD.objects.filter(layer=None, parent=None)
     print(category)
 
@@ -115,7 +116,17 @@ def handle_message(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_message(event):
+    print('MessageEvent StickerMessage')
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text="Hello, world")
+    )
+
+
+@handler.add(PostbackEvent, message=TextMessage)
+def handle_message(event):
+    print('PostbackEvent TextMessage')
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=event.message.text)
     )
