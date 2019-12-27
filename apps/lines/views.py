@@ -144,15 +144,17 @@ def handle_postback(event):
             'label': obj.name,
             'data': f"id=obj.id, layer={layer + 1}",
         })
-    print('actions ok')
+    print('actions ok', actions)
 
     template = ButtonsTemplate(
         title = f"分類{layer}",
         text = "請選擇分類",
         actions = actions
     )
-    print('template ok')
+    print('template ok', template)
 
+    print(f'reply_token = {event.reply_token}')
+    print(f'TemplateSendMessage = {TemplateSendMessage(alt_text = 'Buttons template', template = template)}')
     line_bot_api.reply_message(
         event.reply_token,
         TemplateSendMessage(
