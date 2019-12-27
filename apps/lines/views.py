@@ -153,11 +153,11 @@ def handle_postback(event):
     )
     print('template ok', template)
 
-    print(f'reply_token = {event.reply_token}')
-    line_bot_api.reply_message(
-        event.reply_token,
-        TemplateSendMessage(
-            alt_text = 'Buttons template',
-            template = template
-        )
+    reply = TemplateSendMessage(
+        alt_text = 'Buttons template',
+        template = template
     )
+    print(f'reply ok = {reply}')
+
+    print(f'reply_token = {event.reply_token}')
+    line_bot_api.reply_message(event.reply_token, reply)
