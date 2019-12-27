@@ -90,10 +90,10 @@ def handle_message(event):
             alt_text='Buttons template',
             template=(
                 # thumbnail_image_url='https://example.com/image.jpg',
-                type='buttons',
-                title='Menu',
-                text='Please select',
-                actions=[{
+                'type': 'buttons',
+                'title': 'Menu',
+                'text': 'Please select',
+                'actions': [{
                     'type': 'postback',
                     'label': category.first().name,
                     'data': category.first().value,
