@@ -137,19 +137,28 @@ def handle_postback(event):
 
     options = SD.objects.get(id=id).sd_set.filter(layer=layer)
     print('options ok')
-    actions = list()
-    for obj in options:
-        actions.append({
-            'type': 'postback',
-            'label': obj.name,
-            'data': f"id=obj.id, layer={layer + 1}",
-        })
-    print('actions ok', actions)
+    # actions = list()
+    # for obj in options:
+    #     actions.append({
+    #         'type': 'postback',
+    #         'label': obj.name,
+    #         'data': f"id={obj.id}, layer={layer + 1}",
+    #     })
+    # print('actions ok', actions)
 
     template = ButtonsTemplate(
         title = f"分類{layer}",
         text = "請選擇分類",
-        actions = actions
+        actions = [{
+            'type': 'postback',
+            'label': options.first().name,
+            'data': f"id={options.first().id}, layer=2"
+        }, {
+            'type': 'postback',
+            'label': options.last().name,
+            'data': f"id={options.last().id}, layer=2"
+        }]
+        # actions = actions
     )
     print('template ok', template)
 
