@@ -138,7 +138,7 @@ def handle_postback(event):
     options = SD.objects.get(id=id).sd_set.filter(layer=layer)
     print('options ok')
     actions = list()
-    for obj in options[:2]:
+    for obj in options[:10]:
         actions.append({
             'type': 'postback',
             'label': obj.name,
