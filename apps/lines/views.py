@@ -128,8 +128,8 @@ def handle_message_sticker(event):
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    print(f'PostbackEvent TextMessage {data}')
     data = event.postback.data.split[","]
+    print(f'PostbackEvent TextMessage {data}')
     id = int(data[0].replace("id=", ""))
     lay = int(data[1].replace("lay=", ""))
 
