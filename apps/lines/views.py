@@ -88,8 +88,9 @@ def handle_message(event):
         event.reply_token,
         TemplateSendMessage(
             alt_text='Buttons template',
-            template=ButtonsTemplate(
+            template=(
                 # thumbnail_image_url='https://example.com/image.jpg',
+                type='buttons',
                 title='Menu',
                 text='Please select',
                 actions=[{
