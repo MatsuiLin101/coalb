@@ -39,6 +39,10 @@ from linebot.models.send_messages import (
 )
 from linebot.models.template import (
     TemplateSendMessage,
+    ButtonsTemplate,
+    CarouselTemplate,
+    ConfirmTemplate,
+    ImageCarouselTemplate,
 )
 
 from django.shortcuts import render
@@ -84,28 +88,28 @@ def callback(request):
 def handle_message(event):
     category = SD.objects.filter(layer=None, parent=None)
     print(category)
+
+    template = ButtonsTemplate(
+        title = 'Menu',
+        text = 'Please select ...',
+        actions = [{
+            'type': 'postback',
+            'label': category.first().name,
+            'data': category.first().value,
+        }, {
+            'type': 'postback',
+            'label': category.last().name,
+            'data': category.last().value,
+        }]
+    )
+    print(template)
+
     line_bot_api.reply_message(
         event.reply_token,
         TemplateSendMessage(
-            alt_text='Buttons template',
-            template=(
-                # thumbnail_image_url='https://example.com/image.jpg',
-                'type': 'buttons',
-                'title': 'Menu',
-                'text': 'Please select',
-                'actions': [{
-                    'type': 'postback',
-                    'label': category.first().name,
-                    'data': category.first().value,
-                }, {
-                    'type': 'postback',
-                    'label': category.last().name,
-                    'data': category.last().value,
-                }]
-            )
+            alt_text = 'Buttons template',
+            template = template
         )
-        # TextSendMessage(text=category.values("id", "name"))
-        # TextSendMessage(text=event.message.text)
     )
 
 
