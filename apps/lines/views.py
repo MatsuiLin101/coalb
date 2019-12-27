@@ -43,6 +43,8 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
+from .models import SD
+
 
 # line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
 # handler = WebhookHandler('YOUR_CHANNEL_SECRET')
@@ -50,7 +52,12 @@ line_bot_api = LineBotApi('ActG2d3ixqDGVUhN5XfSY3R4Y45Z4GU8c957CuLU7BvJYVzB+M4pg
 handler = WebhookHandler('cee5f9aa47f1c46beeb2c7b2016843fb')
 
 
+@csrf_exempt
 def home(request):
+    data = request.POST.dict()
+    # print(data)
+    for k, v in data.items():
+        print(f'{k} ### {v}\n\n')
     return HttpResponse('Hi!')
 
 
@@ -72,9 +79,11 @@ def callback(request):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    category = SD.objects.filter(layer=None, parent=None)
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text)
+        TextSendMessage(text=category.values("id", "name"))
+        # TextSendMessage(text=event.message.text)
     )
 
 
