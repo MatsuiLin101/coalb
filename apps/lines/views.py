@@ -89,21 +89,21 @@ def handle_message_text(event):
     text = event.message.text
     print(f'MessageEvent TextMessage: {text}')
 
-    if text == '我要查資料':
+    if text == '選單':
         category = SD.objects.filter(layer=None, parent=None)
         print(category)
 
         template = ButtonsTemplate(
-            title = 'Menu',
-            text = 'Please select ...',
+            title = '選單',
+            text = '請選擇要查的資料',
             actions = [{
                 'type': 'postback',
-                'label': category.first().name,
-                'data': category.first().value,
+                'label': category.filter(id=18).name,
+                'data': category.filter(id=18).value,
             }, {
                 'type': 'postback',
-                'label': category.last().name,
-                'data': category.last().value,
+                'label': category.filter(id=25).name,
+                'data': category.filter(id=25).value,
             }]
         )
         print(template)
@@ -115,7 +115,10 @@ def handle_message_text(event):
     else:
         reply = text
 
-    line_bot_api.reply_message(event.reply_token, reply)
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=reply)
+    )
 
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -129,8 +132,9 @@ def handle_message_sticker(event):
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    print('PostbackEvent TextMessage')
+    data = event.postback
+    print(f'PostbackEvent TextMessage {data}')
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text='收到')
+        TextSendMessage(text=f'收到 {data}')
     )
