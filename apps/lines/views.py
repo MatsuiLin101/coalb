@@ -80,6 +80,7 @@ def callback(request):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     category = SD.objects.filter(layer=None, parent=None)
+    print(category)
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=category.values("id", "name"))
