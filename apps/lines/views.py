@@ -98,11 +98,11 @@ def handle_message_text(event):
             actions = [{
                 'type': 'postback',
                 'label': category.get(id=18).name,
-                'data': category.get(id=18).value,
+                'data': f"id={category.get(id=18).id}, lay=1",
             }, {
                 'type': 'postback',
                 'label': category.get(id=25).name,
-                'data': category.get(id=25).value,
+                'data': f"id={category.get(id=25).id}, lay=1",
             }]
         )
         print(template)
@@ -112,7 +112,7 @@ def handle_message_text(event):
             template = template
         )
     else:
-        reply = TextSendMessage(text=reply)
+        reply = TextSendMessage(text=text)
 
     line_bot_api.reply_message(event.reply_token, reply)
 
@@ -128,9 +128,30 @@ def handle_message_sticker(event):
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    data = event.postback
     print(f'PostbackEvent TextMessage {data}')
+    data = event.postback.data.split[","]
+    id = int(data[0].replace("id=", ""))
+    lay = int(data[1].replace("lay=", ""))
+
+    options = SD.objects.get(id=id).sd_set.filter(lay=lay)
+    actions = list()
+    for obj in options:
+        actions.append({
+            'type': 'postback',
+            'label': obj.name,
+            'data': f"id=obj.id, lay={lay + 1}",
+        })
+
+    template = ButtonsTemplate(
+        title = f"分類{lay}",
+        text = "請選擇分類",
+        actions = actions
+    )
+
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=f'收到 {data}')
+        TemplateSendMessage(
+            alt_text = 'Buttons template',
+            template = template
+        )
     )
