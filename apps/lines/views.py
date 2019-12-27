@@ -112,12 +112,9 @@ def handle_message_text(event):
             template = template
         )
     else:
-        reply = text
+        reply = TextSendMessage(text=reply)
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=reply)
-    )
+    line_bot_api.reply_message(event.reply_token, reply)
 
 
 @handler.add(MessageEvent, message=StickerMessage)
