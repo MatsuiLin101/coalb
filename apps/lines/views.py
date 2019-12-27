@@ -85,37 +85,41 @@ def callback(request):
 
 
 @handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    print('MessageEvent TextMessage')
-    category = SD.objects.filter(layer=None, parent=None)
-    print(category)
+def handle_message_text(event):
+    text = event.message.text
+    print(f'MessageEvent TextMessage: {text}')
 
-    template = ButtonsTemplate(
-        title = 'Menu',
-        text = 'Please select ...',
-        actions = [{
-            'type': 'postback',
-            'label': category.first().name,
-            'data': category.first().value,
-        }, {
-            'type': 'postback',
-            'label': category.last().name,
-            'data': category.last().value,
-        }]
-    )
-    print(template)
+    if text == '我要查資料':
+        category = SD.objects.filter(layer=None, parent=None)
+        print(category)
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        TemplateSendMessage(
+        template = ButtonsTemplate(
+            title = 'Menu',
+            text = 'Please select ...',
+            actions = [{
+                'type': 'postback',
+                'label': category.first().name,
+                'data': category.first().value,
+            }, {
+                'type': 'postback',
+                'label': category.last().name,
+                'data': category.last().value,
+            }]
+        )
+        print(template)
+
+        reply = TemplateSendMessage(
             alt_text = 'Buttons template',
             template = template
         )
-    )
+    else:
+        reply = text
+
+    line_bot_api.reply_message(event.reply_token, reply)
 
 
 @handler.add(MessageEvent, message=StickerMessage)
-def handle_message(event):
+def handle_message_sticker(event):
     print('MessageEvent StickerMessage')
     line_bot_api.reply_message(
         event.reply_token,
@@ -123,10 +127,10 @@ def handle_message(event):
     )
 
 
-@handler.add(PostbackEvent, message=TextMessage)
-def handle_message(event):
+@handler.add(PostbackEvent)
+def handle_postback(event):
     print('PostbackEvent TextMessage')
     line_bot_api.reply_message(
         event.reply_token,
-        TextSendMessage(text=event.message.text)
+        TextSendMessage(text='收到')
     )
