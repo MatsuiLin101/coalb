@@ -148,7 +148,7 @@ def parser_lay1():
     sd = SD.objects.filter(parent=None)
 
     for i in sd:
-        data = get_formdata1(i.value)
+        data = get_formdata(i.value)
         soup = post_formdata(data)
         for option in soup.find("select", {"name": "ctl00$cphMain$uctlInquireAdvance$lstFieldGroup"}).find_all("option"):
             name = option.text
@@ -161,7 +161,7 @@ def parser_lay2():
 
     for parent in sd:
         for lay1 in parent.sd_set.all():
-            data = get_formdata2(parent.value, lay1.value)
+            data = get_formdata_detail(parent.value, lay1.value)
             print(f"post {parent.name} - {parent.value} : {lay1.name} - {lay1.value}")
             soup = post_formdata(data)
             try:
