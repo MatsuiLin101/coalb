@@ -69,11 +69,17 @@ def get_formdata_detail(parent_value, value):
 def get_formdata_to_query(text):
     print('3')
     text = text.split(" ")
+    print(f'text {text}')
     product = text[0]
+    print(f'product {product}')
     type = text[1]
+    print(f'type {type}')
     obj = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
+    print(f'obj {obj}')
     db = obj.parent.parent
+    print(f'db {db}')
     type = obj.parent
+    print(f"type {type}")
     data = get_formdata_detail(db.value, type.value)
     soup = post_formdata(data)
     s = soup.findAll(text=True)[-1].replace("\r\n", "").replace(" ", "")
