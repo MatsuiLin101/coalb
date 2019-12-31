@@ -51,6 +51,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import SD
+from .utils import parser_product
 
 
 # line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
@@ -89,30 +90,33 @@ def handle_message_text(event):
     text = event.message.text
     print(f'MessageEvent TextMessage: {text}')
 
-    if text == '選單':
-        category = SD.objects.filter(layer=None, parent=None)
-
-        template = ButtonsTemplate(
-            title = '選單',
-            text = '請選擇要查的資料',
-            actions = [{
-                'type': 'postback',
-                'label': category.get(id=18).name,
-                'data': f"id={category.get(id=18).id}, layer=1",
-            }, {
-                'type': 'postback',
-                'label': category.get(id=25).name,
-                'data': f"id={category.get(id=25).id}, layer=1",
-            }]
-        )
-        print(template)
-
-        reply = TemplateSendMessage(
-            alt_text = 'Buttons template',
-            template = template
-        )
+    # if text == '選單':
+    #     category = SD.objects.filter(layer=None, parent=None)
+    #
+    #     template = ButtonsTemplate(
+    #         title = '選單',
+    #         text = '請選擇要查的資料',
+    #         actions = [{
+    #             'type': 'postback',
+    #             'label': category.get(id=18).name,
+    #             'data': f"id={category.get(id=18).id}, layer=1",
+    #         }, {
+    #             'type': 'postback',
+    #             'label': category.get(id=25).name,
+    #             'data': f"id={category.get(id=25).id}, layer=1",
+    #         }]
+    #     )
+    #     print(template)
+    #
+    #     reply = TemplateSendMessage(
+    #         alt_text = 'Buttons template',
+    #         template = template
+    #     )
+    if '產地' in text or '批發' in text:
+        result = parser_product(text)
+        reply = TextSendMessage(text=result)
     else:
-        reply = TextSendMessage(text=text)
+        reply = TextSendMessage(text="請輸入產品+空格+產地/批發/零售\n例如：芒果 產地")
 
     line_bot_api.reply_message(event.reply_token, reply)
 
@@ -126,47 +130,47 @@ def handle_message_sticker(event):
     )
 
 
-@handler.add(PostbackEvent)
-def handle_postback(event):
-    data = event.postback.data.split(",")
-    print(f'PostbackEvent TextMessage {data}')
-    id = int(data[0].replace("id=", ""))
-    print(id)
-    layer = int(data[1].replace("layer=", ""))
-    print(layer)
-
-    options = SD.objects.get(id=id).sd_set.filter(layer=layer)
-    print('options ok')
-    actions = list()
-    for obj in options[:5]:
-        actions.append({
-            'type': 'postback',
-            'label': obj.name,
-            'data': f"id={obj.id}, layer={layer + 1}",
-        })
-    print('actions ok', actions)
-
-    template = ButtonsTemplate(
-        title = f"分類{layer}",
-        text = "請選擇分類",
-        # actions = [{
-        #     'type': 'postback',
-        #     'label': options.first().name,
-        #     'data': f"id={options.first().id}, layer=2"
-        # }, {
-        #     'type': 'postback',
-        #     'label': options.last().name,
-        #     'data': f"id={options.last().id}, layer=2"
-        # }]
-        actions = actions
-    )
-    print('template ok', template)
-
-    reply = TemplateSendMessage(
-        alt_text = 'Buttons template',
-        template = template
-    )
-    print(f'reply ok = {reply}')
-
-    print(f'reply_token = {event.reply_token}')
-    line_bot_api.reply_message(event.reply_token, reply)
+# @handler.add(PostbackEvent)
+# def handle_postback(event):
+#     data = event.postback.data.split(",")
+#     print(f'PostbackEvent TextMessage {data}')
+#     id = int(data[0].replace("id=", ""))
+#     print(id)
+#     layer = int(data[1].replace("layer=", ""))
+#     print(layer)
+#
+#     options = SD.objects.get(id=id).sd_set.filter(layer=layer)
+#     print('options ok')
+#     actions = list()
+#     for obj in options[:5]:
+#         actions.append({
+#             'type': 'postback',
+#             'label': obj.name,
+#             'data': f"id={obj.id}, layer={layer + 1}",
+#         })
+#     print('actions ok', actions)
+#
+#     template = ButtonsTemplate(
+#         title = f"分類{layer}",
+#         text = "請選擇分類",
+#         # actions = [{
+#         #     'type': 'postback',
+#         #     'label': options.first().name,
+#         #     'data': f"id={options.first().id}, layer=2"
+#         # }, {
+#         #     'type': 'postback',
+#         #     'label': options.last().name,
+#         #     'data': f"id={options.last().id}, layer=2"
+#         # }]
+#         actions = actions
+#     )
+#     print('template ok', template)
+#
+#     reply = TemplateSendMessage(
+#         alt_text = 'Buttons template',
+#         template = template
+#     )
+#     print(f'reply ok = {reply}')
+#
+#     print(f'reply_token = {event.reply_token}')
+#     line_bot_api.reply_message(event.reply_token, reply)
