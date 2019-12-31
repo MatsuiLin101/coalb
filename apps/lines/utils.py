@@ -70,11 +70,13 @@ def get_formdata_to_query(text):
     obj = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
     db = obj.parent.parent
     type = obj.parent
+    print('3')
     data = get_formdata_detail(db.value, type.value)
     soup = post_formdata(data)
     s = soup.findAll(text=True)[-1].replace("\r\n", "").replace(" ", "")
     s = s.split("|")
     que = deque(s)
+    print('4')
     while len(que) > 0:
         key = que.popleft()
         if key in KEY_LIST:
@@ -94,6 +96,7 @@ def post_formdata(data):
 
 def post_to_query(text):
     obj, data = get_formdata_to_query(text)
+    print('2')
     res = requests.post(URL, data=data, headers=HEADERS, verify=False)
     return obj, bs(res.text)
 
@@ -102,8 +105,9 @@ def parser_product(text):
     year = str()
     month = str()
     price = str()
+    print('1')
     obj, soup = post_to_query(text)
-    
+
     for i in soup.find_all("td", {"class": "VerDim"}):
         if "年" in i.text:
             year = i.text
