@@ -112,9 +112,8 @@ def handle_message_text(event):
     #         alt_text = 'Buttons template',
     #         template = template
     #     )
-    if '產地' in text or '批發' in text:
+    if '產地' in text or '批發' in text or '零售' in text:
         result = parser_product(text)
-        print('5')
         reply = TextSendMessage(text=result)
     else:
         reply = TextSendMessage(text="請輸入產品+空格+產地/批發/零售\n例如：芒果 產地")

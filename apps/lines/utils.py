@@ -21,13 +21,11 @@ KEY_LIST = [
 
 
 def get_viewset():
-    print('6')
     res = requests.get(URL, headers=HEADERS, verify=False)
     return bs(res.text)
 
 
 def get_formdata(value):
-    print('5')
     soup = get_viewset()
     viewstate = soup.find_all("input", {"id": "__VIEWSTATE"})[0].get("value")
     viewstategenerator = soup.find_all("input", {"id": "__VIEWSTATEGENERATOR"})[0].get("value")
@@ -45,7 +43,6 @@ def get_formdata(value):
 
 
 def get_formdata_detail(parent_value, value):
-    print('4')
     data = get_formdata(parent_value)
     soup = post_formdata(data)
     viewstate = soup.find_all("input", {"id": "__VIEWSTATE"})[0].get("value")
@@ -67,19 +64,12 @@ def get_formdata_detail(parent_value, value):
 
 
 def get_formdata_to_query(text):
-    print('3')
     text = text.split(" ")
-    print(f'text {text}')
     product = text[0]
-    print(f'product {product}')
     type = text[1]
-    print(f'type {type}')
     obj = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
-    print(f'obj {obj}')
     db = obj.parent.parent
-    print(f'db {db}')
     type = obj.parent
-    print(f"type {type}")
     data = get_formdata_detail(db.value, type.value)
     soup = post_formdata(data)
     s = soup.findAll(text=True)[-1].replace("\r\n", "").replace(" ", "")
@@ -98,13 +88,11 @@ def get_formdata_to_query(text):
 
 
 def post_formdata(data):
-    print('7')
     res = requests.post(URL, data=data, headers=HEADERS, verify=False)
     return bs(res.text)
 
 
 def post_to_query(text):
-    print('2')
     obj, data = get_formdata_to_query(text)
     res = requests.post(URL, data=data, headers=HEADERS, verify=False)
     return obj, bs(res.text)
@@ -114,7 +102,6 @@ def parser_product(text):
     year = str()
     month = str()
     price = str()
-    print('1')
     obj, soup = post_to_query(text)
 
     for i in soup.find_all("td", {"class": "VerDim"}):
@@ -130,7 +117,6 @@ def parser_product(text):
         return f"{text} 找不到結果"
     else:
         result = f"搜尋 {text} 的結果為：\n{obj.name}\n{year} - {month} - {price}"
-    print(result)
     return result
 
 
