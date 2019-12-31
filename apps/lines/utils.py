@@ -21,11 +21,13 @@ KEY_LIST = [
 
 
 def get_viewset():
+    print('6')
     res = requests.get(URL, headers=HEADERS, verify=False)
     return bs(res.text)
 
 
 def get_formdata(value):
+    print('5')
     soup = get_viewset()
     viewstate = soup.find_all("input", {"id": "__VIEWSTATE"})[0].get("value")
     viewstategenerator = soup.find_all("input", {"id": "__VIEWSTATEGENERATOR"})[0].get("value")
@@ -43,6 +45,7 @@ def get_formdata(value):
 
 
 def get_formdata_detail(parent_value, value):
+    print('4')
     data = get_formdata(parent_value)
     soup = post_formdata(data)
     viewstate = soup.find_all("input", {"id": "__VIEWSTATE"})[0].get("value")
@@ -64,19 +67,18 @@ def get_formdata_detail(parent_value, value):
 
 
 def get_formdata_to_query(text):
+    print('3')
     text = text.split(" ")
     product = text[0]
     type = text[1]
     obj = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
     db = obj.parent.parent
     type = obj.parent
-    print('3')
     data = get_formdata_detail(db.value, type.value)
     soup = post_formdata(data)
     s = soup.findAll(text=True)[-1].replace("\r\n", "").replace(" ", "")
     s = s.split("|")
     que = deque(s)
-    print('4')
     while len(que) > 0:
         key = que.popleft()
         if key in KEY_LIST:
@@ -90,13 +92,14 @@ def get_formdata_to_query(text):
 
 
 def post_formdata(data):
+    print('7')
     res = requests.post(URL, data=data, headers=HEADERS, verify=False)
     return bs(res.text)
 
 
 def post_to_query(text):
-    obj, data = get_formdata_to_query(text)
     print('2')
+    obj, data = get_formdata_to_query(text)
     res = requests.post(URL, data=data, headers=HEADERS, verify=False)
     return obj, bs(res.text)
 
