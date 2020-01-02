@@ -126,16 +126,25 @@ def parser_product(text):
     type = text[1]
     objs = SD.objects.filter(name__icontains=product, parent__name__icontains=type)
     print(f"Query {text} is {objs}")
+    if len(objs) > 5:
+        count = 5
+    else:
+        count = len(objs)
 
-    for obj in objs:
+    for obj in objs[:5]:
         print(f"Query {obj}")
         data = get_formdata_to_query(obj)
         res = requests.post(URL, data=data, headers=HEADERS, verify=False)
         soup = bs(res.text)
         if len(reply) == 0:
-            reply += f"搜尋 {product} {type} 的結果為：\n{obj.name}\n{parser_soup(soup)}"
+            reply += f"搜尋 {product} {type} 的前{count}項結果為：\n{obj.name}\n{parser_soup(soup)}"
         else:
             reply += f"\n\n{obj.name}\n{parser_soup(soup)}"
+
+    if count <= 5:
+        reply.replace("前", "")
+    else:
+        reply += f"\n\n所有相關品項為：{objs}"
 
     # obj, data = get_formdata_to_query(text)
     # res = requests.post(URL, data=data, headers=HEADERS, verify=False)
