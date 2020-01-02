@@ -124,7 +124,7 @@ def parser_product(text):
     text = text.split(" ")
     product = text[0]
     type = text[1]
-    objs = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
+    objs = SD.objects.filter(name__icontains=product, parent__name__icontains=type)
 
     for obj in objs:
         data = get_formdata_to_query(obj)
