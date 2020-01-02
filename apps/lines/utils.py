@@ -141,10 +141,10 @@ def parser_product(text):
         else:
             reply += f"\n\n{obj.name}\n{parser_soup(soup)}"
 
-    if count <= 5:
-        reply.replace("前", "")
-    else:
+    if len(objs) > 5:
         reply += f"\n\n所有相關品項為：{objs}"
+    else:
+        reply = reply.replace("前", "")
 
     # obj, data = get_formdata_to_query(text)
     # res = requests.post(URL, data=data, headers=HEADERS, verify=False)
