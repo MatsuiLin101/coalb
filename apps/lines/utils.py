@@ -126,6 +126,10 @@ def parser_product(text):
     type = text[1]
     objs = SD.objects.filter(name__icontains=product, parent__name__icontains=type)
     print(f"Query {text} is {objs}")
+
+    if len(objs) == 0:
+        return f"{product} {type} 查無結果，請修改關鍵字再重新查詢。"
+
     if len(objs) > 5:
         count = 5
     else:
