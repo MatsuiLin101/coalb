@@ -125,8 +125,10 @@ def parser_product(text):
     product = text[0]
     type = text[1]
     objs = SD.objects.filter(name__icontains=product, parent__name__icontains=type)
+    print(f"Query {text} is {objs}")
 
     for obj in objs:
+        print(f"Query {obj}")
         data = get_formdata_to_query(obj)
         res = requests.post(URL, data=data, headers=HEADERS, verify=False)
         soup = bs(res.text)
