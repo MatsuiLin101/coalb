@@ -63,11 +63,11 @@ def get_formdata_detail(parent_value, value):
     return data
 
 
-def get_formdata_to_query(text):
-    text = text.split(" ")
-    product = text[0]
-    type = text[1]
-    obj = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
+def get_formdata_to_query(obj):
+    # text = text.split(" ")
+    # product = text[0]
+    # type = text[1]
+    # obj = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
     db = obj.parent.parent
     type = obj.parent
     data = get_formdata_detail(db.value, type.value)
@@ -84,7 +84,7 @@ def get_formdata_to_query(text):
         "ctl00$cphMain$uctlInquireAdvance$lstFieldGroup": type.value,
         "ctl00$cphMain$uctlInquireAdvance$dtlDimension$ctl00$lstDimension": obj.value,
     })
-    return obj, data
+    return data
 
 
 def post_formdata(data):
@@ -92,17 +92,16 @@ def post_formdata(data):
     return bs(res.text)
 
 
-def post_to_query(text):
-    obj, data = get_formdata_to_query(text)
-    res = requests.post(URL, data=data, headers=HEADERS, verify=False)
-    return obj, bs(res.text)
+# def post_to_query(text):
+#     obj, data = get_formdata_to_query(text)
+#     res = requests.post(URL, data=data, headers=HEADERS, verify=False)
+#     return obj, bs(res.text)
 
 
-def parser_product(text):
+def parser_soup(soup):
     year = str()
     month = str()
     price = str()
-    obj, soup = post_to_query(text)
 
     for i in soup.find_all("td", {"class": "VerDim"}):
         if "年" in i.text:
@@ -113,11 +112,48 @@ def parser_product(text):
     for i in soup.find_all("td", {"class": "ValueLeft"}):
         price = i.text
 
-    if obj is None:
-        return f"{text} 找不到結果"
-    else:
-        result = f"搜尋 {text} 的結果為：\n{obj.name}\n{year} - {month} - {price}"
-    return result
+    return f"{year} - {month} - {price}"
+
+
+def parser_product(text):
+    # year = str()
+    # month = str()
+    # price = str()
+    reply = str()
+
+    text = text.split(" ")
+    product = text[0]
+    type = text[1]
+    objs = SD.objects.filter(name__icontains=product, parent__name__icontains=type).first()
+
+    for obj in objs:
+        data = get_formdata_to_query(obj)
+        res = requests.post(URL, data=data, headers=HEADERS, verify=False)
+        soup = bs(res.text)
+        if len(reply) == 0:
+            reply += f"搜尋 {product} {type} 的結果為：\n{obj.name}\n{parser_soup(soup)}"
+        else:
+            reply += f"\n\n{obj.name}\n{parser_soup(soup)}"
+
+    # obj, data = get_formdata_to_query(text)
+    # res = requests.post(URL, data=data, headers=HEADERS, verify=False)
+    # soup = bs(res.text)
+    # obj, soup = post_to_query(text)
+
+    # for i in soup.find_all("td", {"class": "VerDim"}):
+    #     if "年" in i.text:
+    #         year = i.text
+    #     if "月" in i.text:
+    #         month = i.text
+    #
+    # for i in soup.find_all("td", {"class": "ValueLeft"}):
+    #     price = i.text
+
+    # if obj is None:
+    #     return f"{text} 找不到結果"
+    # else:
+    #     result = f"搜尋 {text} 的結果為：\n{obj.name}\n{year} - {month} - {price}"
+    return reply
 
 
 def parser_sd():
