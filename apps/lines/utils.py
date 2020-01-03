@@ -130,12 +130,12 @@ def parser_product(text):
     if len(objs) == 0:
         return f"{product} {type} 查無結果，請修改關鍵字再重新查詢。"
 
-    if len(objs) > 8:
-        count = 8
+    if len(objs) > 5:
+        count = 5
     else:
         count = len(objs)
 
-    for obj in objs[:8]:
+    for obj in objs[:5]:
         print(f"Query {obj}")
         data = get_formdata_to_query(obj)
         res = requests.post(URL, data=data, headers=HEADERS, verify=False)
@@ -144,8 +144,8 @@ def parser_product(text):
             reply += f"搜尋 {product} {type} 的前{count}項結果為：\n{obj.name}\n{parser_soup(soup)}"
         else:
             reply += f"\n\n{obj.name}\n{parser_soup(soup)}"
-
-    if len(objs) > 8:
+    print("Query finish")
+    if len(objs) > 5:
         reply += f"\n\n所有相關品項為："
         for obj in objs:
             if obj.name in reply:
