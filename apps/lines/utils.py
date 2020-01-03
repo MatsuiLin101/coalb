@@ -146,7 +146,12 @@ def parser_product(text):
             reply += f"\n\n{obj.name}\n{parser_soup(soup)}"
 
     if len(objs) > 5:
-        reply += f"\n\n所有相關品項為：{objs}"
+        reply += f"\n\n所有相關品項為："
+        for obj in objs:
+            if obj.name in reply:
+                continue
+            else:
+                reply += f"\n{obj.name}"
     else:
         reply = reply.replace("前", "")
 
