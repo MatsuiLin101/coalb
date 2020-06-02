@@ -69,7 +69,7 @@ def get_book(key):
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
-    driver = webdriver.Chrome(executable_path=chrome, options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options) # executable_path=chrome, 
     url = 'https://agrstat.coa.gov.tw/sdweb/public/book/'
     aspx = 'Book.aspx'
 
