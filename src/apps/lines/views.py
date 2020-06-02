@@ -97,46 +97,34 @@ def handle_follow(event):
             line_user.status = True
             line_user.save()
     except Exception as e:
-        pass
-
-    try:
-        profile = line_bot_api.get_profile(userId)
-        print(f"JSON, {profile.as_json_dict()}")
-        for i, j in profile.as_json_dict().items():
-            print(i, j)
-        display_name = profile.display_name
-        user_id = profile.user_id
-        picture_url = profile.picture_url
-        status_message = profile.status_message
-        language = profile.language
-        print(display_name)
-        print(user_id)
-        print(picture_url)
-        print(status_message)
-        print(language)
-    except Exception as e:
-        print(f"ERROR, {e}")
-
-        # line_user = LineUser.objects.create(userId=userId)
+        try:
+            profile = line_bot_api.get_profile(userId)
+            user_id = profile.user_id
+            display_name = profile.display_name
+            picture_url = profile.picture_url
+            status_message = profile.status_message
+            line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message)
+        except Exception as e:
+            print(f"ERROR, {e}")
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
+    userId = event.source.user_id
     try:
-        print(event.source)
-        userId = event.source.user_id
-        profile = line_bot_api.get_profile(userId)
-        display_name = profile.display_name
-        user_id = profile.user_id
-        picture_url = profile.picture_url
-        status_message = profile.status_message
-        language = profile.language
-        print(display_name)
-        print(user_id)
-        print(picture_url)
-        print(status_message)
-        print(language)
+        line_user = LineUser.objects.get(userId=userId)
+        if line_user.status is False:
+            line_user.status = True
+            line_user.save()
     except Exception as e:
-        print(f"ERROR, {e}")
+        try:
+            profile = line_bot_api.get_profile(userId)
+            user_id = profile.user_id
+            display_name = profile.display_name
+            picture_url = profile.picture_url
+            status_message = profile.status_message
+            line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message)
+        except Exception as e:
+            print(f"ERROR, {e}") 
 
 
 @handler.add(MessageEvent, message=TextMessage)

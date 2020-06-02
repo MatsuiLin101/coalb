@@ -2,11 +2,12 @@ from django.db import models
 
 
 class LineUser(models.Model):
-    userId = models.CharField(max_length=255, verbose_name="識別碼")
-    displayName = models.CharField(max_length=255, verbose_name="顯示名稱")
-    pictureUrl = models.CharField(max_length=255, verbose_name="大頭貼")
-    language = models.CharField(max_length=20, verbose_name="語言")
-    status = models.BooleanField(default=False, verbose_name="狀態")
+    userId = models.CharField(max_length=255, null=True, blank=True, verbose_name="識別碼")
+    displayName = models.CharField(max_length=255, null=True, blank=True, verbose_name="顯示名稱")
+    pictureUrl = models.CharField(max_length=255, null=True, blank=True, verbose_name="大頭貼")
+    statusMessage = models.CharField(max_length=255, null=True, blank=True, verbose_name="狀態")
+    language = models.CharField(max_length=20, default="zh-Hant", null=True, blank=True, verbose_name="語言")
+    status = models.BooleanField(default=False, null=True, blank=True, verbose_name="狀態")
 
     class Meta:
         verbose_name = "Line使用者"
