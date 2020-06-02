@@ -34,9 +34,9 @@ def intcomma(num):
 def pre_process_text(text):
     try:
         split_text = text.split(' ')
-        if len(split) == 2:
+        if len(split_text) == 2:
             return pre_process_text_2(split_text)
-        elif len(split) == 3:
+        elif len(split_text) == 3:
             return pre_process_text_3(split_text)
         else:
             return 'pre_process_text 輸入錯誤'
