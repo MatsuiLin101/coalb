@@ -50,6 +50,8 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
+from coas.utils import pre_process_text
+
 from .models import LineUser, SD
 from .utils import parser_product
 
@@ -135,6 +137,8 @@ def handle_message_text(event):
     if '產地' in text or '批發' in text or '零售' in text:
         result = parser_product(text)
         reply = TextSendMessage(text=result)
+    elif text.startswith('107'):
+        reply = TextSendMessage(text=pre_process_text(text))
     else:
         reply = TextSendMessage(text="請輸入產品+空格+產地/批發/零售\n例如：芒果 產地")
 

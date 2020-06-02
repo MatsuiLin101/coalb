@@ -32,13 +32,17 @@ def intcomma(num):
 
 
 def pre_process_text(text):
-    split_text = text.split(' ')
-    if len(split) == 2:
-        return pre_process_text_2(split_text)
-    elif len(split) == 3:
-        return pre_process_text_3(split_text)
-    else:
-        return '輸入錯誤'
+    try:
+        split_text = text.split(' ')
+        if len(split) == 2:
+            return pre_process_text_2(split_text)
+        elif len(split) == 3:
+            return pre_process_text_3(split_text)
+        else:
+            return 'pre_process_text 輸入錯誤'
+    except Exception as e:
+        return  'pre_process_text 發生錯誤'
+
 
 
 def pre_process_text_2(split_text):
