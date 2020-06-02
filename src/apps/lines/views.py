@@ -101,6 +101,8 @@ def handle_follow(event):
 
     try:
         profile = line_bot_api.get_profile(userId)
+        for i, j in profile.items():
+            print(i, j)
         display_name = profile.display_name
         user_id = profile.user_id
         picture_url = profile.picture_url
@@ -112,13 +114,14 @@ def handle_follow(event):
         print(status_message)
         print(language)
     except Exception as e:
-        print(f"ERROR, {e}") 
+        print(f"ERROR, {e}")
 
         # line_user = LineUser.objects.create(userId=userId)
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
     try:
+        print(event.source)
         userId = event.source.user_id
         profile = line_bot_api.get_profile(userId)
         display_name = profile.display_name
