@@ -103,7 +103,7 @@ def handle_follow(event):
             display_name = profile.display_name
             picture_url = profile.picture_url
             status_message = profile.status_message
-            line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message)
+            line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message, status=True)
         except Exception as e:
             print(f"ERROR, {e}")
 
@@ -113,18 +113,18 @@ def handle_unfollow(event):
     try:
         line_user = LineUser.objects.get(userId=userId)
         if line_user.status is False:
-            line_user.status = True
+            line_user.status = False
             line_user.save()
     except Exception as e:
-        try:
-            profile = line_bot_api.get_profile(userId)
-            user_id = profile.user_id
-            display_name = profile.display_name
-            picture_url = profile.picture_url
-            status_message = profile.status_message
-            line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message)
-        except Exception as e:
-            print(f"ERROR, {e}") 
+        print(f"ERROR, {e}")
+        # try:
+        #     profile = line_bot_api.get_profile(userId)
+        #     user_id = profile.user_id
+        #     display_name = profile.display_name
+        #     picture_url = profile.picture_url
+        #     status_message = profile.status_message
+        #     line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message)
+        # except Exception as e:
 
 
 @handler.add(MessageEvent, message=TextMessage)
