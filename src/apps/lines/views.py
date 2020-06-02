@@ -90,21 +90,7 @@ def callback(request):
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-    print('FollowEvent')
-    print(f"Type is {event.type}")
-    print(f"Sources is {event.source}")
-
-    try:
-        print('1')
-        print(f"DIR {dir(event.source)}")
-        userId = event.source.user_id
-        profile = line_bot_api.get_profile(userId)
-        print('2')
-    except Exception as e:
-        print('3')
-        print(f'ERROR, {e}')
-        print('4')
-
+    userId = event.source.user_id
     try:
         line_user = LineUser.objects.get(userId=userId)
         if line_user.status is False:
@@ -112,8 +98,15 @@ def handle_follow(event):
             line_user.save()
     except Exception as e:
         profile = line_bot_api.get_profile(userId)
-        print(profile)
-        print(type(profile))
+        display_name = profile.display_name
+        user_id = profile.user_id
+        picture_url = profile.picture_url
+        status_message = profile.status_message
+        print(display_name)
+        print(user_id)
+        print(picture_url)
+        print(status_message)
+        # line_user = LineUser.objects.create(userId=userId)
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
