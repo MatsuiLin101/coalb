@@ -88,6 +88,16 @@ def callback(request):
     return HttpResponse(status=200, content='OK')
 
 
+@handler.add(FollowEvent)
+def handle_follow(event):
+    print(event)
+
+
+@handler.add(UnfollowEvent)
+def handle_unfollow(event):
+    print(event)
+
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message_text(event):
     text = event.message.text
