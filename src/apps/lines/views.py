@@ -101,6 +101,7 @@ def handle_follow(event):
 
     try:
         profile = line_bot_api.get_profile(userId)
+        print(f"JSON, {profile.as_json_dict()}")
         for i, j in profile.as_json_dict().items():
             print(i, j)
         display_name = profile.display_name
