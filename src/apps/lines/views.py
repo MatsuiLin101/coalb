@@ -92,29 +92,7 @@ def callback(request):
 def handle_message_text(event):
     text = event.message.text
     print(f'MessageEvent TextMessage: {text}')
-
-    # if text == '選單':
-    #     category = SD.objects.filter(layer=None, parent=None)
-    #
-    #     template = ButtonsTemplate(
-    #         title = '選單',
-    #         text = '請選擇要查的資料',
-    #         actions = [{
-    #             'type': 'postback',
-    #             'label': category.get(id=18).name,
-    #             'data': f"id={category.get(id=18).id}, layer=1",
-    #         }, {
-    #             'type': 'postback',
-    #             'label': category.get(id=25).name,
-    #             'data': f"id={category.get(id=25).id}, layer=1",
-    #         }]
-    #     )
-    #     print(template)
-    #
-    #     reply = TemplateSendMessage(
-    #         alt_text = 'Buttons template',
-    #         template = template
-    #     )
+    
     if '產地' in text or '批發' in text or '零售' in text:
         result = parser_product(text)
         reply = TextSendMessage(text=result)

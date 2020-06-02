@@ -1,0 +1,16 @@
+server {
+    server_name replace_server_name_full_url;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        alias /replace_project_folder_pwd/src/static/;
+    }
+    location /media/ {
+        alias /replace_project_folder_pwd/src/media/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/replace_project_folder_pwd/src/config.sock;
+    }
+}

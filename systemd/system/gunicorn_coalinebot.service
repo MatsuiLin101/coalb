@@ -1,0 +1,13 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=replace_os_login_user
+Group=www-data
+
+WorkingDirectory=/replace_project_folder_pwd/src
+ExecStart=/replace_project_folder_pwd/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/replace_project_folder_pwd/src/config.sock config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
