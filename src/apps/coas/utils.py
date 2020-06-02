@@ -39,7 +39,7 @@ def pre_process_text(text):
         elif len(split_text) == 3:
             return pre_process_text_3(split_text)
         else:
-            return 'pre_process_text 輸入錯誤'
+            return False
     except Exception as e:
         return  f'pre_process_text 發生錯誤, {e}'
 
@@ -54,6 +54,8 @@ def pre_process_text_2(split_text):
         return get_book_farmercount(year, key)
     elif '耕地面積' in key:
         return get_book_farmarea(year, key)
+    else:
+        return False
 
 
 def pre_process_text_3(split_text):
@@ -62,6 +64,8 @@ def pre_process_text_3(split_text):
     value = split_text[-1]
     if '產值' in key:
         return get_book_value(year, key, value)
+    else:
+        return False
 
 
 def get_book(key):
