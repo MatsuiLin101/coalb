@@ -41,7 +41,7 @@ def pre_process_text(text):
         else:
             return 'pre_process_text 輸入錯誤'
     except Exception as e:
-        return  'pre_process_text 發生錯誤'
+        return  f'pre_process_text 發生錯誤, {e}'
 
 
 
