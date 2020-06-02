@@ -140,7 +140,7 @@ def handle_message_text(event):
     elif text.startswith('1'):
         reply = pre_process_text(text)
         if reply is False:
-            reply = '請輸入年+空格+關鍵字\n例如：\n107 產值 總產值\n107 產值 豬\n107農家所得\n107農牧戶\n107耕地面積'
+            reply = '請輸入年+空格+關鍵字\n例如：\n107 產值 總產值\n107 產值 豬\n107 農家所得\n107 農牧戶\n107 耕地面積'
         reply = TextSendMessage(text=reply)
     else:
         reply = TextSendMessage(text="請輸入產品+空格+產地/批發/零售\n例如：芒果 產地")

@@ -195,7 +195,7 @@ def get_book_value(year, key, value):
     if len(message) > 0:
         return message
     else:
-        return '發生錯誤'
+        return f'{year}年 {value} 產值 查無資料'
 
 
 def get_book_income(year, key):
@@ -208,7 +208,7 @@ def get_book_income(year, key):
     if len(message) > 0:
         return message
     else:
-        return '發生錯誤'
+        return f'{year}年 農家所得 查無資料'
 
 
 def get_book_farmercount(year, key):
@@ -221,7 +221,7 @@ def get_book_farmercount(year, key):
     if len(message) > 0:
         return message
     else:
-        return '發生錯誤'
+        return f'{year}年 農牧戶 查無資料'
 
 
 def get_book_farmarea(year, key):
@@ -234,4 +234,4 @@ def get_book_farmarea(year, key):
     if len(message) > 0:
         return message
     else:
-        return '發生錯誤'
+        return f'{year}年 耕地面積 查無資料'
