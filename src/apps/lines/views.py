@@ -93,9 +93,10 @@ def handle_follow(event):
     print('FollowEvent')
     print(f"Type is {event.type}")
     print(f"Sources is {event.source}")
-    userId = event.source.userId
+    
     try:
         print('1')
+        userId = event.source.userId
         profile = line_bot_api.get_profile(userId)
         print('2')
     except Exception as e:
