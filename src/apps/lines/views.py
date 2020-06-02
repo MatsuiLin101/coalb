@@ -97,7 +97,7 @@ def handle_follow(event):
     try:
         print('1')
         print(f"DIR {dir(event.source)}")
-        userId = event.source.userId
+        userId = event.source.user_id
         profile = line_bot_api.get_profile(userId)
         print('2')
     except Exception as e:
