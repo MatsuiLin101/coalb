@@ -90,19 +90,23 @@ def callback(request):
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-    print(event)
+    print('FollowEvent')
+    print(f"Type is {event.type}")
+    print(f"Sources is {event.source}")
 
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
-    print(event)
+    print('UnfollowEvent')
+    print(f"Type is {event.type}")
+    print(f"Sources is {event.source}")
 
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message_text(event):
     text = event.message.text
     print(f'MessageEvent TextMessage: {text}')
-    
+
     if '產地' in text or '批發' in text or '零售' in text:
         result = parser_product(text)
         reply = TextSendMessage(text=result)
