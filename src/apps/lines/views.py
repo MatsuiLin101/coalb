@@ -100,7 +100,7 @@ def handle_follow(event):
             line_user.status = True
             line_user.save()
     except Exception as e:
-        profile = line_bot_api.get_profile('<user_id>')
+        profile = line_bot_api.get_profile(userId)
         print(profile)
         print(type(profile))
 
