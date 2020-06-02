@@ -102,10 +102,12 @@ def handle_follow(event):
         user_id = profile.user_id
         picture_url = profile.picture_url
         status_message = profile.status_message
+        language = profile.language
         print(display_name)
         print(user_id)
         print(picture_url)
         print(status_message)
+        print(language)
         # line_user = LineUser.objects.create(userId=userId)
 
 @handler.add(UnfollowEvent)
