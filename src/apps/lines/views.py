@@ -50,7 +50,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from coas.utils import pre_process_text
+from apps.coas.utils import pre_process_text
 
 from .models import LineUser, SD
 from .utils import parser_product
