@@ -94,7 +94,15 @@ def handle_follow(event):
     print(f"Type is {event.type}")
     print(f"Sources is {event.source}")
     userId = event.source.userId
-    profile = line_bot_api.get_profile(userId)
+    try:
+        print('1')
+        profile = line_bot_api.get_profile(userId)
+        print('2')
+    except Exception as e:
+        print('3')
+        print(f'ERROR, {e}')
+        print('4')
+
     try:
         line_user = LineUser.objects.get(userId=userId)
         if line_user.status is False:
