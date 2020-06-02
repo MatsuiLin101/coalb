@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     # local apps
     'apps.users',
     'apps.lines',
+    'apps.coas',
 ]
 
 MIDDLEWARE = [
