@@ -1,6 +1,21 @@
 from django.db import models
 
 
+class LineUser(models.Model):
+    userId = models.CharField(max_length=255, verbose_name="識別碼")
+    displayName = models.CharField(max_length=255, verbose_name="顯示名稱")
+    pictureUrl = models.CharField(max_length=255, verbose_name="大頭貼")
+    language = models.CharField(max_length=20, verbose_name="語言")
+    status = models.BooleanField(default=False, verbose_name="狀態")
+
+    class Meta:
+        verbose_name = "Line使用者"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.id
+
+
 class SD(models.Model):
     name = models.CharField(max_length=255)
     value = models.CharField(max_length=255)

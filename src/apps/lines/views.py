@@ -50,7 +50,7 @@ from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import SD
+from .models import LineUser, SD
 from .utils import parser_product
 
 
@@ -93,7 +93,16 @@ def handle_follow(event):
     print('FollowEvent')
     print(f"Type is {event.type}")
     print(f"Sources is {event.source}")
-
+    userId = event.source.userId
+    try:
+        line_user = LineUser.objects.get(userId=userId)
+        if line_user.status is False:
+            line_user.status = True
+            line_user.save()
+    except Exception as e:
+        profile = line_bot_api.get_profile('<user_id>')
+        print(profile)
+        print(type(profile))
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
