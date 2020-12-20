@@ -1,4 +1,10 @@
 venv/
 __pycache__/
+staticfiles/
+
 *.sqlite3
-staticfiles
+#*.dev
+*.prod
+.env
+
+.DS_Store
