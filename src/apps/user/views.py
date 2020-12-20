@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from apps.users.models import CustomUser
+from apps.user.models import CustomUser
 
 
 def user_login(request):

@@ -1,6 +1,7 @@
 venv/
 __pycache__/
 staticfiles/
+document/
 
 *.sqlite3
 #*.dev

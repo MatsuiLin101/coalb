@@ -52,9 +52,9 @@ INSTALLED_APPS = [
     # 3rd apps
 
     # local apps
-    'apps.users',
-    'apps.lines',
-    'apps.coas',
+    'apps.user',
+    'apps.line',
+    'apps.coa',
 ]
 
 MIDDLEWARE = [
@@ -159,7 +159,7 @@ SITE_ID = 1
 
 # Custom user app defaults
 # Select the correct user model
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'user.CustomUser'
 
 # LOGIN_URL = '/users/login/'
 ADMIN_URL = env.str('ADMIN_URL', default='admin')

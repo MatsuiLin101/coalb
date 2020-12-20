@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import ModelForm
 
-from apps.users.models import CustomUser
+from apps.user.models import CustomUser
 
 
 class CustomUserCreationForm(ModelForm):

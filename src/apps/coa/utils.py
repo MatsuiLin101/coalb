@@ -10,6 +10,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support.ui import Select
 
 
 BOOK_DICT = {
@@ -70,6 +74,7 @@ def pre_process_text_3(split_text):
 
 def get_book(key):
     chrome = '/usr/bin/chromedriver'
+    # chrome = '/Users/coder/.rvm/gems/ruby-2.5.1/bin/chromedriver'
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
