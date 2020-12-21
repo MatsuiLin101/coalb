@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.user',
     'apps.line',
     'apps.coa',
+    'apps.log',
 ]
 
 MIDDLEWARE = [
@@ -203,5 +204,8 @@ CONFIRM_DAYS = 7
 # SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 # LINE CONFIRURATION
 # ------------------------------------------------------------------------------
+LINE_TEST_MODE = env.bool('LINE_TEST_MODE', default=False)
 LINE_CHANNEL_ACCESS_TOKEN = env.str('LINE_CHANNEL_ACCESS_TOKEN', default='')
 LINE_CHANNEL_SECRET = env.str('LINE_CHANNEL_SECRET', default='')
+LINE_CHANNEL_ACCESS_TOKEN_TEST = env.str('LINE_CHANNEL_ACCESS_TOKEN_TEST', default='')
+LINE_CHANNEL_SECRET_TEST = env.str('LINE_CHANNEL_SECRET_TEST', default='')

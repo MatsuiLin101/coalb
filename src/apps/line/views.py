@@ -45,8 +45,9 @@ from linebot.models.template import (
     ImageCarouselTemplate,
 )
 
-from django.shortcuts import render
+from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
@@ -54,15 +55,21 @@ from apps.coa.utils import pre_process_text
 
 from .models import LineUser, SD
 from .utils import parser_product
+from .builder import build_line_user
 
 
 # line_bot_api = LineBotApi('YOUR_CHANNEL_ACCESS_TOKEN')
 # handler = WebhookHandler('YOUR_CHANNEL_SECRET')
-line_bot_api = LineBotApi(
-    'ActG2d3ixqDGVUhN5XfSY3R4Y45Z4GU8c957CuLU7BvJYVzB+M4pgKjTSbzU/IwToBOW0v/od0ciXX2o7zuh809P68S32ZrvAUtS7RoRqSIn7cWgJZYrWGc4ToTdRcjy7+j7BcmYhlwm+yPoc7WthwdB04t89/1O/w1cDnyilFU=',
-    timeout=60,
-)
-handler = WebhookHandler('cee5f9aa47f1c46beeb2c7b2016843fb')
+if settings.LINE_TEST_MODE:
+    line_channel_access_token = settings.LINE_CHANNEL_ACCESS_TOKEN_TEST
+    line_channel_secret = settings.LINE_CHANNEL_SECRET_TEST
+else:
+    line_channel_access_token = settings.LINE_CHANNEL_ACCESS_TOKEN
+    line_channel_secret = settings.LINE_CHANNEL_SECRET
+
+
+line_bot_api = LineBotApi(line_channel_access_token, timeout=60)
+handler = WebhookHandler(line_channel_secret)
 
 
 @csrf_exempt
@@ -76,10 +83,10 @@ def home(request):
 
 @csrf_exempt
 def callback(request):
-
     try:
         signature = request.headers['X-Line-Signature']
         body = request.body.decode('utf-8')
+        build_line_user(line_bot_api, body)
         handler.handle(body, signature)
         print('handler ok')
     except InvalidSignatureError:

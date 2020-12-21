@@ -2,19 +2,21 @@ from django.db import models
 
 
 class LineUser(models.Model):
-    userId = models.CharField(max_length=255, null=True, blank=True, verbose_name="識別碼")
-    displayName = models.CharField(max_length=255, null=True, blank=True, verbose_name="顯示名稱")
-    pictureUrl = models.CharField(max_length=255, null=True, blank=True, verbose_name="大頭貼")
-    statusMessage = models.CharField(max_length=255, null=True, blank=True, verbose_name="狀態")
+    user_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="LINE識別碼")
+    display_name = models.CharField(max_length=255, null=True, blank=True, verbose_name="顯示名稱")
+    picture_url = models.CharField(max_length=255, null=True, blank=True, verbose_name="大頭貼")
+    status_message = models.CharField(max_length=255, null=True, blank=True, verbose_name="狀態")
     language = models.CharField(max_length=20, default="zh-Hant", null=True, blank=True, verbose_name="語言")
     status = models.BooleanField(default=False, null=True, blank=True, verbose_name="狀態")
+    created = models.DateTimeField(auto_now_add=True, verbose_name="建立時間")
+    updated = models.DateTimeField(auto_now=True, verbose_name="更新時間")
 
     class Meta:
         verbose_name = "Line使用者"
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return f"{self.id}"
+        return f"{self.user_id} - {self.display_name}"
 
 
 class SD(models.Model):
