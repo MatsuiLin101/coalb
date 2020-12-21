@@ -11,3 +11,5 @@ beautifulsoup4
 selenium
 openpyxl
 pyexcel-ods
+
+django-sendgrid-v5

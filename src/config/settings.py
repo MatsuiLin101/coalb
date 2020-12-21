@@ -178,3 +178,30 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# EMAIL CONFIGURATION
+# ------------------------------------------------------------------------------
+EMAIL_BACKEND = env.str('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = env.str('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD', default='')
+SERVER_EMAIL = env.str('SERVER_EMAIL', default='')
+ADMINS = [(admin.split('@')[0], admin) for admin in env.list('ADMINS', default=[])]
+
+# MAILJET_API_KEY = env.str('MAILJET_API_KEY', default='')
+# MAILJET_API_SECRET = env.str('MAILJET_API_SECRET', default='')
+
+SENDGRID_API_KEY = env.str('SENDGRID_API_KEY', default='')
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+
+CONFIRM_DAYS = 7
+
+# SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+# LINE CONFIRURATION
+# ------------------------------------------------------------------------------
+LINE_CHANNEL_ACCESS_TOKEN = env.str('LINE_CHANNEL_ACCESS_TOKEN', default='')
+LINE_CHANNEL_SECRET = env.str('LINE_CHANNEL_SECRET', default='')
