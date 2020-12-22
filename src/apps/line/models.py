@@ -16,7 +16,7 @@ class LineUser(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self):
-        return f"{self.user_id} - {self.display_name}"
+        return f"{self.display_name}"
 
 
 class SD(models.Model):

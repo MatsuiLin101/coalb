@@ -1,4 +1,5 @@
 import json
+import traceback
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -52,6 +53,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from apps.coa.utils import pre_process_text
+from apps.log.models import LineMessageLog, LineFollowLog
 
 from .models import LineUser, SD
 from .utils import parser_product
@@ -88,9 +90,7 @@ def callback(request):
         body = request.body.decode('utf-8')
         build_line_user(line_bot_api, body)
         handler.handle(body, signature)
-        print('handler ok')
     except InvalidSignatureError:
-        print('handler error')
         response = 'Invalid signature. Please check your channel access token/channel secret.'
         return HttpResponse(status=400, content=response)
 
@@ -99,64 +99,72 @@ def callback(request):
 
 @handler.add(FollowEvent)
 def handle_follow(event):
-    userId = event.source.user_id
+    reply_token = event.reply_token
+    user_id = event.source.user_id
+    user = LineUser.objects.get(user_id=user_id)
     try:
-        line_user = LineUser.objects.get(userId=userId)
-        if line_user.status is False:
-            line_user.status = True
-            line_user.save()
+        log = LineFollowLog.objects.create(
+            user=user, reply_token=reply_token, message='加入好友'
+        )
+        user.status = True
+        user.save()
     except Exception as e:
-        try:
-            profile = line_bot_api.get_profile(userId)
-            user_id = profile.user_id
-            display_name = profile.display_name
-            picture_url = profile.picture_url
-            status_message = profile.status_message
-            line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message, status=True)
-        except Exception as e:
-            print(f"ERROR, {e}")
+        log.reply = traceback.format_exc()
+        log.status = False
+        log.save()
+
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
-    userId = event.source.user_id
+    user_id = event.source.user_id
+    user = LineUser.objects.get(user_id=user_id)
     try:
-        line_user = LineUser.objects.get(userId=userId)
-        if line_user.status is False:
-            line_user.status = False
-            line_user.save()
+        log = LineFollowLog.objects.create(user=user, message='封鎖')
+        user.status = False
+        user.save()
     except Exception as e:
-        print(f"ERROR, {e}")
-        # try:
-        #     profile = line_bot_api.get_profile(userId)
-        #     user_id = profile.user_id
-        #     display_name = profile.display_name
-        #     picture_url = profile.picture_url
-        #     status_message = profile.status_message
-        #     line_user = LineUser.objects.create(userId=user_id, displayName=display_name, pictureUrl=picture_url, statusMessage=status_message)
-        # except Exception as e:
+        log.reply = traceback.format_exc()
+        log.status = False
+        log.save()
 
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message_text(event):
+    message_id = event.message.id
+    reply_token = event.reply_token
     text = event.message.text
-    print(f'MessageEvent TextMessage: {text}')
+    user_id = event.source.user_id
+    user = LineUser.objects.get(user_id=user_id)
+    try:
+        log = LineMessageLog.objects.create(
+            user=user, message_id=message_id, reply_token=reply_token, message=text
+        )
 
-    if '產地' in text or '批發' in text or '零售' in text:
-        result = parser_product(text)
-        reply = TextSendMessage(text=result)
-    elif text.startswith('1'):
-        reply = pre_process_text(text)
-        if reply is False:
-            reply = '請輸入年+空格+關鍵字\n例如：\n107 產值 總產值\n107 產值 豬\n107 農家所得\n107 農牧戶\n107 耕地面積'
-        reply = TextSendMessage(text=reply)
-    else:
-        reply = TextSendMessage(text="請輸入產品+空格+產地/批發/零售\n例如：芒果 產地")
+        if '產地' in text or '批發' in text or '零售' in text:
+            result = parser_product(text)
+            reply = TextSendMessage(text=result)
+        elif text.startswith('1'):
+            reply = pre_process_text(text)
+            if reply is False:
+                reply = '請輸入年+空格+關鍵字\n例如：\n107 產值 總產值\n107 產值 豬\n107 農家所得\n107 農牧戶\n107 耕地面積'
+            reply = TextSendMessage(text=reply)
+        else:
+            reply = TextSendMessage(text="請輸入產品+空格+產地/批發/零售\n例如：芒果 產地")
 
-    line_bot_api.reply_message(event.reply_token, reply)
+        log.reply = reply
+        log.save()
+        line_bot_api.reply_message(reply_token, reply)
+    except Exception as e:
+        reply = TextSendMessage(text=f"發生錯誤，錯誤訊息編號「{log.id}」，請通知工程師處理。")
+        log.reply = traceback.format_exc()
+        log.status = False
+        log.save()
+        line_bot_api.reply_message(reply_token, reply)
 
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_message_sticker(event):
+    print(event.as_json_dict())
     print('MessageEvent StickerMessage')
     line_bot_api.reply_message(
         event.reply_token,

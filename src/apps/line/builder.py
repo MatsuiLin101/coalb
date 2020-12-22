@@ -9,7 +9,10 @@ def build_line_user(line_bot_api, body):
     檢查line user_id是否存在資料庫
     若不存在就新增Line使用者
     '''
-    user_id = json.loads(body)['events'][0]['source']['userId']
+    events = json.loads(body)['events']
+    if len(events) == 0:
+        return None
+    user_id = events[0]['source']['userId']
     try:
         user = LineUser.objects.get(user_id=user_id)
     except Exception as e:
