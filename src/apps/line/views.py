@@ -53,7 +53,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
 from apps.coa.utils import pre_process_text
-from apps.log.models import LineMessageLog, LineFollowLog
+from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 
 from .models import LineUser, SD
 from .utils import parser_product
@@ -93,6 +93,10 @@ def callback(request):
     except InvalidSignatureError:
         response = 'Invalid signature. Please check your channel access token/channel secret.'
         return HttpResponse(status=400, content=response)
+    except Exception as e:
+        message = traceback.format_exc()
+        log = LineCallBackLog.objects.create(signature=signature, body=body, message=message)
+        return HttpResponse(status=400, content="未知錯誤，請至後台查詢詳細記錄。")
 
     return HttpResponse(status=200, content='OK')
 

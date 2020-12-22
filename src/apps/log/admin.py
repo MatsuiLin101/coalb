@@ -21,6 +21,13 @@ class LineFollowLogAdmin(admin.ModelAdmin):
     ]
 
 
+class LineCallBackLogAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'signature', 'body', 'message', 'created'
+    ]
+
+
 admin.site.register(models.LineBodyLog, LineBodyLogAdmin)
 admin.site.register(models.LineMessageLog, LineMessageLogAdmin)
 admin.site.register(models.LineFollowLog, LineFollowLogAdmin)
+admin.site.register(models.LineCallBackLog, LineCallBackLogAdmin)
