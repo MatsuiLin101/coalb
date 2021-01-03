@@ -92,6 +92,7 @@ def callback(request):
         handler.handle(body, signature)
     except InvalidSignatureError:
         response = 'Invalid signature. Please check your channel access token/channel secret.'
+        log = LineCallBackLog.objects.create(signature=signature, body=body, message=response)
         return HttpResponse(status=400, content=response)
     except Exception as e:
         message = traceback.format_exc()
