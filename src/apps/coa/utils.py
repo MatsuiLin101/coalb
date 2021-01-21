@@ -1,6 +1,8 @@
+import time
 import json
 import re
 import requests
+import traceback
 
 from bs4 import BeautifulSoup as bs
 from decimal import Decimal
@@ -15,6 +17,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.ui import Select
 
+from apps.coa.models import *
+
 
 BOOK_DICT = {
     '產值': 'ctl00_cphMain_uctlBook_repChapter_ctl06_dtlFile_ctl00_lnkFile',
@@ -22,6 +26,149 @@ BOOK_DICT = {
     '農牧戶': 'ctl00_cphMain_uctlBook_repChapter_ctl28_dtlFile_ctl00_lnkFile',
     '耕地面積': 'ctl00_cphMain_uctlBook_repChapter_ctl52_dtlFile_ctl00_lnkFile',
 }
+
+
+def main(city, year):
+    city = city.replace("台", "臺")
+    try:
+        print(query_produce_value(city, f"{year}").strip())
+    except Exception as e:
+        print(traceback.format_exc())
+
+
+def get_driver(url, headless=True):
+    chrome = '/Users/coder/Desktop/chrome/chromedriver'
+    chrome_options = Options()
+    if headless:
+        chrome_options.add_argument('--headless')
+    chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
+    driver = webdriver.Chrome(executable_path=chrome, options=chrome_options)
+    driver.get(url)
+    return driver
+
+
+def driver_select(driver, id, method, target, cancel=False):
+    WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id)))
+    select = Select(driver.find_element(By.ID, id))
+    if cancel:
+        select.deselect_all()
+    if method == "value":
+        select.select_by_value(target)
+    elif method == "text":
+        select.select_by_visible_text(target)
+
+
+def query_produce_value(city, year):
+    '''
+    爬取動態查詢總產值/產值資料
+    '''
+    url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+    text_title = "農業產值結構與指標"
+    text_group = "農業產值：縣市別×農業別"
+    id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
+    id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
+    id_category = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+    id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
+    id_start = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
+    id_end = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
+    id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
+    id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
+    id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
+    message = ""
+
+    if "臺中市" in city or "臺南市" in city:
+        if "省" in city:
+            name = city.split("省")[-1]
+            province = "臺灣省"
+        else:
+            name = city
+            province = str()
+        query_set = ProduceValueCity.objects.filter(name=name, province=province)
+    else:
+        query_set = ProduceValueCity.objects.filter(name__icontains=city)
+    count = query_set.count()
+    if count == 0:
+        return f"查無「{city}」的資料"
+    elif count >= 2:
+        message += f"搜尋「{city}」出現以下選項，請輸入完整名稱來查詢。\n"
+        for obj in query_set:
+            message += f"{obj.name}\n" if "臺中市" != obj.name and "臺南市" != obj.name else f"{obj.province}{obj.name}\n"
+        return message
+    else:
+        obj = query_set.first()
+
+    driver = get_driver(url)
+    # 進入產值頁面
+    driver.find_element(By.LINK_TEXT, text_title).click()
+
+    # 選取產值選項
+    driver_select(driver, id_group, "text", text_group)
+
+    # 選取城市
+    value_city = obj.value
+    driver_select(driver, id_city, "value", value_city, True)
+    message += f"{city} {year}年\n"
+
+    message_temp = str()
+    categories = ProduceValueFarmCategory.objects.all()
+    try:
+        for category in categories:
+            value_category = category.value
+            # 選取屬性
+            driver_select(driver, id_category, "value", value_category, True)
+
+            btn_search = driver.find_element(By.ID, id_search)
+            btn_search.click()
+
+            # 選擇要查詢的年份
+            driver_select(driver, id_start, "value", str(year).zfill(3))
+            driver_select(driver, id_end, "value", str(year).zfill(3))
+
+            btn_query = driver.find_element(By.ID, id_query)
+            btn_query.click()
+
+            # 取得查詢結果
+            WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id_table)))
+            table = driver.find_element(By.ID, id_table)
+            unit = table.find_element(By.XPATH, 'tbody/tr[1]/td').text.split("產值")[-1]
+            value = driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
+            message_temp += f"{category.name}：{value}{unit}\n"
+
+            btn_back = driver.find_element(By.ID, id_back)
+            btn_back.click()
+    except Exception as e:
+        message_temp += "查無資料。"
+
+    driver.close()
+    message += message_temp
+    return message
+
+
+def query_produce_value_animal(city, year, animal):
+    '''
+    '''
+    url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+    text_title = "農產品生產量值統計"
+    text_group_rice = "農業產值：縣市別×農業別"
+    text_group = "農業產值：縣市別×農業別"
+    text_group = "農業產值：縣市別×農業別"
+    text_group = "農業產值：縣市別×農業別"
+    text_group = "農業產值：縣市別×農業別"
+    text_group = "農業產值：縣市別×農業別"
+    id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
+    id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
+    id_category = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+    id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
+    id_start = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
+    id_end = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
+    id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
+    id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
+    id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
+    message = ""
+
+
+
+
 
 
 def intcomma(num):
@@ -73,8 +220,10 @@ def pre_process_text_3(split_text):
 
 
 def get_book(key):
-    chrome = '/usr/bin/chromedriver'
-    # chrome = '/Users/coder/.rvm/gems/ruby-2.5.1/bin/chromedriver'
+    # chrome = '/usr/bin/chromedriver'
+    # chrome = '/Users/coder/Desktop/coa/coalb/chrome/chromedriver'
+    # chrome = '/Users/coder/Desktop/chrome/chromedriver'
+    chrome = '/code/chrome/chromedriver'
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
