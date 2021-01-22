@@ -16,6 +16,9 @@ class ProduceValueProductAdmin(admin.ModelAdmin):
     list_filter = [
         "category"
     ]
+    search_fields = [
+        "name"
+    ]
 
 
 admin.site.register(ProduceValueCity, ProduceValueCityAdmin)

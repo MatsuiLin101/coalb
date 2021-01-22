@@ -71,8 +71,9 @@ def build_produce_value_category():
 
 class AbstractBuild(object):
     def __init__(self, text_link, model):
-        self.driver = get_driver("https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx", False)
+        self.driver = get_driver("https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx")
         self.driver.find_element(By.LINK_TEXT, text_link).click()
+        self.dropdown = self.driver.find_element(By.ID, "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup")
         self.model = model
 
     def get_select(self, select_id):
@@ -96,11 +97,10 @@ class AbstractBuild(object):
 
 class BuildProduceValueProduct(AbstractBuild):
     '''
-    建立產品產值表
+    建立產品產值表 作物
     '''
     def __init__(self, text_link="農產品生產量值統計", model=ProduceValueProduct):
         super(BuildProduceValueProduct, self).__init__(text_link, ProduceValueProduct)
-        self.dropdown = self.driver.find_element(By.ID, "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup")
 
     def build_produce_value_product(self, xpath, select_id, category):
         self.dropdown = self.driver.find_element(By.ID, "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup")
@@ -165,3 +165,32 @@ class BuildProduceValueProduct(AbstractBuild):
         xpath = "//option[. = '藥用產值：縣市別×藥用別']"
         select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
         self.build_produce_value_product(xpath, select_id, "drug")
+
+
+class BuildProduceValueProductAnimal(BuildProduceValueProduct):
+    '''
+    建立產品產值表 動物
+    '''
+    def __init__(self, text_link="畜禽產品生產量值統計", model=ProduceValueProduct):
+        super(BuildProduceValueProductAnimal, self).__init__(text_link, ProduceValueProduct)
+
+    def build_model(self):
+        # 抓取農業產值家畜產值選項
+        xpath = "//option[. = '家畜產值']"
+        select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+        self.build_produce_value_product(xpath, select_id, "livestock")
+
+        # 抓取農業產值家禽產值選項
+        xpath = "//option[. = '家禽產值：縣市別×家禽別(104年起)']"
+        select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+        self.build_produce_value_product(xpath, select_id, "poultry")
+
+        # 抓取農業產值家禽產值選項
+        xpath = "//option[. = '畜禽副產品產值']"
+        select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+        self.build_produce_value_product(xpath, select_id, "byproduct")
+
+        # 抓取農業產值家禽產值選項
+        xpath = "//option[. = '蜂蠶飼養產值']"
+        select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+        self.build_produce_value_product(xpath, select_id, "bee")
