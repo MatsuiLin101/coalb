@@ -9,5 +9,15 @@ class ProduceValueCityAdmin(admin.ModelAdmin):
     ]
 
 
+class ProduceValueProductAdmin(admin.ModelAdmin):
+    list_display = [
+        "id", "name", "value", "category"
+    ]
+    list_filter = [
+        "category"
+    ]
+
+
 admin.site.register(ProduceValueCity, ProduceValueCityAdmin)
 admin.site.register(ProduceValueFarmCategory)
+admin.site.register(ProduceValueProduct, ProduceValueProductAdmin)

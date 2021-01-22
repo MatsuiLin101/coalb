@@ -3,7 +3,7 @@ from django.db import models
 
 class AbstractModel(models.Model):
     name = models.CharField(max_length=255, verbose_name="名稱")
-    value = models.CharField(max_length=255, verbose_name="值")
+    value = models.CharField(max_length=255, null=True, blank=True, verbose_name="值")
 
     class Meta:
         verbose_name = "抽象模型"
