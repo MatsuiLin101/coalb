@@ -14,7 +14,13 @@ class AbstractModel(models.Model):
 
 
 class ProduceValueCity(AbstractModel):
+    """
+    type 1 or 2:
+    type 1: $LB0101
+    type 2: $LB0201
+    """
     province = models.CharField(max_length=20, null=True, blank=True, verbose_name="省")
+    type = models.IntegerField(verbose_name="類型")
 
     class Meta:
         verbose_name = "產值表-城市"
@@ -30,6 +36,7 @@ class ProduceValueFarmCategory(AbstractModel):
 
 class ProduceValueProduct(AbstractModel):
     category = models.CharField(max_length=50, verbose_name="分組類別")
+    city_type = models.IntegerField(verbose_name="城市類型")
 
     class Meta:
         verbose_name = "產值表-產品"

@@ -37,6 +37,11 @@ def main(city, year):
 
 
 def get_driver(url, headless=True):
+    """
+    取得selenium驅動瀏覽器
+    url: 目標網址
+    headless: True為啟動無頭模式(不會開啟瀏覽器， 只會在背景運行)
+    """
     chrome = '/Users/coder/Desktop/chrome/chromedriver'
     chrome_options = Options()
     if headless:
@@ -48,6 +53,15 @@ def get_driver(url, headless=True):
 
 
 def driver_select(driver, id, method, target, cancel=False):
+    """
+    根據條件選取select物件的內容
+    driver: selenium瀏覽器
+    id: select物件的id
+    method: selenium選取物件的方式
+    target: selenium要選取的value或text
+    cancel: select為multiple時可使用，True取消原本已選取的項目
+    """
+    time.sleep(1)
     WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id)))
     select = Select(driver.find_element(By.ID, id))
     if cancel:
@@ -144,31 +158,187 @@ def query_produce_value(city, year):
     return message
 
 
-def query_produce_value_animal(city, year, animal):
-    '''
-    '''
+def query_produce_value_product(product, year, city=None):
+    """
+    爬取動態查詢作物/畜禽生產量值
+    """
     url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
-    text_title = "農產品生產量值統計"
-    text_group_rice = "農業產值：縣市別×農業別"
-    text_group = "農業產值：縣市別×農業別"
-    text_group = "農業產值：縣市別×農業別"
-    text_group = "農業產值：縣市別×農業別"
-    text_group = "農業產值：縣市別×農業別"
-    text_group = "農業產值：縣市別×農業別"
     id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
     id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
-    id_category = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
     id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
     id_start = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
     id_end = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
     id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
     id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
     id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
+    product_dict = {
+        "rice": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "稻米產值：縣市別×期作別×稻種別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl04_lstDimension",
+        },
+        "grain": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "雜糧產值：縣市別×雜糧別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "special": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "特作產值：縣市別×特作別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "sugar": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "製糖甘蔗產值：縣市別",
+            "id_category": "",
+        },
+        "tobacco": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "菸草產值：縣市別",
+            "id_category": "",
+        },
+        "vegetable": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "蔬菜產值：縣市別×蔬菜別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "mushroom": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "菇類產值：縣市別×菇類別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "fruits": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "果品產值：縣市別×果品別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "flower": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "花卉產值：縣市別×花卉別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "drug": {
+            "text_title":"農產品生產量值統計" ,
+            "text_group": "藥用產值：縣市別×藥用別",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "livestock": {
+            "text_title":"畜禽產品生產量值統計" ,
+            "text_group": "家畜產值",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "poultry": {
+            "text_title":"畜禽產品生產量值統計" ,
+            "text_group": "家禽產值：縣市別×家禽別(104年起)",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "byproduct": {
+            "text_title":"畜禽產品生產量值統計" ,
+            "text_group": "畜禽副產品產值",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+        "bee": {
+            "text_title":"畜禽產品生產量值統計" ,
+            "text_group": "蜂蠶飼養產值",
+            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
+        },
+    }
     message = ""
 
+    # 選取產品
+    query_set = ProduceValueProduct.objects.filter(name__icontains=product)
+    count = query_set.count()
+    if count == 0:
+        return f"查無「{product}」的資料"
+    elif count >= 2:
+        qs = query_set.filter(name=product)
+        if qs.count() > 0:
+            message += f"搜尋「{product}」出現以下選項，將為您查詢「{product}」，若要查詢其他品項，請輸入完整名稱來查詢。\n"
+            for obj in query_set:
+                message += f"{obj.name}\n"
+            obj_product = qs.first()
+        else:
+            message += f"搜尋「{product}」出現以下選項，請輸入完整名稱來查詢。\n"
+            for obj in query_set:
+                message += f"{obj.name}\n"
+            return message
+    else:
+        obj_product = query_set.first()
 
+    # 選取城市
+    if city:
+        if "臺中市" in city or "臺南市" in city:
+            if "省" in city:
+                name = city.split("省")[-1]
+                province = "臺灣省"
+            else:
+                name = city
+                province = str()
+            query_set = ProduceValueCity.objects.filter(name=name, province=province, type=obj_product.city_type)
+        else:
+            query_set = ProduceValueCity.objects.filter(name__icontains=city, type=obj_product.city_type)
+        count = query_set.count()
+        if count == 0:
+            return f"查無「{city}」的資料"
+        elif count >= 2:
+            message += f"搜尋「{city}」出現以下選項，請輸入完整名稱來查詢。\n"
+            for obj in query_set:
+                message += f"{obj.name}\n" if "臺中市" != obj.name and "臺南市" != obj.name else f"{obj.province}{obj.name}\n"
+            return message
+        else:
+            obj_city = query_set.first()
 
+    data = product_dict[obj_product.category]
+    text_title = data["text_title"]
+    text_group = data["text_group"]
+    id_category = data["id_category"]
 
+    driver = get_driver(url)
+    # 進入產值頁面
+    driver.find_element(By.LINK_TEXT, text_title).click()
+
+    # 選取產值選項
+    driver_select(driver, id_group, "text", text_group)
+
+    # 選取城市
+    if city:
+        value_city = obj_city.value
+        driver_select(driver, id_city, "value", value_city, True)
+    # message += f"{city} {year}年\n"
+
+    message_temp = str()
+    try:
+        value_category = obj_product.value
+        # 選取屬性
+        driver_select(driver, id_category, "value", value_category, True)
+
+        btn_search = driver.find_element(By.ID, id_search)
+        btn_search.click()
+
+        # 選擇要查詢的年份
+        driver_select(driver, id_start, "value", str(year).zfill(3))
+        driver_select(driver, id_end, "value", str(year).zfill(3))
+
+        btn_query = driver.find_element(By.ID, id_query)
+        btn_query.click()
+
+        # 取得查詢結果
+        WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id_table)))
+        table = driver.find_element(By.ID, id_table)
+        unit = table.find_element(By.XPATH, 'tbody/tr[1]/td').text.split("產值")[-1]
+        value = driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
+        message_temp += f"{obj_product.name}產值：{value}{unit}\n"
+
+        btn_back = driver.find_element(By.ID, id_back)
+        btn_back.click()
+    except Exception as e:
+        print(traceback.format_exc())
+        message_temp += "查無資料。"
+        return driver
+
+    driver.close()
+    message += message_temp
+    return message
 
 
 def intcomma(num):

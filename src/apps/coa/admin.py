@@ -5,16 +5,19 @@ from apps.coa.models import *
 
 class ProduceValueCityAdmin(admin.ModelAdmin):
     list_display = [
-        "id", "name", "value", "province"
+        "id", "name", "value", "province", "type"
+    ]
+    list_filter = [
+        "type"
     ]
 
 
 class ProduceValueProductAdmin(admin.ModelAdmin):
     list_display = [
-        "id", "name", "value", "category"
+        "id", "name", "value", "category", "city_type"
     ]
     list_filter = [
-        "category"
+        "category", "city_type"
     ]
     search_fields = [
         "name"
