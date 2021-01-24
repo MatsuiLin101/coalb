@@ -17,6 +17,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.ui import Select
 
+from django.conf import settings
+
 from apps.coa.models import *
 
 
@@ -42,7 +44,7 @@ def get_driver(url, headless=True):
     url: 目標網址
     headless: True為啟動無頭模式(不會開啟瀏覽器， 只會在背景運行)
     """
-    chrome = '/Users/coder/Desktop/chrome/chromedriver'
+    chrome = settings.CHROME_PATH
     chrome_options = Options()
     if headless:
         chrome_options.add_argument('--headless')
@@ -72,7 +74,7 @@ def driver_select(driver, id, method, target, cancel=False):
         select.select_by_visible_text(target)
 
 
-def query_produce_value(city, year):
+def query_produce_value(year, city):
     '''
     爬取動態查詢總產值/產值資料
     '''
@@ -90,16 +92,20 @@ def query_produce_value(city, year):
     id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
     message = ""
 
-    if "臺中市" in city or "臺南市" in city:
-        if "省" in city:
-            name = city.split("省")[-1]
-            province = "臺灣省"
+    if city:
+        city = city.replace("台", "臺")
+        if "臺中市" in city or "臺南市" in city:
+            if "省" in city:
+                name = city.split("省")[-1]
+                province = "臺灣省"
+            else:
+                name = city
+                province = str()
+            query_set = ProduceValueCity.objects.filter(name=name, province=province, type=1)
         else:
-            name = city
-            province = str()
-        query_set = ProduceValueCity.objects.filter(name=name, province=province)
+            query_set = ProduceValueCity.objects.filter(name__icontains=city, type=1)
     else:
-        query_set = ProduceValueCity.objects.filter(name__icontains=city)
+        query_set = ProduceValueCity.objects.filter(name="合計", type=1)
     count = query_set.count()
     if count == 0:
         return f"查無「{city}」的資料"
@@ -121,7 +127,7 @@ def query_produce_value(city, year):
     # 選取城市
     value_city = obj.value
     driver_select(driver, id_city, "value", value_city, True)
-    message += f"{city} {year}年\n"
+    # message += f"{city} {year}年\n"
 
     message_temp = str()
     categories = ProduceValueFarmCategory.objects.all()
@@ -145,6 +151,8 @@ def query_produce_value(city, year):
             WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id_table)))
             table = driver.find_element(By.ID, id_table)
             unit = table.find_element(By.XPATH, 'tbody/tr[1]/td').text.split("產值")[-1]
+            if "項目別" in unit:
+                unit = table.find_element(By.CSS_SELECTOR, ".HorDim").text.split("產值")[-1]
             value = driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
             message_temp += f"{category.name}：{value}{unit}\n"
 
@@ -158,7 +166,7 @@ def query_produce_value(city, year):
     return message
 
 
-def query_produce_value_product(product, year, city=None):
+def query_produce_value_product(year, product, city):
     """
     爬取動態查詢作物/畜禽生產量值
     """
@@ -267,6 +275,7 @@ def query_produce_value_product(product, year, city=None):
 
     # 選取城市
     if city:
+        city = city.replace("台", "臺")
         if "臺中市" in city or "臺南市" in city:
             if "省" in city:
                 name = city.split("省")[-1]
@@ -366,15 +375,13 @@ def pre_process_text(text):
 
 
 
-def pre_process_text_2(split_text):
-    year = split_text[0]
-    key = split_text[1]
+def pre_process_text_2(key, year):
     if '農家所得' in key:
-        return get_book_income(year, key)
+        return get_book_income(key, year)
     elif '農牧戶' in key:
-        return get_book_farmercount(year, key)
+        return get_book_farmercount(key, year)
     elif '耕地面積' in key:
-        return get_book_farmarea(year, key)
+        return get_book_farmarea(key, year)
     else:
         return False
 
@@ -390,10 +397,7 @@ def pre_process_text_3(split_text):
 
 
 def get_book(key):
-    # chrome = '/usr/bin/chromedriver'
-    # chrome = '/Users/coder/Desktop/coa/coalb/chrome/chromedriver'
-    # chrome = '/Users/coder/Desktop/chrome/chromedriver'
-    chrome = '/code/chrome/chromedriver'
+    chrome = settings.CHROME_PATH
     chrome_options = Options()
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
@@ -522,7 +526,7 @@ def get_book_value(year, key, value):
         return f'{year}年 {value} 產值 查無資料'
 
 
-def get_book_income(year, key):
+def get_book_income(key, year):
     data = get_book(key)
     message = str()
     for i in data['所得']:
@@ -535,7 +539,7 @@ def get_book_income(year, key):
         return f'{year}年 農家所得 查無資料'
 
 
-def get_book_farmercount(year, key):
+def get_book_farmercount(key, year):
     data = get_book(key)
     message = str()
     for i in data['總戶數及人口數_new']:
@@ -548,7 +552,7 @@ def get_book_farmercount(year, key):
         return f'{year}年 農牧戶 查無資料'
 
 
-def get_book_farmarea(year, key):
+def get_book_farmarea(key, yyear):
     data = get_book(key)
     message = str()
     for i in data['耕地面積']:
