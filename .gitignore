@@ -8,5 +8,6 @@ chrome/
 #*.dev
 *.prod
 .env
+.env-prod
 
 .DS_Store
