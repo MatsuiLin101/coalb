@@ -552,7 +552,7 @@ def get_book_farmercount(key, year):
         return f'{year}年 農牧戶 查無資料'
 
 
-def get_book_farmarea(key, yyear):
+def get_book_farmarea(key, year):
     data = get_book(key)
     message = str()
     for i in data['耕地面積']:
