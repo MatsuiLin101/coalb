@@ -76,6 +76,36 @@ def build_produce_value_city_2():
         obj = ProduceValueCity.objects.create(name=name, value=value, province=province, type=2)
         print(f"{obj.name} create")
     driver.close()
+    build_produce_value_city_3()
+
+
+def build_produce_value_city_3():
+    '''
+    建立產值表城市資料
+    '''
+    url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+    driver = get_driver(url)
+    # 選擇 農業產值結構與指標
+    driver.find_element(By.LINK_TEXT, "畜禽產品生產量值統計").click()
+
+    # 選擇 農業產值：縣市別×農業別
+    dropdown = driver.find_element(By.ID, "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup")
+    dropdown.find_element(By.XPATH, "//option[. = '家禽產值：縣市別×家禽別(104年起)']").click()
+
+    # 抓取所有城市選項
+    select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
+    time.sleep(1)
+    WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, select_id)))
+    select = Select(driver.find_element(By.ID, select_id))
+
+    # 建立城市資料
+    province = str()
+    for option in select.options:
+        name = option.text
+        value = option.get_attribute("value")
+        obj = ProduceValueCity.objects.create(name=name, value=value, province=province, type=3)
+        print(f"{obj.name} create")
+    driver.close()
 
 
 def build_produce_value_category():
@@ -226,7 +256,7 @@ class BuildProduceValueProductAnimal(BuildProduceValueProduct):
         # 抓取農業產值家禽產值選項
         xpath = "//option[. = '家禽產值：縣市別×家禽別(104年起)']"
         select_id = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
-        self.build_produce_value_product(xpath, select_id, "poultry", 2)
+        self.build_produce_value_product(xpath, select_id, "poultry", 3)
 
         # 抓取農業產值家禽產值選項
         xpath = "//option[. = '畜禽副產品產值']"

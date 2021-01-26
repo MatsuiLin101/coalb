@@ -200,6 +200,7 @@ def handle_message_text(event):
             reply += "農牧戶_(年份)\n"
             reply += "耕地面積_(年份)\n"
 
+        reply = reply.strip()
         log.reply = reply
         log.save()
         line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
