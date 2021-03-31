@@ -8,9 +8,11 @@ sqlparse==0.3.1
 line-bot-sdk
 requests
 beautifulsoup4
+pyyaml
 
 selenium
 openpyxl
-pyexcel-ods
 
 django-sendgrid-v5
+
+djangorestframework==3.12.2
