@@ -56,22 +56,6 @@ INSTALLED_APPS = [
     'apps.line',
     'apps.coa',
     'apps.log',
-    'apps.coa.apis.cropcost',
-    'apps.coa.apis.cropprice',
-    'apps.coa.apis.cropproduce',
-    'apps.coa.apis.disaster',
-    'apps.coa.apis.farmer',
-    'apps.coa.apis.farmerarea',
-    'apps.coa.apis.gross',
-    'apps.coa.apis.income',
-    'apps.coa.apis.laborforce',
-    'apps.coa.apis.livestockbyproduct',
-    'apps.coa.apis.livestockfeedamount',
-    'apps.coa.apis.livestockfeedlot',
-    'apps.coa.apis.livestockprice',
-    'apps.coa.apis.livestockslaughter',
-    'apps.coa.apis.value',
-    'apps.coa.apis.welfare',
 ]
 
 MIDDLEWARE = [
