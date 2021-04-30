@@ -212,3 +212,4 @@ LINE_CHANNEL_SECRET_TEST = env.str('LINE_CHANNEL_SECRET_TEST', default='')
 
 
 CHROME_PATH = env.str("CHROME_PATH", default="")
+LIBREOFFICE_PATH = env.str("LIBREOFFICE_PATH", default="")

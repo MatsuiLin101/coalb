@@ -1,13 +1,14 @@
+import datetime
 import time
 import json
 import re
 import requests
+import subprocess
 import traceback
 
 from bs4 import BeautifulSoup as bs
 from decimal import Decimal
 from openpyxl import load_workbook
-from pyexcel_ods import get_data
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
@@ -38,11 +39,11 @@ def main(city, year):
         print(traceback.format_exc())
 
 
-def get_driver(url, headless=True):
+def get_driver(headless=True):
     """
     取得selenium驅動瀏覽器
-    url: 目標網址
     headless: True為啟動無頭模式(不會開啟瀏覽器， 只會在背景運行)
+    return driver
     """
     chrome = settings.CHROME_PATH
     chrome_options = Options()
@@ -50,7 +51,6 @@ def get_driver(url, headless=True):
         chrome_options.add_argument('--headless')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
     driver = webdriver.Chrome(executable_path=chrome, options=chrome_options)
-    driver.get(url)
     return driver
 
 
@@ -117,7 +117,8 @@ def query_produce_value(year, city):
     else:
         obj = query_set.first()
 
-    driver = get_driver(url)
+    driver = get_driver(False)
+    driver.get(url)
     # 進入產值頁面
     driver.find_element(By.LINK_TEXT, text_title).click()
 
@@ -166,188 +167,42 @@ def query_produce_value(year, city):
     return message
 
 
-def query_produce_value_product(year, product, city):
+def query_produce_value_product(year, product):
     """
     爬取動態查詢作物/畜禽生產量值
+    移除city變數
     """
-    url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
-    id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
-    id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
-    id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
-    id_start = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
-    id_end = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
-    id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
-    id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-    id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
-    product_dict = {
-        "rice": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "稻米產值：縣市別×期作別×稻種別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl04_lstDimension",
-        },
-        "grain": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "雜糧產值：縣市別×雜糧別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "special": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "特作產值：縣市別×特作別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "sugar": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "製糖甘蔗產值：縣市別",
-            "id_category": "",
-        },
-        "tobacco": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "菸草產值：縣市別",
-            "id_category": "",
-        },
-        "vegetable": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "蔬菜產值：縣市別×蔬菜別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "mushroom": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "菇類產值：縣市別×菇類別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "fruits": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "果品產值：縣市別×果品別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "flower": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "花卉產值：縣市別×花卉別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "drug": {
-            "text_title":"農產品生產量值統計" ,
-            "text_group": "藥用產值：縣市別×藥用別",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "livestock": {
-            "text_title":"畜禽產品生產量值統計" ,
-            "text_group": "家畜產值",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "poultry": {
-            "text_title":"畜禽產品生產量值統計" ,
-            "text_group": "家禽產值：縣市別×家禽別(104年起)",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "byproduct": {
-            "text_title":"畜禽產品生產量值統計" ,
-            "text_group": "畜禽副產品產值",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-        "bee": {
-            "text_title":"畜禽產品生產量值統計" ,
-            "text_group": "蜂蠶飼養產值",
-            "id_category": "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension",
-        },
-    }
+    url = "https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx"
+    id_book = "ctl00_cphMain_uctlBook_grdBook_ctl10_btnBookName"
+    id_ods = "ctl00_cphMain_uctlBook_repChapter_ctl06_dtlFile_ctl00_lnkFile"
     message = ""
 
-    # 選取產品
-    query_set = ProduceValueProduct.objects.filter(name__icontains=product)
-    count = query_set.count()
-    if count == 0:
-        return f"查無「{product}」的資料"
-    elif count >= 2:
-        qs = query_set.filter(name=product)
-        if qs.count() > 0:
-            message += f"搜尋「{product}」出現以下選項，將為您查詢「{product}」，若要查詢其他品項，請輸入完整名稱來查詢。\n"
-            for obj in query_set:
-                message += f"{obj.name}\n"
-            obj_product = qs.first()
-        else:
-            message += f"搜尋「{product}」出現以下選項，請輸入完整名稱來查詢。\n"
-            for obj in query_set:
-                message += f"{obj.name}\n"
-            return message
-    else:
-        obj_product = query_set.first()
+    driver = get_driver()
+    driver.get(url)
+    # 進入統計年報頁面
+    WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id_book)))
+    driver.find_element(By.ID, id_book).click()
+    ods = driver.find_element(By.ID, id_ods)
+    href = ods.get_attribute("href")
 
-    # 選取城市
-    if city:
-        city = city.replace("台", "臺")
-        if "臺中市" in city or "臺南市" in city:
-            if "省" in city:
-                name = city.split("省")[-1]
-                province = "臺灣省"
-            else:
-                name = city
-                province = str()
-            query_set = ProduceValueCity.objects.filter(name=name, province=province, type=obj_product.city_type)
-        else:
-            query_set = ProduceValueCity.objects.filter(name__icontains=city, type=obj_product.city_type)
-        count = query_set.count()
-        if count == 0:
-            return f"查無「{city}」的資料"
-        elif count >= 2:
-            message += f"搜尋「{city}」出現以下選項，請輸入完整名稱來查詢。\n"
-            for obj in query_set:
-                message += f"{obj.name}\n" if "臺中市" != obj.name and "臺南市" != obj.name else f"{obj.province}{obj.name}\n"
-            return message
-        else:
-            obj_city = query_set.first()
+    filename_ods = f"produce_value_{int(datetime.datetime.now().timestamp())}.ods"
+    res = requests.get(href)
+    with open(filename_ods, 'wb') as f:
+        f.write(res.content)
+    subprocess.Popen(f'{settings.LIBREOFFICE_PATH} --headless --invisible --convert-to xlsx {filename_ods}', shell=True, stderr=subprocess.PIPE).communicate()
+    filename_xlsx = filename_ods.replace('ods', 'xlsx')
 
-    data = product_dict[obj_product.category]
-    text_title = data["text_title"]
-    text_group = data["text_group"]
-    id_category = data["id_category"]
-
-    driver = get_driver(url)
-    # 進入產值頁面
-    driver.find_element(By.LINK_TEXT, text_title).click()
-
-    # 選取產值選項
-    driver_select(driver, id_group, "text", text_group)
-
-    # 選取城市
-    if city:
-        value_city = obj_city.value
-        driver_select(driver, id_city, "value", value_city, True)
-    # message += f"{city} {year}年\n"
-
-    message_temp = str()
     try:
-        value_category = obj_product.value
-        # 選取屬性
-        driver_select(driver, id_category, "value", value_category, True)
-
-        btn_search = driver.find_element(By.ID, id_search)
-        btn_search.click()
-
-        # 選擇要查詢的年份
-        driver_select(driver, id_start, "value", str(year).zfill(3))
-        driver_select(driver, id_end, "value", str(year).zfill(3))
-
-        btn_query = driver.find_element(By.ID, id_query)
-        btn_query.click()
-
-        # 取得查詢結果
-        WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id_table)))
-        table = driver.find_element(By.ID, id_table)
-        unit = table.find_element(By.XPATH, 'tbody/tr[1]/td').text.split("產值")[-1]
-        value = driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
-        message_temp += f"{obj_product.name}產值：{value}{unit}\n"
-
-        btn_back = driver.find_element(By.ID, id_back)
-        btn_back.click()
+        wb = load_workbook(filename=filename_xlsx)
     except Exception as e:
-        print(traceback.format_exc())
-        message_temp += "查無資料。"
-        return driver
+        raise
 
     driver.close()
     message += message_temp
     return message
+
+
+##################################################################################################################################################################
 
 
 def intcomma(num):
@@ -419,7 +274,7 @@ def get_book(key):
     res = requests.get(f"{url}{href}")
     with open(f'{key}.ods', 'wb') as f:
         f.write(res.content)
-    data = get_data(f"{key}.ods")
+    # data = get_data(f"{key}.ods")
 
     return data
 
