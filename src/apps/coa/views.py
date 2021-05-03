@@ -1,6 +1,11 @@
 from django.shortcuts import render
 
-from apps.coa.apis.value import ValueApiView
+from apps.coa.apis.value import (
+ValueApiView,
+)
+from apps.coa.apis.gross import (
+GrossApiView,
+)
 from apps.coa.utils import (
     pre_process_text_2,
     query_produce_value,
@@ -32,6 +37,10 @@ def api_view(text):
         reply = f"{text}\n{response}"
     elif command == "產值":
         api = ValueApiView(year, city_product)
+        response = api.api()
+        reply = f"{text}\n{response}"
+    elif command == "生產毛額":
+        api = GrossApiView(year)
         response = api.api()
         reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:
