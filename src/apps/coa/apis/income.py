@@ -58,10 +58,3 @@ class IncomeApiView(ApiView):
         data_main_income = round(self.ws[f"H{self.row}"].value)
         data_main_farm_income = round(self.ws[f"I{self.row}"].value)
         self.message = f"搜尋「農家所得 {self.selfyear}」的結果為：\n" + f"農家 所得：{data_income}(元)\n" + f"農家 農業所得：{data_farm_income}(元)\n" + f"主力農家 所得：{data_main_income}(元)\n" + f"主力農家 農業所得：{data_main_farm_income}(元)\n"
-
-    def devapi(self):
-        self.download()
-        self.open_wb()
-        for row in self.ws.rows:
-            year = row[1].value
-            print(year)

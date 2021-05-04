@@ -24,7 +24,7 @@ class ApiView(object):
             ods = driver.find_element(By.ID, self.id_ods)
             ods_href = ods.get_attribute("href")
 
-            ods_name = f"value_{int(datetime.datetime.now().timestamp())}.ods"
+            ods_name = f"ods_{int(datetime.datetime.now().timestamp())}.ods"
             res = requests.get(ods_href)
             with open(ods_name, 'wb') as f:
                 f.write(res.content)
