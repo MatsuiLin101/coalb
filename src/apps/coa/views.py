@@ -9,6 +9,9 @@ GrossApiView,
 from apps.coa.apis.income import (
 IncomeApiView,
 )
+from apps.coa.apis.farmer import (
+FarmerApiView,
+)
 from apps.coa.apis.farmerarea import (
 FarmerAreaApiView,
 )
@@ -53,15 +56,16 @@ def api_view(text):
         api = IncomeApiView(year)
         response = api.api()
         reply = f"{text}\n{response}"
+    elif command  == "農牧戶":
+        api = FarmerApiView(year)
+        response = api.api()
+        reply = f"{text}\n{response}"
     elif command == "耕地面積":
         api = FarmerAreaApiView(year)
         response = api.api()
         reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:
         reply = parser_product(text)
-    elif command  == "農牧戶":
-        response = pre_process_text_2(command, year)
-        reply = f"{text}\n{response}"
         # if reply is False:
         #     reply = '請輸入年+空格+關鍵字\n例如：\n107 產值 總產值\n107 產值 豬\n107 農家所得\n107 農牧戶\n107 耕地面積'
     elif "指令" in text:
