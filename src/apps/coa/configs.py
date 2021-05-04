@@ -29,7 +29,7 @@ class ApiView(object):
             with open(ods_name, 'wb') as f:
                 f.write(res.content)
             subprocess.Popen(f'{settings.LIBREOFFICE_PATH} --headless --invisible --convert-to xlsx {ods_name}', shell=True, stderr=subprocess.PIPE).communicate()
-            self.xlsx_name = ods_name.replace('ods', 'xlsx')
+            self.xlsx_name = ods_name.replace('.ods', '.xlsx')
             os.remove(ods_name)
         except Exception as e:
             print(e)
