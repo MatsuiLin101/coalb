@@ -18,6 +18,9 @@ FarmerAreaApiView,
 from apps.coa.apis.disaster import (
 DisasterApiView,
 )
+from apps.coa.apis.laborforce import (
+LaborforceApiView,
+)
 from apps.coa.utils import (
     pre_process_text_2,
     query_produce_value,
@@ -71,6 +74,10 @@ def api_view(text):
         api = DisasterApiView(year)
         response = api.api()
         reply = f"{text}\n{response}"
+    elif command == "就業人口":
+        api = LaborforceApiView(year)
+        response = api.api()
+        reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:
         reply = parser_product(text)
         # if reply is False:
@@ -86,6 +93,7 @@ def api_view(text):
         reply += "農牧戶_(年份)\n"
         reply += "耕地面積_(年份)\n"
         reply += "災害_(年份)\n"
+        reply += "就業人口_(年份)\n就業人口_(年份)/(月份)\n"
     else:
         reply = f"很抱歉，您輸入的指令「{text}」可能有誤，無法為您查詢，目前可使用的查詢指令如下(括號內請改成要查詢的內容，並將底線以空白一格替換)：\n"
         reply += "總產值_(年份)\n"
@@ -97,4 +105,5 @@ def api_view(text):
         reply += "農牧戶_(年份)\n"
         reply += "耕地面積_(年份)\n"
         reply += "災害_(年份)\n"
+        reply += "就業人口_(年份)\n就業人口_(年份)/(月份)\n"
     return reply
