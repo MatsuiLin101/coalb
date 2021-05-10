@@ -33,7 +33,6 @@ class WelfareApiView(ApiView):
             if not self.message:
                 self.get_data()
         except Exception as e:
-            print(traceback.format_exc())
             if not self.message:
                 self.message = f"搜尋「{self.command} {self.selfyear}」發生錯誤"
         if self.driver:
@@ -261,6 +260,9 @@ class Scholarship(WelfareApiView):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "社會福利統計"
+        self.text_group_1 = "農漁民子弟就學獎助學金發放件數"
+        self.text_group_2 = "農漁民子弟就學獎助學金發放金額：縣市別"
+        self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
         self.id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
         self.id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
         self.id_check_year = "ctl00_cphMain_uctlInquireAdvance_chkYear"
@@ -271,9 +273,11 @@ class Scholarship(WelfareApiView):
         self.id_end_month = "ctl00_cphMain_uctlInquireAdvance_ddlMonthEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
+        self.id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
         self.command = command
         self.query_date = query_date
         self.city = city
+        self.option_city = None
         self.selfyear = ""
         self.selfmonth = None
         self.select_value = ""
@@ -287,18 +291,30 @@ class Scholarship(WelfareApiView):
     def get_result(self):
         WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
         table = self.driver.find_element(By.ID, self.id_table)
-        self.unit = "（人）"
         self.result = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
 
     def get_data(self):
-        self.parser()
+        self.parser(self.id_group, self.text_group_1)
         if not self.message:
             self.get_table()
             self.get_result()
+            result1 = self.result
+            self.parser_second(self.id_group, self.text_group_2)
+            self.get_table()
+            self.get_result()
+            result2 = self.result
         if not self.message:
-            self.message = f"搜尋「農保 {self.query_date}」的結果為：\n" + f"{self.selfyear}年"
+            self.message = f"搜尋「獎助學金 {self.query_date}"
+            if self.city:
+                self.message += f" {self.city}"
+            self.message += "」的結果為：\n" + f"{self.selfyear}年"
             if self.selfmonth:
                 self.message += f"{self.selfmonth}月"
             if self.city:
                 self.message += f"{self.city}"
-            self.message += f" 農保：{self.result}{self.unit}\n"
+            self.message += f" 農漁民子女獎助學金發放件數：{result1}（件）\n{self.selfyear}年"
+            if self.selfmonth:
+                self.message += f"{self.selfmonth}月"
+            if self.city:
+                self.message += f"{self.city}"
+            self.message += f" 農漁民子女獎助學金金額：{result2}（元）\n"
