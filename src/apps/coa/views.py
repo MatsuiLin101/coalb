@@ -21,6 +21,9 @@ DisasterApiView,
 from apps.coa.apis.laborforce import (
 LaborforceApiView,
 )
+from apps.coa.apis.welfare import (
+WelfareApiView,
+)
 from apps.coa.utils import (
     pre_process_text_2,
     query_produce_value,
@@ -79,7 +82,7 @@ def api_view(text):
         response = api.api()
         reply = f"{text}\n{response}"
     elif command in ["農保", "老農津貼", "獎助學金"]:
-        api = LaborforceApiView(command, year, city_product)
+        api = WelfareApiView(command, year, city_product)
         response = api.chose_api().api()
         reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:
