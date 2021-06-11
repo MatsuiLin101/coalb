@@ -1,29 +1,6 @@
 from django.shortcuts import render
 
-from apps.coa.apis.value import (
-ValueApiView,
-)
-from apps.coa.apis.gross import (
-GrossApiView,
-)
-from apps.coa.apis.income import (
-IncomeApiView,
-)
-from apps.coa.apis.farmer import (
-FarmerApiView,
-)
-from apps.coa.apis.farmerarea import (
-FarmerAreaApiView,
-)
-from apps.coa.apis.disaster import (
-DisasterApiView,
-)
-from apps.coa.apis.laborforce import (
-LaborforceApiView,
-)
-from apps.coa.apis.welfare import (
-WelfareApiView,
-)
+from apps.coa.apis import *
 from apps.coa.utils import (
     pre_process_text_2,
     query_produce_value,
