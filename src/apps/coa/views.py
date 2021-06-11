@@ -66,6 +66,10 @@ def api_view(text):
         api = LivestockHogApiView(command, year)
         response = api.api()
         reply = f"{text}\n{response}"
+    elif command in ["拍賣價", "產地價", "零售價"]:
+        api = LivestockPriceApiView(command, year, city_product)
+        response = api.chose_api().api()
+        reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:
         reply = parser_product(text)
         # if reply is False:

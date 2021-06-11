@@ -40,10 +40,7 @@ from .livestockhog import LivestockHogApiView
 是否更改指令統一為「毛豬」
 '''
 
-# from .livestockprice import LivestockPriceApiView
-'''
-dev
-'''
+from .livestockprice import LivestockPriceApiView
 
 # from .livestockfeedlot import LivestockFeedlotApiView
 
