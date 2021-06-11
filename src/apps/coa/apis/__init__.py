@@ -35,6 +35,11 @@ Scholarship無法查詢到縣市
 
 # from .cropcost import CropCostApiView
 
+# from .livestockhog import LivestockHogApiView
+'''
+dev
+'''
+
 # from .livestockprice import LivestockPriceApiView
 
 # from .livestockfeedlot import LivestockFeedlotApiView
