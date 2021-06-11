@@ -35,9 +35,9 @@ Scholarship無法查詢到縣市
 
 # from .cropcost import CropCostApiView
 
-# from .livestockhog import LivestockHogApiView
+from .livestockhog import LivestockHogApiView
 '''
-dev
+是否更改指令統一為「毛豬」
 '''
 
 # from .livestockprice import LivestockPriceApiView
