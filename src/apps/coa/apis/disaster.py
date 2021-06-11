@@ -60,4 +60,4 @@ class DisasterApiView(ApiView):
         data_seafood = round(self.ws[f"H{self.row}"].value)
         data_wood = round(self.ws[f"I{self.row}"].value)
         data_facility = round(self.ws[f"K{self.row}"].value)
-        self.message = f"搜尋「災害 {self.selfyear}」的結果為：\n" + f"合計：{data_total}(千元)\n" + f"產物損失-小計：{data_sub}(千元)\n" + f"產物損失-農作物：{data_crop}(千元)\n" + f"產物損失-畜禽：{data_livestock}(千元)\n" + f"產物損失-漁產：{data_seafood}(千元)\n" + f"產物損失-林產：{data_wood}(千元)\n" + f"民間設施損失-小計：{data_facility}(千元)\n"
+        self.message = f"搜尋「災害 {self.selfyear}」的結果為：\n" + f"合計：{int(data_total):,d}(千元)\n" + f"產物損失-小計：{int(data_sub):,d}(千元)\n" + f"產物損失-農作物：{int(data_crop):,d}(千元)\n" + f"產物損失-畜禽：{int(data_livestock):,d}(千元)\n" + f"產物損失-漁產：{int(data_seafood):,d}(千元)\n" + f"產物損失-林產：{int(data_wood):,d}(千元)\n" + f"民間設施損失-小計：{int(data_facility):,d}(千元)\n"

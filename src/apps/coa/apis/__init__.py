@@ -21,7 +21,7 @@ from .laborforce import LaborforceApiView
 
 from .disaster import DisasterApiView
 '''
-數字加上逗點區隔
+數字加上逗點區隔(已完成、待確認)
 '''
 
 from .welfare import WelfareApiView
