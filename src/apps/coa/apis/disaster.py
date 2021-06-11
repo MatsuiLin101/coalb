@@ -7,6 +7,9 @@ from apps.coa.utils import *
 class DisasterApiView(ApiView):
     '''
     災害api介面
+    disaster(災害)
+    年報十、1
+    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, selfyear):
         super()

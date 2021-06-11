@@ -7,6 +7,9 @@ from apps.coa.utils import *
 class LaborforceApiView(ApiView):
     '''
     勞動力(就業人口)api介面
+    laborforce(勞動力)
+    動態查詢 [勞工統計]>>[勞動力統計]>>[農業就業人口]
+    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, query_date):
         super()

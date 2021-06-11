@@ -7,9 +7,16 @@ from apps.coa.utils import *
 class WelfareApiView(ApiView):
     '''
     社會福利api介面
-    農保
-    老農津貼
-    農漁民子女獎助學金
+    welfare(社會福利)
+    -Insurance(農保)
+    動態查詢 [社會保險及社會指標統計]>>[社會保險統計]>>[農民健康保險投保人數]
+    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    -Allowance(老農津貼)
+    動態查詢 [社會保險及社會指標統計]>>[社會福利統計]>>[老農津貼人數]、[老農津貼金額]
+    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    -Scholarship(農漁民子女獎助學金)
+    動態查詢 [社會保險及社會指標統計]>>[社會福利統計]>>[農漁民子弟就學獎助學金發放件數]、[農漁民子弟就學獎助學金發放金額：縣市別]
+    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, command, query_date, city=None):
         super()

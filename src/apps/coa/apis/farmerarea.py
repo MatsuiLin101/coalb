@@ -7,6 +7,9 @@ from apps.coa.utils import *
 class FarmerAreaApiView(ApiView):
     '''
     耕地面積api介面
+    farmerarea(耕地面積)
+    年報八、(一)、2
+    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, selfyear):
         super()

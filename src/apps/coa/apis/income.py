@@ -7,6 +7,9 @@ from apps.coa.utils import *
 class IncomeApiView(ApiView):
     '''
     所得api介面
+    income(所得)
+    年報五、3
+    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, selfyear):
         super()

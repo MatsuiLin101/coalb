@@ -7,6 +7,9 @@ from apps.coa.utils import *
 class FarmerApiView(ApiView):
     '''
     農家(農牧戶)api介面
+    farmer(農家(農牧戶))
+    年報五、1
+    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, selfyear):
         super()

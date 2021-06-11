@@ -7,6 +7,13 @@ from apps.coa.utils import *
 class ValueApiView(ApiView):
     '''
     產值api介面
+    value(產值)
+    -總產值
+    動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
+    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    -產值
+    年報一、(四)
+    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, selfyear, product):
         super()

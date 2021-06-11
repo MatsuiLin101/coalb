@@ -7,6 +7,9 @@ from apps.coa.utils import *
 class GrossApiView(ApiView):
     '''
     國內生產毛額api介面
+    gross(國內生產毛額)
+    年報一、(一)
+    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, selfyear):
         super()
