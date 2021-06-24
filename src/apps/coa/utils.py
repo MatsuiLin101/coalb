@@ -74,6 +74,26 @@ def driver_select(driver, id, method, target, cancel=False):
         select.select_by_visible_text(target)
 
 
+def driver_select_xpath(driver, xpath, method, target, cancel=False):
+    """
+    根據條件選取select物件的內容
+    driver: selenium瀏覽器
+    xpath: select物件的xpath
+    method: selenium選取物件的方式
+    target: selenium要選取的value或text
+    cancel: select為multiple時可使用，True取消原本已選取的項目
+    """
+    time.sleep(1)
+    WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.XPATH, xpath)))
+    select = Select(driver.find_element(By.XPATH, xpath))
+    if cancel:
+        select.deselect_all()
+    if method == "value":
+        select.select_by_value(target)
+    elif method == "text":
+        select.select_by_visible_text(target)
+
+
 def query_produce_value(year, city):
     '''
     爬取動態查詢總產值/產值資料

@@ -31,7 +31,10 @@ Scholarship無法查詢到縣市
 
 # from .cropprice import CropPriceApiView
 
-# from .cropproduce import CropProduceApiView
+from .cropproduce import CropProduceApiView
+'''
+dev
+'''
 
 # from .cropcost import CropCostApiView
 
