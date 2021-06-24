@@ -13,9 +13,6 @@ class CropProduceApiView(ApiView):
     EXCEL匯入
     —-單位產量
     EXCEL匯入
-from apps.coa.apis.cropproduce import *
-a = CropProduceApiView('aaa', 108, '台北', '落花生')
-a.verify_date()
     '''
     def __init__(self, command, query_date, city, product):
         self.driver = None
@@ -99,26 +96,59 @@ a.verify_date()
         # select city
         select_city = self.driver.find_element(By.XPATH, self.select_city)
         if self.city in select_city.text:
-            target_city = list()
+            self.target_city = list()
             for city in select_city.text.replace(' ', '')[:-1].split('\n'):
                 if self.city in city:
-                    target_city.append(city)
-            if len(target_city) != 1:
-                self.message = f"縣市「{self.city}」有{len(target_city)}種結果，請輸入準確的縣市名稱\n"
-                for target in target_city:
+                    self.target_city.append(city)
+            if len(self.target_city) != 1:
+                self.message = f"縣市「{self.city}」有{len(self.target_city)}種結果，請輸入準確的縣市名稱\n"
+                for target in self.target_city:
                     self.message += f"{target.split('.')[-1]}\n"
                 self.message = self.message[:-1]
                 return
-            driver_select_xpath(self.driver, self.select_city, "text", target_city[0])
+            driver_select_xpath(self.driver, self.select_city, "text", self.target_city[0])
         else:
             self.message = f"縣市「{self.city}」不在清單中，請修改縣市名後重新查詢"
             return
 
-        # btn_query = self.driver.find_element(By.XPATH, self.btn_query)
-        # btn_query.click()
+    def get_table(self):
+        self.list_result = list()
+        for product in self.target_product:
+            # reload page to avoid element locate error
+            self.driver.get(self.url)
+            frame_left = self.driver.find_element(By.XPATH, self.frame_left)
+            frame_right = self.driver.find_element(By.XPATH, self.frame_right)
+            self.driver.switch_to_frame(frame_left)
+            self.driver.find_element(By.ID, self.menu1).click()
+            self.driver.find_element(By.ID, self.menu2).click()
+            self.driver.find_element(By.ID, self.menu3).click()
+            self.driver.switch_to_default_content()
+            self.driver.switch_to_frame(frame_right)
+            select_year = self.driver.find_element(By.XPATH, self.select_year)
+            driver_select_xpath(self.driver, self.select_year, "value", str(self.year).zfill(3))
+            select_city = self.driver.find_element(By.XPATH, self.select_city)
+            driver_select_xpath(self.driver, self.select_city, "text", self.target_city[0])
+
+            # send query
+            driver_select_xpath(self.driver, self.select_product, "text", product)
+            btn_query = self.driver.find_element(By.XPATH, self.btn_query)
+            btn_query.click()
+
+            # get data
+            table = self.driver.find_element(By.XPATH, self.table)
+            if "查無資料" in table.text:
+                self.message += f"產量 {self.year} {self.city} {product.split('.')[-1]}：查無資料\n"
+                self.message += f"種植面積 {self.year} {self.city} {product.split('.')[-1]}：查無資料\n"
+            else:
+                produce = table.text.split('\n')[-1].split(' ')[-1]
+                farmerarea = table.text.split('\n')[-1].split(' ')[1]
+                self.message += f"產量 {self.year} {self.city} {product.split('.')[-1]}：{produce}(公斤)\n"
+                self.message += f"種植面積 {self.year} {self.city} {product.split('.')[-1]}：{farmerarea}(公頃)\n"
+        self.message = self.message[:-1]
 
     def get_data(self):
         self.parser()
         self.set_query()
         if self.message:
             return
+        self.get_table()
