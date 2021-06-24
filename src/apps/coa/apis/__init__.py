@@ -33,7 +33,8 @@ Scholarship無法查詢到縣市
 
 from .cropproduce import CropProduceApiView
 '''
-dev
+已完成
+待測試
 '''
 
 # from .cropcost import CropCostApiView
