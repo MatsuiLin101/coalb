@@ -21,11 +21,13 @@ from .laborforce import LaborforceApiView
 
 from .disaster import DisasterApiView
 '''
-數字加上逗點區隔(已完成、待確認)
+待確認
+數字加上逗點區隔
 '''
 
 from .welfare import WelfareApiView
 '''
+待修正
 Scholarship無法查詢到縣市
 '''
 
@@ -40,6 +42,9 @@ from .cropproduce import CropProduceApiView
 待測試
 產量
 種植面積
+
+待修正
+作物太多查詢時間過長會導致reply_token失效
 '''
 
 # from .cropcost import CropCostApiView
@@ -50,6 +55,11 @@ from .livestockhog import LivestockHogApiView
 '''
 
 from .livestockprice import LivestockPriceApiView
+'''
+待測試
+本次測試正常
+部署後無法使用需要除錯
+'''
 
 # from .livestockfeedlot import LivestockFeedlotApiView
 
