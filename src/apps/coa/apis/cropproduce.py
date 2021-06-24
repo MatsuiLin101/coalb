@@ -14,7 +14,7 @@ class CropProduceApiView(ApiView):
     —-單位產量
     EXCEL匯入
 from apps.coa.apis.cropproduce import *
-a = CropProduceApiView('aaa', 108, '雲林', '落花生')
+a = CropProduceApiView('aaa', 108, '台北', '落花生')
 a.verify_date()
     '''
     def __init__(self, command, query_date, city, product):
@@ -32,7 +32,7 @@ a.verify_date()
         self.table = "/html/body/div/form/div/table"
         self.command = command
         self.query_date = query_date
-        self.city = city
+        self.city = city.replace("台", "臺")
         self.product = product
         self.message = ""
 
@@ -88,15 +88,31 @@ a.verify_date()
         # select product
         select_product = self.driver.find_element(By.XPATH, self.select_product)
         if self.product in select_product.text:
-            target_product = list()
+            self.target_product = list()
             for product in select_product.text.replace(' ', '')[:-1].split('\n'):
                 if self.product in product:
-                    target_product.append(product)
+                    self.target_product.append(product)
         else:
             self.message = f"作物「{self.product}」不在清單中，請修改作物名後重新查詢"
             return
 
         # select city
+        select_city = self.driver.find_element(By.XPATH, self.select_city)
+        if self.city in select_city.text:
+            target_city = list()
+            for city in select_city.text.replace(' ', '')[:-1].split('\n'):
+                if self.city in city:
+                    target_city.append(city)
+            if len(target_city) != 1:
+                self.message = f"縣市「{self.city}」有{len(target_city)}種結果，請輸入準確的縣市名稱\n"
+                for target in target_city:
+                    self.message += f"{target.split('.')[-1]}\n"
+                self.message = self.message[:-1]
+                return
+            driver_select_xpath(self.driver, self.select_city, "text", target_city[0])
+        else:
+            self.message = f"縣市「{self.city}」不在清單中，請修改縣市名後重新查詢"
+            return
 
         # btn_query = self.driver.find_element(By.XPATH, self.btn_query)
         # btn_query.click()
@@ -104,3 +120,5 @@ a.verify_date()
     def get_data(self):
         self.parser()
         self.set_query()
+        if self.message:
+            return
