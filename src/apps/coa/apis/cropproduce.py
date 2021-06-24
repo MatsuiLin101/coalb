@@ -13,9 +13,9 @@ class CropProduceApiView(ApiView):
     EXCEL匯入
     —-單位產量
     EXCEL匯入
-    from apps.coa.apis.cropproduce import *
-    a = CropProduceApiView('aaa', 108, '雲林', '落花生')
-    a.verify_date()
+from apps.coa.apis.cropproduce import *
+a = CropProduceApiView('aaa', 108, '雲林', '落花生')
+a.verify_date()
     '''
     def __init__(self, command, query_date, city, product):
         self.driver = None
@@ -86,6 +86,15 @@ class CropProduceApiView(ApiView):
         driver_select_xpath(self.driver, self.select_year, "value", str(self.year).zfill(3))
 
         # select product
+        select_product = self.driver.find_element(By.XPATH, self.select_product)
+        if self.product in select_product.text:
+            target_product = list()
+            for product in select_product.text.replace(' ', '')[:-1].split('\n'):
+                if self.product in product:
+                    target_product.append(product)
+        else:
+            self.message = f"作物「{self.product}」不在清單中，請修改作物名後重新查詢"
+            return
 
         # select city
 
