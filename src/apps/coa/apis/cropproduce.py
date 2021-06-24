@@ -19,9 +19,9 @@ class CropProduceApiView(ApiView):
         self.url = "https://agr.afa.gov.tw/afa/afa_frame.jsp"
         self.frame_left = "/html/frameset/frameset/frame[1]"
         self.frame_right = "/html/frameset/frameset/frame[2]"
-        self.menu1 = "divoFoldMenu0"
-        self.menu2 = "divoFoldMenu0_0"
-        self.menu3 = "divoFoldMenu0_0_0"
+        self.menu1 = "/html/body/div/div/div[1]/a"
+        self.menu2 = "/html/body/div/div/div[2]/a"
+        self.menu3 = "/html/body/div/div/div[3]/a"
         self.select_year = "/html/body/div/form/div/table/tbody/tr[1]/td[2]/select"
         self.select_product = "/html/body/div/form/div/table/tbody/tr[3]/td[2]/select"
         self.select_city = "/html/body/div/form/div/table/tbody/tr[4]/td[2]/select"
@@ -46,8 +46,9 @@ class CropProduceApiView(ApiView):
             if not self.message:
                 self.get_data()
         except Exception as e:
+            traceback_log = TracebackLog.objects.create(app='CropProduceApiView', message=traceback.format_exc())
             if not self.message:
-                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤"
+                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤，錯誤編號「{traceback_log.id}」\n"
         if self.driver:
             self.driver.close()
         return self.message
@@ -60,10 +61,9 @@ class CropProduceApiView(ApiView):
         except Exception as e:
             self.message = f"年份「{self.year}」無效，請輸入民國年"
             return
-        self.query_date = f"{self.year - 1911}年"
 
     def parser(self):
-        self.driver = get_driver(False)
+        self.driver = get_driver()
         self.driver.get(self.url)
 
     def set_query(self):
@@ -71,9 +71,9 @@ class CropProduceApiView(ApiView):
         frame_left = self.driver.find_element(By.XPATH, self.frame_left)
         frame_right = self.driver.find_element(By.XPATH, self.frame_right)
         self.driver.switch_to_frame(frame_left)
-        self.driver.find_element(By.ID, self.menu1).click()
-        self.driver.find_element(By.ID, self.menu2).click()
-        self.driver.find_element(By.ID, self.menu3).click()
+        self.driver.find_element(By.XPATH, self.menu1).click()
+        self.driver.find_element(By.XPATH, self.menu2).click()
+        self.driver.find_element(By.XPATH, self.menu3).click()
         self.driver.switch_to_default_content()
         self.driver.switch_to_frame(frame_right)
 
@@ -126,9 +126,9 @@ class CropProduceApiView(ApiView):
             frame_left = self.driver.find_element(By.XPATH, self.frame_left)
             frame_right = self.driver.find_element(By.XPATH, self.frame_right)
             self.driver.switch_to_frame(frame_left)
-            self.driver.find_element(By.ID, self.menu1).click()
-            self.driver.find_element(By.ID, self.menu2).click()
-            self.driver.find_element(By.ID, self.menu3).click()
+            self.driver.find_element(By.XPATH, self.menu1).click()
+            self.driver.find_element(By.XPATH, self.menu2).click()
+            self.driver.find_element(By.XPATH, self.menu3).click()
             self.driver.switch_to_default_content()
             self.driver.switch_to_frame(frame_right)
             select_year = self.driver.find_element(By.XPATH, self.select_year)
