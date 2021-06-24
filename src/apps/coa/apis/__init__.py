@@ -33,8 +33,13 @@ Scholarship無法查詢到縣市
 
 from .cropproduce import CropProduceApiView
 '''
-已完成
+待開發
+單位產值
+單位產量
+
 待測試
+產量
+種植面積
 '''
 
 # from .cropcost import CropCostApiView

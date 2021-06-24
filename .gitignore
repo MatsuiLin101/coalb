@@ -3,6 +3,7 @@ __pycache__/
 staticfiles/
 document/
 chrome/
+backup/
 
 *.sqlite3
 #*.dev
