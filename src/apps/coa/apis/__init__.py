@@ -61,7 +61,10 @@ from .livestockprice import LivestockPriceApiView
 部署後無法使用需要除錯
 '''
 
-# from .livestockfeedlot import LivestockFeedlotApiView
+from .livestockfeedlot import LivestockFeedlotApiView
+'''
+已開發完成待測試
+'''
 
 # from .livestockfeedamount import LivestockFeedamountApiView
 

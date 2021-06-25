@@ -41,3 +41,20 @@ class ProduceValueProduct(AbstractModel):
     class Meta:
         verbose_name = "產值表-產品"
         verbose_name_plural = verbose_name
+
+
+class LivestockFeedlot(models.Model):
+    parent = models.ForeignKey("LivestockFeedlot", on_delete=models.CASCADE, null=True, blank=True, verbose_name="上層物件")
+    main_class = models.CharField(max_length=20, verbose_name="主分類")
+    sub_class = models.CharField(max_length=20, verbose_name="次分類")
+    level = models.PositiveIntegerField(verbose_name="級別")
+    name = models.CharField(max_length=20, verbose_name="名稱")
+    value = models.CharField(max_length=20, verbose_name="值")
+    search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
+
+    class Meta:
+        verbose_name = "畜禽飼養場數"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.search_name}"
