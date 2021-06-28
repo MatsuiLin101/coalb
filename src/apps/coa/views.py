@@ -19,7 +19,7 @@ def api_view(text):
         command, year, city_product = text_list
         city = None
     elif len(text_list) == 4:
-        command, year, city, city_product = text_list
+        command, year, city_product, city = text_list
     else:
         command = None
         year = None
@@ -75,7 +75,7 @@ def api_view(text):
         response = api.chose_api().api()
         reply = f"{text}\n{response}"
     elif command in ["場數"]:
-        api = LivestockFeedlotApiView(command, year, city_product, city)
+        api = LivestockFeedlotApiView(year, city_product, city)
         response = api.api()
         reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:

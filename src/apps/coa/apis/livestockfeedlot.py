@@ -26,7 +26,7 @@ class LivestockFeedlotApiView(ApiView):
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
         self.query_date = str(query_date)
         self.product = product
-        self.city =  None
+        self.city =  city
         self.group = None
         self.message = ""
 
