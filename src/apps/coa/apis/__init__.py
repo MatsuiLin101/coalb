@@ -44,7 +44,7 @@ from .cropproduce import CropProduceApiView
 種植面積
 
 待修正
-作物太多查詢時間過長會導致reply_token失效
+作物太多查詢時間過長會導致reply_token失效(30秒)
 '''
 
 # from .cropcost import CropCostApiView
