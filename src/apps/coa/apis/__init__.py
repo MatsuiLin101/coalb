@@ -66,7 +66,10 @@ from .livestockfeedlot import LivestockFeedlotApiView
 已開發完成待測試
 '''
 
-# from .livestockfeedamount import LivestockFeedamountApiView
+from .livestockfeedamount import LivestockFeedamountApiView
+'''
+已開發完成待測試
+'''
 
 # from .livestockslaughter import LivestockSlaughterApiView
 
