@@ -52,6 +52,7 @@ class LivestockFeedlotBuilder(object):
                     parent = parent.parent
                 parent = origin_parent
 
+            print(f"Create {parent} {text_group} city {level} {name} {value} {search_name}")
             obj = LivestockFeedlot.objects.create(
                 parent = parent,
                 main_class = text_group,
