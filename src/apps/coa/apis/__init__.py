@@ -71,7 +71,10 @@ from .livestockfeedamount import LivestockFeedamountApiView
 已開發完成待測試
 '''
 
-# from .livestockslaughter import LivestockSlaughterApiView
+from .livestockslaughter import LivestockSlaughterApiView
+'''
+dev
+'''
 
 # from .livestockbyproduct import LivestockByproductApiView
 

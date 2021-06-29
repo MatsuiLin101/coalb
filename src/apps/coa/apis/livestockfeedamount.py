@@ -41,7 +41,7 @@ class LivestockFeedamountApiView(ApiView):
         except Exception as e:
             print(traceback.format_exc())
             if not self.message:
-                self.message = f"搜尋「頭數 {self.query_date} {self.product}」發生錯誤"
+                self.message = f"搜尋「在養量 {self.query_date} {self.product}」發生錯誤"
         if self.driver:
             self.driver.close()
         return self.message
