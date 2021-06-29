@@ -73,9 +73,15 @@ from .livestockfeedamount import LivestockFeedamountApiView
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
-dev
+已開發完成待測試
 '''
 
-# from .livestockbyproduct import LivestockByproductApiView
+from .livestockbyproduct import LivestockByproductApiView
+'''
+已開發完成待測試
+
+待確認
+原指令「產量」與 CropProduceApiView 重複，是否把指令改成「副產品」or「副產物」
+'''
 
 # from .productcode import ProductCodeApiView

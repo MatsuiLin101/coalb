@@ -86,6 +86,10 @@ def api_view(text):
         api = LivestockSlaughterApiView(year, city_product, city)
         response = api.api()
         reply = f"{text}\n{response}"
+    elif command in ["副產", "副產品", "副產物"]:
+        api = LivestockByproductApiView(year, city_product, city)
+        response = api.api()
+        reply = f"{text}\n{response}"
     elif '產地' in text or '批發' in text or '零售' in text:
         reply = parser_product(text)
         # if reply is False:
@@ -115,6 +119,7 @@ def api_view(text):
         reply += "場數_(年份)_(畜禽)_(城市)\n"
         reply += "在養量_(年份)_(畜禽)_(城市)\n"
         reply += "屠宰_(年份)_(畜禽)_(城市)\n"
+        reply += "產量_(年份)_(畜禽)_(城市)\n"
     else:
         reply = f"很抱歉，您輸入的指令「{text}」可能有誤，無法為您查詢，目前可使用的查詢指令如下(括號內請改成要查詢的內容，並將底線以空白一格替換)：\n"
         reply += "總產值_(年份)\n"
@@ -140,4 +145,5 @@ def api_view(text):
         reply += "場數_(年份)_(畜禽)_(城市)\n"
         reply += "在養量_(年份)_(畜禽)_(城市)\n"
         reply += "屠宰_(年份)_(畜禽)_(城市)\n"
+        reply += "產量_(年份)_(畜禽)_(城市)\n"
     return reply
