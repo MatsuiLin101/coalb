@@ -94,6 +94,7 @@ class LivestockFeedamountBuilder(object):
                         parent = parent.parent
                 parent = origin_parent
 
+            print(f"Create {parent} {text_group} product {level} {name} {value} {search_name}")
             obj = LivestockFeedamount.objects.create(
                 parent = parent,
                 main_class = text_group,

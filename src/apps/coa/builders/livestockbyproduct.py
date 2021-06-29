@@ -1,26 +1,26 @@
 from .configs import *
 
 
-class LivestockFeedlotBuilder(object):
+class LivestockByproductBuilder(object):
     '''
-    from apps.coa.builders.livestockfeedlot import *
-    a = LivestockFeedlotBuilder()
+    from apps.coa.builders.livestockbyproduct import *
+    a = LivestockByproductBuilder()
     '''
     def __init__(self):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
-        self.text_title = "畜禽產品飼養數量統計"
-        self.text_group1 = "家畜飼養場數"
-        self.text_group2 = "家禽飼養場數：縣市別×家禽別(104年度起)"
+        self.text_title = "畜禽產品生產量值統計"
+        self.text_group1 = "畜禽副產品產量"
+        self.text_group2 = "蜂蠶飼養產量"
         self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
         self.id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
         self.id_product = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
 
     def build(self):
-        LivestockFeedlot.objects.all().delete()
+        LivestockByproduct.objects.all().delete()
         self.driver = get_driver()
         self.driver.get(self.url)
-        # 進入畜禽產品飼養數量統計頁面
+        # 進入畜禽產品生產量值統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
         self.build_city(self.text_group1)
         self.build_product(self.text_group1)
@@ -44,7 +44,7 @@ class LivestockFeedlotBuilder(object):
 
             if parent is not None:
                 if level - parent.level != 1:
-                    parent = LivestockFeedlot.objects.filter(main_class=text_group, sub_class="city", level=level-1).last()
+                    parent = LivestockByproduct.objects.filter(main_class=text_group, sub_class="city", level=level-1).last()
 
                 origin_parent = parent
                 while parent.level > 1:
@@ -53,7 +53,7 @@ class LivestockFeedlotBuilder(object):
                 parent = origin_parent
 
             print(f"Create {parent} {text_group} city {level} {name} {value} {search_name}")
-            obj = LivestockFeedlot.objects.create(
+            obj = LivestockByproduct.objects.create(
                 parent = parent,
                 main_class = text_group,
                 sub_class = "city",
@@ -83,7 +83,7 @@ class LivestockFeedlotBuilder(object):
 
             if parent is not None:
                 if level - parent.level != 1:
-                    parent = LivestockFeedlot.objects.filter(main_class=text_group, sub_class="product", level=level-1).last()
+                    parent = LivestockByproduct.objects.filter(main_class=text_group, sub_class="product", level=level-1).last()
 
                 origin_parent = parent
                 while True:
@@ -95,7 +95,7 @@ class LivestockFeedlotBuilder(object):
                 parent = origin_parent
 
             print(f"Create {parent} {text_group} product {level} {name} {value} {search_name}")
-            obj = LivestockFeedlot.objects.create(
+            obj = LivestockByproduct.objects.create(
                 parent = parent,
                 main_class = text_group,
                 sub_class = "product",
