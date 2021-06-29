@@ -36,8 +36,15 @@ class LivestockFeedamountAdmin(admin.ModelAdmin):
     ]
 
 
+class LivestockSlaughterAdmin(admin.ModelAdmin):
+    list_display = [
+        "parent", "search_name", "level", "name", "main_class", "sub_class"
+    ]
+
+
 admin.site.register(ProduceValueCity, ProduceValueCityAdmin)
 admin.site.register(ProduceValueFarmCategory)
 admin.site.register(ProduceValueProduct, ProduceValueProductAdmin)
 admin.site.register(LivestockFeedlot, LivestockFeedlotAdmin)
 admin.site.register(LivestockFeedamount, LivestockFeedamountAdmin)
+admin.site.register(LivestockSlaughter, LivestockSlaughterAdmin)
