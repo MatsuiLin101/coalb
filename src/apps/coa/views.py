@@ -1,3 +1,5 @@
+from openpyxl import load_workbook
+
 from django.shortcuts import render
 
 from apps.coa.apis import *
@@ -6,6 +8,7 @@ from apps.coa.utils import (
     query_produce_value,
     query_produce_value_product,
 )
+from apps.coa.models import ProductCode
 
 
 def api_view(text):
@@ -161,3 +164,35 @@ def api_view(text):
         reply += "屠宰_(年份)_(畜禽)_(城市)\n"
         reply += "產量_(年份)_(畜禽)_(城市)\n"
     return reply
+
+
+def file_view(file_name):
+    try:
+        ProductCode.objects.all().delete()
+        main_count = 0
+        labor_count = 0
+
+        wb = load_workbook(file_name)
+        ws = wb['主力代碼']
+        for row in ws.rows:
+            code = row[0]
+            name = row[1]
+            if code.row <= 1:
+                continue
+            else:
+                obj = ProductCode.objects.create(category='主力代碼', code=code.value, name=name.value)
+                main_count += 1
+
+        ws = wb['勞動力代碼']
+        for row in ws.rows:
+            code = row[0]
+            name = row[1]
+            if code.row <= 1:
+                continue
+            else:
+                obj = ProductCode.objects.create(category='勞動力代碼', code=code.value, name=name.value)
+                labor_count += 1
+
+        return f"上傳主力代碼{main_count}筆，勞動力代碼{labor_count}筆成功！"
+    except Exception as e:
+        raise
