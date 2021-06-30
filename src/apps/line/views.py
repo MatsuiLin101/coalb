@@ -1,4 +1,6 @@
+import datetime
 import json
+import os
 import random
 import traceback
 
@@ -53,7 +55,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from apps.coa.views import api_view
+from apps.coa.views import api_view, file_view
 from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 
 from .models import LineUser, SD
@@ -169,12 +171,61 @@ def handle_message_sticker(event):
     reply_list = ["不想理你", f"{name}別鬧", f"{name}不要玩機器人", f"{name}你想跟我貼圖Battle？", "...", f"{name}快去調查！"]
     reply = f"{random.choice(reply_list)}"
     log = LineMessageLog.objects.create(
-        user=user, message_id=message_id, reply_token=reply_token, message=sticker_id, reply=reply
+        user=user, message_id=message_id, reply_token=reply_token, message=f"貼圖：{sticker_id}", reply=reply
     )
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=reply)
     )
+
+
+@handler.add(MessageEvent, message=FileMessage)
+def handle_message_file(event):
+    try:
+        message_id = event.message.id
+        file_name = event.message.file_name
+        file_size = event.message.file_size
+        reply_token = event.reply_token
+        user_id = event.source.user_id
+        user = LineUser.objects.get(user_id=user_id)
+
+        log = LineMessageLog.objects.create(
+            user=user, message_id=message_id, reply_token=reply_token, message=f"上傳檔案，檔案名稱：{file_name}，檔案大小：{file_size}"
+        )
+
+        if file_name != "主力勞動力代碼對照.xlsx":
+            reply = f'上傳的檔案名稱「{file_name}」不符要求，上傳失敗！'
+            log.reply = reply
+            log.save()
+            line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+        else:
+            # 主力勞動力代碼對照_timestamp.xlsx
+            path = f"{file_name.split('.')[0]}_{int(datetime.datetime.now().timestamp())}.{file_name.split('.')[-1]}"
+            message_content = line_bot_api.get_message_content(message_id)
+            with open(path, 'wb') as fd:
+                for chunk in message_content.iter_content():
+                    fd.write(chunk)
+            # ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__',
+            # '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__',
+            # '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__',
+            # '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__',
+            # '__str__', '__subclasshook__', '__weakref__', 'content', 'content_type', 'iter_content', 'response']
+            # message_content <linebot.models.responses.Content object at 0x107e460f0>
+
+        reply = file_view(path)
+        os.remove(path)
+        log.reply = reply
+        log.save()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+    except Exception as e:
+        reply = f"發生錯誤，錯誤訊息編號「{log.id}」，請通知工程師處理。"
+        log.reply = traceback.format_exc()
+        log.status = False
+        log.save()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+
+
+
 
 
 # @handler.add(PostbackEvent)

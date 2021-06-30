@@ -93,4 +93,7 @@ from .livestockbyproduct import LivestockByproductApiView
 Ｏ 維持「產量」，另外開發控制方式
 '''
 
-# from .productcode import ProductCodeApiView
+from .productcode import ProductCodeApiView
+'''
+dev
+'''
