@@ -63,7 +63,7 @@ def driver_select(driver, id, method, target, cancel=False):
     target: selenium要選取的value或text
     cancel: select為multiple時可使用，True取消原本已選取的項目
     """
-    time.sleep(1)
+    time.sleep(0.5)
     WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id)))
     select = Select(driver.find_element(By.ID, id))
     if cancel:
@@ -83,7 +83,7 @@ def driver_select_xpath(driver, xpath, method, target, cancel=False):
     target: selenium要選取的value或text
     cancel: select為multiple時可使用，True取消原本已選取的項目
     """
-    time.sleep(1)
+    time.sleep(0.5)
     WebDriverWait(driver, 30, 0.1).until(EC.presence_of_element_located((By.XPATH, xpath)))
     select = Select(driver.find_element(By.XPATH, xpath))
     if cancel:
