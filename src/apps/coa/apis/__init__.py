@@ -95,5 +95,5 @@ from .livestockbyproduct import LivestockByproductApiView
 
 from .productcode import ProductCodeApiView
 '''
-dev
+已開發完成待測試
 '''
