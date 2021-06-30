@@ -66,6 +66,10 @@ def api_view(text):
         api = CropProduceApiView(command, year, city, city_product)
         response = api.api()
         reply = f"{text}\n{response}"
+    elif command in ["生產成本", "生產費用", "粗收益", "淨收入率", "工時"]:
+        api = CropCostApiView(command, year, city_product)
+        response = api.chose_api().api()
+        reply = f"{text}\n{response}"
     elif command in ["交易量", "價格", "重量"]:
         api = LivestockHogApiView(command, year)
         response = api.api()
@@ -110,6 +114,11 @@ def api_view(text):
         reply += "獎助學金_(年份)\n"
         reply += "產量_(年份)_(縣市鄉鎮)_(作物)\n"
         reply += "種植面積_(年份)_(縣市鄉鎮)_(作物)\n"
+        reply += "生產成本_(年份)_(作物)\n"
+        reply += "生產費用_(年份)_(作物)\n"
+        reply += "粗收益_(年份)_(作物)\n"
+        reply += "淨收入率_(年份)_(作物)\n"
+        reply += "工時_(年份)_(作物)\n"
         reply += "交易量_(年份)_豬\n"
         reply += "價格_(年份)_豬\n"
         reply += "重量_(年份)_豬\n"
@@ -136,6 +145,11 @@ def api_view(text):
         reply += "獎助學金_(年份)\n"
         reply += "產量_(年份)_(縣市鄉鎮)_(作物)\n"
         reply += "種植面積_(年份)_(縣市鄉鎮)_(作物)\n"
+        reply += "生產成本_(年份)_(作物)\n"
+        reply += "生產費用_(年份)_(作物)\n"
+        reply += "粗收益_(年份)_(作物)\n"
+        reply += "淨收入率_(年份)_(作物)\n"
+        reply += "工時_(年份)_(作物)\n"
         reply += "交易量_(年份)_豬\n"
         reply += "價格_(年份)_豬\n"
         reply += "重量_(年份)_豬\n"

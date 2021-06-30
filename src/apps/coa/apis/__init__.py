@@ -43,15 +43,22 @@ from .cropproduce import CropProduceApiView
 產量
 種植面積
 
+待開發
+合併「產量」「種植面積」指令
+
 待修正
 作物太多查詢時間過長會導致reply_token失效(30秒)
 '''
 
-# from .cropcost import CropCostApiView
+from .cropcost import CropCostApiView
+'''
+已開發完成待測試
+'''
 
 from .livestockhog import LivestockHogApiView
 '''
-是否更改指令統一為「毛豬」
+待開發
+更改指令統一為「毛豬」
 '''
 
 from .livestockprice import LivestockPriceApiView
@@ -80,8 +87,10 @@ from .livestockbyproduct import LivestockByproductApiView
 '''
 已開發完成待測試
 
-待確認
-原指令「產量」與 CropProduceApiView 重複，是否把指令改成「副產品」or「副產物」
+待開發
+原指令「產量」與 CropProduceApiView 重複
+Ｘ 把指令改成「副產品」or「副產物」
+Ｏ 維持「產量」，另外開發控制方式
 '''
 
 # from .productcode import ProductCodeApiView
