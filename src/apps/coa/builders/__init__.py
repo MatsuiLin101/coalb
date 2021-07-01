@@ -3,6 +3,7 @@ from .livestockfeedamount import *
 from .livestockslaughter import *
 from .livestockbyproduct import *
 from .cropcost import *
+from .cropprice import *
 
 
 def build():
@@ -11,3 +12,4 @@ def build():
     LivestockSlaughterBuilder().build()
     LivestockByproductBuilder().build()
     CropCostBuilder().build()
+    CropPriceBuilder().build()
