@@ -60,6 +60,12 @@ class ProductCodeAdmin(admin.ModelAdmin):
     ]
 
 
+class CropPriceAdmin(admin.ModelAdmin):
+    list_display = [
+        "category", "name"
+    ]
+
+
 admin.site.register(ProduceValueCity, ProduceValueCityAdmin)
 admin.site.register(ProduceValueFarmCategory)
 admin.site.register(ProduceValueProduct, ProduceValueProductAdmin)
@@ -69,3 +75,4 @@ admin.site.register(LivestockSlaughter, LivestockSlaughterAdmin)
 admin.site.register(LivestockByproduct, LivestockByproductAdmin)
 admin.site.register(CropCost, CropCostAdmin)
 admin.site.register(ProductCode, ProductCodeAdmin)
+admin.site.register(CropPrice, CropPriceAdmin)
