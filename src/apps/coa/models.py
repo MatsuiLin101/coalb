@@ -144,6 +144,7 @@ class ProductCode(models.Model):
 class CropPrice(models.Model):
     category = models.CharField(max_length=20, verbose_name="分類")
     id_table = models.CharField(max_length=20, verbose_name="表格ID")
+    id_query = models.CharField(max_length=20, verbose_name="查詢ID")
     value = models.CharField(max_length=20, verbose_name="值")
     code = models.CharField(max_length=50, verbose_name="代碼")
     name = models.CharField(max_length=50, verbose_name="名稱")
