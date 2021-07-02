@@ -71,7 +71,7 @@ class CropPriceWholesaleBuilder(object):
 
     def build(self):
         CropPriceWholesale.objects.all().delete()
-        self.driver = get_driver(False)
+        self.driver = get_driver()
         self.driver.get(self.url)
         # 進入農產品價格統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
