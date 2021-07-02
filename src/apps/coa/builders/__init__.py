@@ -12,4 +12,5 @@ def build():
     LivestockSlaughterBuilder().build()
     LivestockByproductBuilder().build()
     CropCostBuilder().build()
-    CropPriceBuilder().build()
+    CropPriceOriginBuilder().build()
+    CropPriceWholesaleBuilder().build()
