@@ -31,11 +31,18 @@ from .welfare import WelfareApiView
 Scholarship無法查詢到縣市
 '''
 
-# from .cropprice import CropPriceApiView
+from .cropprice import CropPriceApiView
+'''
+dev
+批發價
+
+已開發完成待測試
+產地價
+'''
 
 from .cropproduce import CropProduceApiView
 '''
-待開發
+dev
 單位產值
 單位產量
 
