@@ -65,9 +65,9 @@ def api_view(text):
         api = WelfareApiView(command, year, city_product)
         response = api.chose_api().api()
         reply = f"{text}\n{response}"
-    elif command in ["產地"]:
+    elif command in ["產地", "批發"]:
         api = CropPriceApiView(command, year, city_product, city)
-        response = api.api()
+        response = api.choice_api().api()
         reply = f"{text}\n{response}"
     elif command in ["產量", "種植面積"]:
         api = CropProduceApiView(command, year, city, city_product)

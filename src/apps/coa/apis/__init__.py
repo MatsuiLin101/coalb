@@ -33,11 +33,9 @@ Scholarship無法查詢到縣市
 
 from .cropprice import CropPriceApiView
 '''
-dev
-批發價
-
 已開發完成待測試
 產地價
+批發價
 '''
 
 from .cropproduce import CropProduceApiView
