@@ -60,9 +60,15 @@ class ProductCodeAdmin(admin.ModelAdmin):
     ]
 
 
-class CropPriceAdmin(admin.ModelAdmin):
+class CropPriceOriginAdmin(admin.ModelAdmin):
     list_display = [
         "category", "name"
+    ]
+
+
+class CropPriceWholesaleAdmin(admin.ModelAdmin):
+    list_display = [
+        "parent", "search_name", "level", "name", "main_class", "sub_class"
     ]
 
 
@@ -75,4 +81,5 @@ admin.site.register(LivestockSlaughter, LivestockSlaughterAdmin)
 admin.site.register(LivestockByproduct, LivestockByproductAdmin)
 admin.site.register(CropCost, CropCostAdmin)
 admin.site.register(ProductCode, ProductCodeAdmin)
-admin.site.register(CropPrice, CropPriceAdmin)
+admin.site.register(CropPriceOrigin, CropPriceOriginAdmin)
+admin.site.register(CropPriceWholesale, CropPriceWholesaleAdmin)
