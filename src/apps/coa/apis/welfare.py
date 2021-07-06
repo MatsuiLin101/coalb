@@ -31,33 +31,20 @@ class WelfareApiView(BasicApiView):
         elif self.command == "獎助學金":
             return Scholarship(self.command, self.query_date, self.city)
 
-    def api(self):
-        try:
-            self.check_year()
-            if not self.message:
-                self.get_data()
-        except Exception as e:
-            if not self.message:
-                self.message = f"搜尋「{self.command} {self.selfyear}」發生錯誤"
-        if self.driver:
-            self.driver.close()
-        return self.message
-
-    def check_year(self):
-        # check years
+    def verify_date(self):
         # 檢查年份是否為數字
         try:
             int(self.selfyear)
         except Exception as e:
             self.message = f"年份「{self.selfyear}」無效，請輸入民國年"
-            return
+            raise CustomError(self.message)
         # 檢查月份是否為數字
         if self.selfmonth:
             try:
                 int(self.selfmonth)
             except Exception as e:
                 self.message = f"月份「{self.selfmonth}」無效，請輸入1～12"
-                return
+                raise CustomError(self.message)
         self.select_value = f"{self.selfyear.zfill(3)}{self.selfmonth.zfill(2)}" if self.selfmonth else f"{self.selfyear.zfill(3)}"
 
     def parser(self, group=None, text=None):

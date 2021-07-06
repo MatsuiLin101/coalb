@@ -33,27 +33,13 @@ class LivestockSlaughterApiView(BasicApiView):
         if self.city is not None:
             self.city = city.replace('台', '臺')
 
-    def api(self):
-        try:
-            self.check_year()
-            if not self.message:
-                self.get_data()
-        except Exception as e:
-            print(traceback.format_exc())
-            if not self.message:
-                self.message = f"搜尋「屠宰 {self.query_date} {self.product}」發生錯誤"
-        if self.driver:
-            self.driver.close()
-        return self.message
-
-    def check_year(self):
-        # check years
+    def verify_date(self):
         # 檢查年份是否為數字
         try:
             self.year = int(self.query_date)
         except Exception as e:
             self.message = f"年份「{self.query_date}」無效，請輸入民國年"
-            return
+            raise CustomError(self.message)
 
     def parser(self):
         self.driver = get_driver()

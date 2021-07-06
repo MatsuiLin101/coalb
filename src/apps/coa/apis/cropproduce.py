@@ -62,22 +62,7 @@ class CropProduceTotalApiView(BasicApiView):
             else:
                 self.city, self.district = self.city[:2], self.city[2:]
 
-    def api(self):
-        try:
-            self.verify_date()
-            self.get_data()
-        except CustomError:
-            pass
-        except Exception as e:
-            traceback_log = TracebackLog.objects.create(app=self.__class__.__name__, message=traceback.format_exc())
-            if not self.message:
-                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤，錯誤編號「{traceback_log.id}」"
-        if self.driver:
-            self.driver.close()
-        return self.message
-
     def verify_date(self):
-        # check years
         # 檢查年份是否為數字
         try:
             self.year = int(self.query_date)
@@ -217,7 +202,8 @@ class CropProduceUnitApiView(object):
         try:
             self.get_data()
         except Exception as e:
-            raise
+            traceback_log = TracebackLog.objects.create(app=f"{self.classname}", message=traceback.format_exc())
+            self.message = f"發生錯誤，請通知管理員處理，錯誤編號「{traceback_log.id}」"
         return self.message
 
     def get_data(self):
