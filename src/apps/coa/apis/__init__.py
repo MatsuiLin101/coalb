@@ -40,13 +40,11 @@ from .cropprice import CropPriceApiView
 
 from .cropproduce import CropProduceApiView
 '''
-dev
-單位產值
-單位產量
-
-待測試
+已開發完成待測試
 產量
 種植面積
+單位產值
+單位產量
 
 待開發
 合併「產量」「種植面積」指令
