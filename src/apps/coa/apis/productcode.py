@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class ProductCodeApiView(ApiView):
+class ProductCodeApiView(BasicApiView):
     '''
     作物代碼api介面
     (NEW)productcode(作物代碼)

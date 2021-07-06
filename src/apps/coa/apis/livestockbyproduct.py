@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class LivestockByproductApiView(ApiView):
+class LivestockByproductApiView(BasicApiView):
     '''
     畜禽副產品供應量api介面
     -byproduct(副產品產量)

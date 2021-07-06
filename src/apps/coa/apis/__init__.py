@@ -33,24 +33,32 @@ Scholarship無法查詢到縣市
 
 from .cropprice import CropPriceApiView
 '''
-已開發完成待測試
+指令
 產地價
 批發價
+
+已開發完成待測試
+
+待修正
+產地價 - 部署後無法使用需要除錯
 '''
 
 from .cropproduce import CropProduceApiView
 '''
-已開發完成待測試
+指令
 產量
 種植面積
 單位產值
 單位產量
 
+已開發完成待測試
+
 待開發
 合併「產量」「種植面積」指令
+合併「單位產值」「單位產量」指令
 
 待修正
-作物太多查詢時間過長會導致reply_token失效(30秒)
+「產量」「種植面積」 - 作物太多查詢時間過長會導致reply_token失效(30秒)
 '''
 
 from .cropcost import CropCostApiView
@@ -66,8 +74,9 @@ from .livestockhog import LivestockHogApiView
 
 from .livestockprice import LivestockPriceApiView
 '''
-待測試
-本次測試正常
+已開發完成待測試
+
+待修正
 部署後無法使用需要除錯
 '''
 

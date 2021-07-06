@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class CropPriceApiView(ApiView):
+class CropPriceApiView(BasicApiView):
     '''
     農耕價格api介面
     -price(價格)

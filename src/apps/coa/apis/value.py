@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class ValueApiView(ApiView):
+class ValueApiView(BasicApiView):
     '''
     產值api介面
     value(產值)

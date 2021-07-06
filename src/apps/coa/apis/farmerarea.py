@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class FarmerAreaApiView(ApiView):
+class FarmerAreaApiView(BasicApiView):
     '''
     耕地面積api介面
     farmerarea(耕地面積)
