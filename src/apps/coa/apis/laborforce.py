@@ -52,8 +52,7 @@ class LaborforceApiView(BasicApiView):
         self.select_value = f"{self.selfyear.zfill(3)}{self.selfmonth.zfill(2)}" if self.selfmonth else f"{self.selfyear.zfill(3)}"
 
     def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
+        super(LaborforceApiView, self).parser()
         # 進入勞動力統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
         driver_select(self.driver, self.id_group, "text", self.text_group)

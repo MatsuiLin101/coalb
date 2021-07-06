@@ -64,12 +64,8 @@ class CropCostApiView(BasicApiView):
             self.message = f"年份「{self.query_date}」無效，請輸入民國年"
             raise CustomError(self.message)
 
-    def set_year(self):
-        self.year = int(self.query_date)
-
     def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
+        super(CropCostApiView, self).parser()
         # 進入農畜產品生產成本統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
 
