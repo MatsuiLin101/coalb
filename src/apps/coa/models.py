@@ -172,3 +172,30 @@ class CropPriceWholesale(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class CropProduceUnit(models.Model):
+    category = models.CharField(max_length=10, verbose_name="類別")
+    display_name = models.CharField(max_length=50, verbose_name="顯示名稱")
+    name = models.CharField(max_length=20, verbose_name="名稱")
+    period = models.CharField(max_length=10, blank=True, null=True, verbose_name="期作別")
+    city = models.CharField(max_length=20, verbose_name="城市")
+    district = models.CharField(max_length=20, blank=True, null=True, verbose_name="鄉鎮區")
+    city_district = models.CharField(max_length=20, blank=True, null=True, verbose_name="完整行政區名稱")
+    city_code = models.CharField(max_length=20, verbose_name="城市代碼")
+    district_code = models.CharField(max_length=20, blank=True, null=True, verbose_name="鄉鎮區代碼")
+    amount_min = models.FloatField(default=0, verbose_name="產量最小值")
+    amount_max = models.FloatField(default=0, verbose_name="產量最大值")
+    amount_average = models.FloatField(default=0, verbose_name="產量平均值")
+    amount_unit = models.CharField(max_length=20, default="(公斤/公頃)", verbose_name="產量單位")
+    value_min = models.FloatField(default=0, verbose_name="產值最大值")
+    value_max = models.FloatField(default=0, verbose_name="產值最小值")
+    value_average = models.FloatField(default=0, verbose_name="產值平均值")
+    value_unit = models.CharField(max_length=20, default="(元/公頃)", verbose_name="產值單位")
+
+    class Meta:
+        verbose_name = "農耕作物產值產量表"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.display_name}"

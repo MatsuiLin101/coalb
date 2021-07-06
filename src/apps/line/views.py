@@ -55,7 +55,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
-from apps.coa.views import api_view, file_view
+from apps.coa.views import api_view, file_view_product_code, file_view_crop_produce
 from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 
 from .models import LineUser, SD
@@ -193,18 +193,19 @@ def handle_message_file(event):
             user=user, message_id=message_id, reply_token=reply_token, message=f"上傳檔案，檔案名稱：{file_name}，檔案大小：{file_size}"
         )
 
-        if file_name != "主力勞動力代碼對照.xlsx":
-            reply = f'上傳的檔案名稱「{file_name}」不符要求，上傳失敗！'
-            log.reply = reply
-            log.save()
-            line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
-        else:
+        if "主力" in file_name or "勞動力" in file_name or  "產值" in file_name or "產量" in file_name:
             # 主力勞動力代碼對照_timestamp.xlsx
+            # 產量產值總表_timestamp.xlxl
             path = f"{file_name.split('.')[0]}_{int(datetime.datetime.now().timestamp())}.{file_name.split('.')[-1]}"
             message_content = line_bot_api.get_message_content(message_id)
             with open(path, 'wb') as fd:
                 for chunk in message_content.iter_content():
                     fd.write(chunk)
+        else:
+            reply = f'上傳的檔案名稱「{file_name}」不符要求，上傳失敗！'
+            log.reply = reply
+            log.save()
+            line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
             # ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__',
             # '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__',
             # '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__',
@@ -212,7 +213,10 @@ def handle_message_file(event):
             # '__str__', '__subclasshook__', '__weakref__', 'content', 'content_type', 'iter_content', 'response']
             # message_content <linebot.models.responses.Content object at 0x107e460f0>
 
-        reply = file_view(path)
+        if "主力" in file_name or "勞動力" in file_name:
+            reply = file_view_product_code(path)
+        else:
+            reply = file_view_crop_produce(path)
         os.remove(path)
         log.reply = reply
         log.save()
@@ -223,52 +227,3 @@ def handle_message_file(event):
         log.status = False
         log.save()
         line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
-
-
-
-
-
-# @handler.add(PostbackEvent)
-# def handle_postback(event):
-#     data = event.postback.data.split(",")
-#     print(f'PostbackEvent TextMessage {data}')
-#     id = int(data[0].replace("id=", ""))
-#     print(id)
-#     layer = int(data[1].replace("layer=", ""))
-#     print(layer)
-#
-#     options = SD.objects.get(id=id).sd_set.filter(layer=layer)
-#     print('options ok')
-#     actions = list()
-#     for obj in options[:5]:
-#         actions.append({
-#             'type': 'postback',
-#             'label': obj.name,
-#             'data': f"id={obj.id}, layer={layer + 1}",
-#         })
-#     print('actions ok', actions)
-#
-#     template = ButtonsTemplate(
-#         title = f"分類{layer}",
-#         text = "請選擇分類",
-#         # actions = [{
-#         #     'type': 'postback',
-#         #     'label': options.first().name,
-#         #     'data': f"id={options.first().id}, layer=2"
-#         # }, {
-#         #     'type': 'postback',
-#         #     'label': options.last().name,
-#         #     'data': f"id={options.last().id}, layer=2"
-#         # }]
-#         actions = actions
-#     )
-#     print('template ok', template)
-#
-#     reply = TemplateSendMessage(
-#         alt_text = 'Buttons template',
-#         template = template
-#     )
-#     print(f'reply ok = {reply}')
-#
-#     print(f'reply_token = {event.reply_token}')
-#     line_bot_api.reply_message(event.reply_token, reply)
