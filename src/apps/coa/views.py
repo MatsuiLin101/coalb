@@ -71,11 +71,7 @@ def api_view(text):
         reply = f"{text}\n{response}"
     elif command in ["產量", "種植面積", "單位產值", "單位產量"]:
         api = CropProduceApiView(command, year, city, city_product)
-        response = api.api()
-        reply = f"{text}\n{response}"
-    elif command in ["單位產值", "單位產量"]:
-        api = CropProduceApiView(command, year, city, city_product)
-        response = api.api()
+        response = api.choose_api().api()
         reply = f"{text}\n{response}"
     elif command in ["生產成本", "生產費用", "粗收益", "淨收入率", "工時"]:
         api = CropCostApiView(command, year, city_product)
@@ -230,9 +226,9 @@ def file_view_crop_produce(file_name):
         for cell in ws[1]:
             if cell.value is None:
                 continue
-            elif "產量" in cell.value and "平均" not in cell.value:
+            elif "產量" in cell.value and "(公斤)" not in cell.value:
                 amount_unit = "(" + cell.value.split("(")[-1]
-            elif "產值" in cell.value and "平均" not in cell.value:
+            elif "產值" in cell.value and "(元)" not in cell.value:
                 value_unit = "(" + cell.value.split("(")[-1]
 
         for cell in ws[2]:

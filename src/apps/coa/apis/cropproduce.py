@@ -15,6 +15,28 @@ class CropProduceApiView(ApiView):
     EXCEL匯入
     '''
     def __init__(self, command, query_date, city, product):
+        self.command = command
+        self.query_date = query_date
+        self.city = city
+        self.product = product
+
+    def choose_api(self):
+        if self.command in ["產量", "種植面積"]:
+            return CropProduceTotalApiView(self.command, self.query_date, self.city, self.product)
+        elif self.command in ["單位產值", "單位產量"]:
+            return CropProduceUnitApiView(self.command, self.query_date, self.product)
+
+
+class CropProduceTotalApiView(ApiView):
+    '''
+    農耕作物生產api介面
+    -produce(作物生產)
+    --(NEW)產量
+    農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
+    --(NEW)種植面積
+    農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
+    '''
+    def __init__(self, command, query_date, city, product):
         self.driver = None
         self.url = "https://agr.afa.gov.tw/afa/afa_frame.jsp"
         self.frame_left = "/html/frameset/frameset/frame[1]"
@@ -43,12 +65,13 @@ class CropProduceApiView(ApiView):
     def api(self):
         try:
             self.verify_date()
-            if not self.message:
-                self.get_data()
+            self.get_data()
+        except CustomError:
+            pass
         except Exception as e:
-            traceback_log = TracebackLog.objects.create(app='CropProduceApiView', message=traceback.format_exc())
+            traceback_log = TracebackLog.objects.create(app=self.__class__.__name__, message=traceback.format_exc())
             if not self.message:
-                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤，錯誤編號「{traceback_log.id}」\n"
+                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤，錯誤編號「{traceback_log.id}」"
         if self.driver:
             self.driver.close()
         return self.message
@@ -59,8 +82,8 @@ class CropProduceApiView(ApiView):
         try:
             self.year = int(self.query_date)
         except Exception as e:
-            self.message = f"年份「{self.year}」無效，請輸入民國年"
-            return
+            self.message = f"年份「{self.query_date}」無效，請輸入民國年"
+            raise CustomError(self.message)
 
     def parser(self):
         self.driver = get_driver()
@@ -172,3 +195,61 @@ class CropProduceApiView(ApiView):
         if self.message:
             return
         self.get_table()
+
+
+class CropProduceUnitApiView(object):
+    '''
+    —-單位產值
+    EXCEL匯入
+    —-單位產量
+    EXCEL匯入
+    '''
+    def __init__(self, command, city, product):
+        self.command = command
+        self.city = city.replace("台", "臺")
+        self.district = None
+        self.product = product
+
+        if len(self.city) > 2:
+            self.city, self.district = self.city[:2], self.city[2:]
+
+    def api(self):
+        try:
+            self.get_data()
+        except Exception as e:
+            raise
+        return self.message
+
+    def get_data(self):
+        if self.district is None:
+            self.query_set = CropProduceUnit.objects.filter(city__icontains=self.city, district=None, name__icontains=self.product)
+        else:
+            self.query_set = CropProduceUnit.objects.filter(city__icontains=self.city, district__icontains=self.district, name__icontains=self.product)
+
+        list_result = list()
+        for obj in self.query_set:
+            name = obj.name
+            if obj.period is not None:
+                name += obj.period
+            if self.district is not None:
+                district = obj.district
+            else:
+                district = ""
+            amount_max = round(obj.amount_max)
+            amount_min = round(obj.amount_min)
+            amount_average = round(obj.amount_average)
+            amount_unit = obj.amount_unit
+            value_max = round(obj.value_max)
+            value_min = round(obj.value_min)
+            value_average = round(obj.value_average)
+            value_unit = obj.value_unit
+            result = f"{self.city}{district} {name}\n"
+            result += f"平均單位產值：\n平均：{value_average:,d}{value_unit}\n最小值：{value_min:,d}{value_unit}\n最大值：{value_max:,d}{value_unit}\n"
+            result += f"平均單位產量：\n平均：{amount_average:,d}{amount_unit}\n最小值：{amount_min:,d}{amount_unit}\n最大值：{amount_max:,d}{amount_unit}"
+            list_result.append(result)
+
+        self.message = f"搜尋「{self.command} {self.city}_district {self.product}」的結果為：\n\n" + "\n\n".join(result for result in list_result)
+        if self.district is not None:
+            self.message = self.message.replace("_district", self.district)
+        else:
+            self.message = self.message.replace("_district", "")
