@@ -59,10 +59,6 @@ class LivestockHogApiView(BasicApiView):
                 raise CustomError(self.message)
             self.query_date += f"{self.month}月"
 
-    def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
-
     def get_table(self):
         if self.month:
             btn_check_month = self.driver.find_element(By.ID, self.check_month)

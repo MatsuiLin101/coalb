@@ -22,7 +22,14 @@ class BasicApiView(object):
     def classname(self):
         return self.__class__.__name__
 
+    def parser(self):
+        self.driver = get_driver()
+        self.driver.get(self.url)
+
     def api(self):
+        '''
+        execute api
+        '''
         try:
             self.verify_date()
             self.get_data()

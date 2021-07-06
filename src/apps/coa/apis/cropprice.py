@@ -82,10 +82,6 @@ class CropPriceOriginApiView(CropPriceApiView):
         if city:
             self.city = self.city.replace("臺", "台")
 
-    def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
-
     def get_product(self):
         qs = CropPriceOrigin.objects.filter(name__icontains=self.product)
         if qs.count() == 0:
@@ -231,8 +227,7 @@ class CropPriceWholesaleApiView(CropPriceApiView):
         self.start_time = datetime.datetime.now()
 
     def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
+        super(CropPriceWholesaleApiView, self).parser()
         # 進入農產品價格統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
 

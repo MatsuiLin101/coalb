@@ -70,10 +70,6 @@ class CropProduceTotalApiView(BasicApiView):
             self.message = f"年份「{self.query_date}」無效，請輸入民國年"
             raise CustomError(self.message)
 
-    def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
-
     def set_query(self):
         # switch frame
         frame_left = self.driver.find_element(By.XPATH, self.frame_left)

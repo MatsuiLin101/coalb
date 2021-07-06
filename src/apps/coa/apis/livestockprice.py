@@ -67,10 +67,6 @@ class LivestockPriceApiView(BasicApiView):
                 raise CustomError(self.message)
             self.query_date += f"{self.month}月"
 
-    def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
-
     def set_date(self):
         if self.month:
             radio_month = self.driver.find_element(By.ID, self.radio_month)

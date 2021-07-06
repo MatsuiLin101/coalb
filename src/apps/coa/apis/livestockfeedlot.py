@@ -42,8 +42,7 @@ class LivestockFeedlotApiView(BasicApiView):
             raise CustomError(self.message)
 
     def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
+        super(LivestockFeedlotApiView, self).parser()
         # 進入畜禽產品飼養數量統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
 
