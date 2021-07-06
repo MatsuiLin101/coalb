@@ -23,7 +23,7 @@ class WelfareApiView(BasicApiView):
         if city:
             self.city = city.replace("台", "臺")
 
-    def chose_api(self):
+    def choose_api(self):
         if self.command == "農保":
             return Insurance(self.command, self.query_date, self.city)
         elif self.command == "老農津貼":

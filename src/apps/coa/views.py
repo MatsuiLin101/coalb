@@ -63,11 +63,11 @@ def api_view(text):
         reply = f"{text}\n{response}"
     elif command in ["農保", "老農津貼", "獎助學金"]:
         api = WelfareApiView(command, year, city_product)
-        response = api.chose_api().api()
+        response = api.choose_api().api()
         reply = f"{text}\n{response}"
     elif command in ["產地", "批發"]:
         api = CropPriceApiView(command, year, city_product, city)
-        response = api.choice_api().api()
+        response = api.choose_api_api().api()
         reply = f"{text}\n{response}"
     elif command in ["產量", "種植面積", "單位產值", "單位產量"]:
         api = CropProduceApiView(command, year, city, city_product)
@@ -75,7 +75,7 @@ def api_view(text):
         reply = f"{text}\n{response}"
     elif command in ["生產成本", "生產費用", "粗收益", "淨收入率", "工時"]:
         api = CropCostApiView(command, year, city_product)
-        response = api.chose_api().api()
+        response = api.choose_api().api()
         reply = f"{text}\n{response}"
     elif command in ["交易量", "價格", "重量"]:
         api = LivestockHogApiView(command, year)
@@ -105,8 +105,8 @@ def api_view(text):
         api = ProductCodeApiView(year)
         response = api.api()
         reply = f"{text}\n{response}"
-    elif '產地' in text or '批發' in text or '零售' in text:
-        reply = parser_product(text)
+    # elif '產地' in text or '批發' in text or '零售' in text:
+    #     reply = parser_product(text)
         # if reply is False:
         #     reply = '請輸入年+空格+關鍵字\n例如：\n107 產值 總產值\n107 產值 豬\n107 農家所得\n107 農牧戶\n107 耕地面積'
     elif "指令" in text:

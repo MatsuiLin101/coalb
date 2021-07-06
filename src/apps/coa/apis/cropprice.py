@@ -19,7 +19,7 @@ class CropPriceApiView(BasicApiView):
         self.product = product
         self.city = city
 
-    def choice_api(self):
+    def choose_api(self):
         if "產地" in self.command:
             return CropPriceOriginApiView(self.command, self.query_date, self.product, self.city)
         elif "批發" in self.command:

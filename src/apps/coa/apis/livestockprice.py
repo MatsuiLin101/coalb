@@ -38,7 +38,6 @@ class LivestockPriceApiView(BasicApiView):
             return Retail(self.command, self.query_date, self.product)
 
     def verify_date(self):
-        # verify_date
         try:
             if '/' in self.query_date:
                 self.year, self.month = self.query_date.split('/')
