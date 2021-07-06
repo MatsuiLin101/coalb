@@ -44,7 +44,7 @@ class CropCostApiView(BasicApiView):
         self.group = None
         self.message = ""
 
-    def chose_api(self):
+    def choose_api(self):
         if self.command == "生產成本":
             return TotalCost(self.command, self.query_date, self.product)
         elif self.command == "生產費用":
