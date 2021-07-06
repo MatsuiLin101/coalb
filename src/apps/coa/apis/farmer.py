@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class FarmerApiView(ApiView):
+class FarmerApiView(BasicApiView):
     '''
     農家(農牧戶)api介面
     farmer(農家(農牧戶))

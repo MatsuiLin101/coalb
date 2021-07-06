@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class DisasterApiView(ApiView):
+class DisasterApiView(BasicApiView):
     '''
     災害api介面
     disaster(災害)

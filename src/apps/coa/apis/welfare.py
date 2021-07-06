@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class WelfareApiView(ApiView):
+class WelfareApiView(BasicApiView):
     '''
     社會福利api介面
     welfare(社會福利)

@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class IncomeApiView(ApiView):
+class IncomeApiView(BasicApiView):
     '''
     所得api介面
     income(所得)

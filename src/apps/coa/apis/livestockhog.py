@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class LivestockHogApiView(ApiView):
+class LivestockHogApiView(BasicApiView):
     '''
     毛豬價格api介面
     -amount(交易量)

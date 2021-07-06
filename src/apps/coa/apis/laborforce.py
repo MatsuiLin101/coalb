@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class LaborforceApiView(ApiView):
+class LaborforceApiView(BasicApiView):
     '''
     勞動力(就業人口)api介面
     laborforce(勞動力)

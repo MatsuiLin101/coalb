@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class LivestockSlaughterApiView(ApiView):
+class LivestockSlaughterApiView(BasicApiView):
     '''
     畜禽供應屠宰量api介面
     -slaughter(供應屠宰量)

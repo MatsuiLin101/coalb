@@ -83,7 +83,7 @@ def api_view(text):
         reply = f"{text}\n{response}"
     elif command in ["拍賣價", "產地價", "零售價"]:
         api = LivestockPriceApiView(command, year, city_product)
-        response = api.chose_api().api()
+        response = api.choose_api().api()
         reply = f"{text}\n{response}"
     elif command in ["場數"]:
         api = LivestockFeedlotApiView(year, city_product, city)

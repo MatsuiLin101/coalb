@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class LivestockFeedamountApiView(ApiView):
+class LivestockFeedamountApiView(BasicApiView):
     '''
     畜禽在養數量api介面
     -feedamount(在養數量)

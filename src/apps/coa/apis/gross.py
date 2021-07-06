@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class GrossApiView(ApiView):
+class GrossApiView(BasicApiView):
     '''
     國內生產毛額api介面
     gross(國內生產毛額)

@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class LivestockPriceApiView(ApiView):
+class LivestockPriceApiView(BasicApiView):
     '''
     其他畜禽價格api介面
     -sale(拍賣價)
@@ -29,7 +29,7 @@ class LivestockPriceApiView(ApiView):
         self.product = product
         self.message = ""
 
-    def chose_api(self):
+    def choose_api(self):
         if self.command == "拍賣價":
             return Sale(self.command, self.query_date, self.product)
         elif self.command == "產地價":

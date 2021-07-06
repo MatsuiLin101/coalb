@@ -1,7 +1,7 @@
 from .configs import *
 
 
-class CropProduceApiView(ApiView):
+class CropProduceApiView(BasicApiView):
     '''
     農耕作物生產api介面
     -produce(作物生產)
@@ -27,7 +27,7 @@ class CropProduceApiView(ApiView):
             return CropProduceUnitApiView(self.command, self.query_date, self.product)
 
 
-class CropProduceTotalApiView(ApiView):
+class CropProduceTotalApiView(BasicApiView):
     '''
     農耕作物生產api介面
     -produce(作物生產)
