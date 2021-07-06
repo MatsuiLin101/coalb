@@ -72,6 +72,15 @@ class CropPriceWholesaleAdmin(admin.ModelAdmin):
     ]
 
 
+class CropProduceUnitAdmin(admin.ModelAdmin):
+    list_display = [
+        "name", "city_district", "amount_average", "value_average"
+    ]
+    list_filter = [
+        "category", "city",
+    ]
+
+
 admin.site.register(ProduceValueCity, ProduceValueCityAdmin)
 admin.site.register(ProduceValueFarmCategory)
 admin.site.register(ProduceValueProduct, ProduceValueProductAdmin)
@@ -83,3 +92,4 @@ admin.site.register(CropCost, CropCostAdmin)
 admin.site.register(ProductCode, ProductCodeAdmin)
 admin.site.register(CropPriceOrigin, CropPriceOriginAdmin)
 admin.site.register(CropPriceWholesale, CropPriceWholesaleAdmin)
+admin.site.register(CropProduceUnit, CropProduceUnitAdmin)

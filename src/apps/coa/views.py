@@ -8,7 +8,7 @@ from apps.coa.utils import (
     query_produce_value,
     query_produce_value_product,
 )
-from apps.coa.models import ProductCode
+from apps.coa.models import ProductCode, CropProduceUnit
 
 
 def api_view(text):
@@ -69,7 +69,11 @@ def api_view(text):
         api = CropPriceApiView(command, year, city_product, city)
         response = api.choice_api().api()
         reply = f"{text}\n{response}"
-    elif command in ["產量", "種植面積"]:
+    elif command in ["產量", "種植面積", "單位產值", "單位產量"]:
+        api = CropProduceApiView(command, year, city, city_product)
+        response = api.api()
+        reply = f"{text}\n{response}"
+    elif command in ["單位產值", "單位產量"]:
         api = CropProduceApiView(command, year, city, city_product)
         response = api.api()
         reply = f"{text}\n{response}"
@@ -176,7 +180,7 @@ def api_view(text):
     return reply
 
 
-def file_view(file_name):
+def file_view_product_code(file_name):
     try:
         ProductCode.objects.all().delete()
         main_count = 0
@@ -206,3 +210,106 @@ def file_view(file_name):
         return f"上傳主力代碼{main_count}筆，勞動力代碼{labor_count}筆成功！"
     except Exception as e:
         raise
+
+
+def file_view_crop_produce(file_name):
+    CropProduceUnit.objects.all().delete()
+    wb = load_workbook(file_name)
+    for sheet in wb.sheetnames:
+        if "稻" in sheet:
+            col_period = "C"
+            col_city_district = None
+        else:
+            col_period = None
+            col_city_district = "E"
+        col_name = col_city = col_district = col_city_code = col_district_code = None
+        col_amount_max = col_amount_min = col_amount_average = col_value_min = col_value_average = None
+        amount_unit = value_unit = None
+
+        ws = wb[sheet]
+        for cell in ws[1]:
+            if cell.value is None:
+                continue
+            elif "產量" in cell.value and "平均" not in cell.value:
+                amount_unit = "(" + cell.value.split("(")[-1]
+            elif "產值" in cell.value and "平均" not in cell.value:
+                value_unit = "(" + cell.value.split("(")[-1]
+
+        for cell in ws[2]:
+            value = cell.value
+            letter = cell.column_letter
+            if value is None:
+                continue
+            elif "農產別" in value or "稻種別" in value:
+                col_name = letter
+            elif "縣市別" in value:
+                col_city = letter
+            elif "鄉鎮別" in value and col_period:
+                col_city = letter
+            elif "鄉鎮別" in value:
+                col_district = letter
+            elif "縣市代碼" in value:
+                col_city_code = letter
+            elif "鄉鎮代碼" in value:
+                col_district_code = letter
+            elif "MAX" in value:
+                if col_amount_max is None:
+                    col_amount_max = letter
+                else:
+                    col_value_max = letter
+            elif "MIN" in value:
+                if col_amount_min is None:
+                    col_amount_min = letter
+                else:
+                    col_value_min = letter
+            elif "age" in value:
+                if col_amount_average is None:
+                    col_amount_average = letter
+                else:
+                    col_value_average = letter
+
+        for index in range(3, ws.max_row + 1):
+            display_name = ws[f"A{index}"].value
+            name = ws[f"{col_name}{index}"].value
+            city = ws[f"{col_city}{index}"].value
+            city_code = ws[f"{col_city_code}{index}"].value
+            district_code = ws[f"{col_district_code}{index}"].value
+            amount_max = ws[f"{col_amount_max}{index}"].value
+            amount_min = ws[f"{col_amount_min}{index}"].value
+            amount_average = ws[f"{col_amount_average}{index}"].value
+            value_max = ws[f"{col_value_max}{index}"].value
+            value_min = ws[f"{col_value_min}{index}"].value
+            value_average = ws[f"{col_value_average}{index}"].value
+
+            obj = CropProduceUnit.objects.create(
+                category = sheet,
+                display_name = display_name,
+                name = name,
+                city = city,
+                city_code = city_code,
+                district_code = district_code,
+                amount_min = amount_min,
+                amount_max = amount_max,
+                amount_average = amount_average,
+                value_min = value_min,
+                value_max = value_max,
+                value_average = value_average,
+            )
+            update = False
+            if col_period:
+                obj.period = ws[f"{col_period}{index}"].value
+                update = True
+            if col_district:
+                obj.district = ws[f"{col_district}{index}"].value
+                update = True
+            if col_city_district:
+                obj.city_district = ws[f"{col_city_district}{index}"].value
+                update = True
+            if amount_unit:
+                obj.amount_unit = amount_unit
+                update = True
+            if value_unit:
+                obj.value_unit = value_unit
+                update = True
+            if update:
+                obj.save()
