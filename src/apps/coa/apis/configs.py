@@ -22,6 +22,19 @@ class BasicApiView(object):
     def classname(self):
         return self.__class__.__name__
 
+    def api(self):
+        try:
+            self.verify_date()
+            self.get_data()
+        except CustomError:
+            pass
+        except Exception as e:
+            traceback_log = TracebackLog.objects.create(app=f"{self.classname}", message=traceback.format_exc())
+            self.message = f"發生錯誤，請通知管理員處理，錯誤編號「{traceback_log.id}」"
+        if self.driver:
+            self.driver.close()
+        return self.message
+
     def download(self):
         # download ods and transfer to xlsx
         driver = get_driver()

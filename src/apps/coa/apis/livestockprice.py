@@ -37,20 +37,8 @@ class LivestockPriceApiView(BasicApiView):
         elif self.command == "零售價":
             return Retail(self.command, self.query_date, self.product)
 
-    def api(self):
-        try:
-            self.verify_date()
-            if not self.message:
-                self.get_data()
-        except Exception as e:
-            if not self.message:
-                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤"
-        if self.driver:
-            self.driver.close()
-        return self.message
-
     def verify_date(self):
-        # check years
+        # verify_date
         try:
             if '/' in self.query_date:
                 self.year, self.month = self.query_date.split('/')
@@ -59,14 +47,14 @@ class LivestockPriceApiView(BasicApiView):
                 self.month = None
         except Exception as e:
             self.message = f"日期「{self.query_date}」發生錯誤，請輸入民國年、民國年/月份\n例如：\n108\n109/12"
-            return
+            raise CustomError(self.message)
         # 檢查年份是否為數字
         try:
             self.year = int(self.year)
             self.year += 1911
         except Exception as e:
             self.message = f"年份「{self.year}」無效，請輸入民國年"
-            return
+            raise CustomError(self.message)
         self.query_date = f"{self.year - 1911}年"
         # 檢查月份是否為數字
         if self.month:
@@ -76,7 +64,7 @@ class LivestockPriceApiView(BasicApiView):
                     self.message = f"月份「{self.month}」無效，請輸入1～12"
             except Exception as e:
                 self.message = f"月份「{self.month}」無效，請輸入1～12"
-                return
+                raise CustomError(self.message)
             self.query_date += f"{self.month}月"
 
     def parser(self):

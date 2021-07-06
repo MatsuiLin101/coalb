@@ -26,7 +26,6 @@ class CropPriceApiView(BasicApiView):
             return CropPriceWholesaleApiView(self.command, self.query_date, self.product)
 
     def verify_date(self):
-        # check years
         # 檢查年份是否為數字
         if '/' in self.query_date:
             self.year, self.month = self.query_date.split('/')
@@ -39,6 +38,7 @@ class CropPriceApiView(BasicApiView):
             self.select_date = str(self.year).zfill(3)
         except Exception as e:
             self.message = f"年份「{self.year}」無效，請輸入民國年"
+            raise CustomError(self.message)
         if self.month:
             try:
                 self.month = int(self.month)
@@ -48,6 +48,7 @@ class CropPriceApiView(BasicApiView):
                 self.query_date += f"{self.month}月"
             except Exception as e:
                 self.message = f"月份「{self.month}」無效，請輸入民國年"
+                raise CustomError(self.message)
 
 
 class CropPriceOriginApiView(CropPriceApiView):
@@ -57,8 +58,6 @@ class CropPriceOriginApiView(CropPriceApiView):
     -—產地價
     農糧署農產品產地價格查報系統
     https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105
-from apps.coa.apis.cropprice import *
-a = CropPriceApiView('產地', '108/6', '芒果').choice_api()
     '''
     def __init__(self, command, query_date, product, city=None):
         self.driver = None
@@ -82,20 +81,6 @@ a = CropPriceApiView('產地', '108/6', '芒果').choice_api()
 
         if city:
             self.city = self.city.replace("臺", "台")
-
-    def api(self):
-        try:
-            self.verify_date()
-            if not self.message:
-                self.get_data()
-        except Exception as e:
-            print(traceback.format_exc())
-            traceback_log = TracebackLog.objects.create(app='CropPriceOriginApiView', message=traceback.format_exc())
-            if not self.message:
-                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤，錯誤編號「{traceback_log.id}」\n"
-        if self.driver:
-            self.driver.close()
-        return self.message
 
     def parser(self):
         self.driver = get_driver()
@@ -216,8 +201,6 @@ class CropPriceWholesaleApiView(CropPriceApiView):
     —-批發價
     動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
-from apps.coa.apis.cropprice import *
-a = CropPriceApiView('批發', '108/6', '芒果').choice_api()
     '''
     def __init__(self, command, query_date, product):
         super()
@@ -246,22 +229,6 @@ a = CropPriceApiView('批發', '108/6', '芒果').choice_api()
         self.message = ""
         self.result = list()
         self.start_time = datetime.datetime.now()
-
-    def api(self):
-        try:
-            self.verify_date()
-            if not self.message:
-                self.get_data()
-        except CustomError:
-            pass
-        except Exception as e:
-            print(traceback.format_exc())
-            traceback_log = TracebackLog.objects.create(app='CropPriceWholesaleApiView', message=traceback.format_exc())
-            if not self.message:
-                self.message = f"搜尋「{self.command} {self.query_date} {self.product}」發生錯誤，錯誤編號「{traceback_log.id}」\n"
-        if self.driver:
-            self.driver.close()
-        return self.message
 
     def parser(self):
         self.driver = get_driver()
