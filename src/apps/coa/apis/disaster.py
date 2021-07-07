@@ -18,7 +18,7 @@ class DisasterApiView(BasicApiView):
         self.message = ""
         self.row = ""
 
-    def api(self):
+    def execute_api(self):
         try:
             self.download()
             self.open_wb()

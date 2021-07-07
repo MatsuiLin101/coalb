@@ -22,7 +22,7 @@ class ValueApiView(BasicApiView):
         self.xlsx_name = ""
         self.message = ""
 
-    def api(self):
+    def execute_api(self):
         try:
             self.download()
             self.open_wb()
