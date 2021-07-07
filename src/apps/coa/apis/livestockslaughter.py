@@ -8,8 +8,7 @@ class LivestockSlaughterApiView(BasicApiView):
     動態查詢 [農業生產統計]>>[畜禽產品生產量值統計]>> [家畜供應屠宰頭數]、[家禽供應屠宰隻數]
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
-    def __init__(self, query_date, product, city=None):
-        super()
+    def __init__(self, params):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品生產量值統計"
@@ -24,14 +23,19 @@ class LivestockSlaughterApiView(BasicApiView):
         self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-        self.query_date = str(query_date)
-        self.product = product
-        self.city =  city
         self.group = None
         self.message = ""
 
-        if self.city is not None:
-            self.city = city.replace('台', '臺')
+        if not 3 <= len(params) <= 4:
+            raise CustomError(f"供應屠宰量的指令為「屠宰 畜禽 年份」或「屠宰 畜禽 年份 縣市」，例如：\n「屠宰 豬 108」\n「屠宰 鴨 109 彰化」")
+        self.command = params[0]
+        self.product = params[1]
+        self.query_date = params[2]
+        if len(params) == 4:
+            self.city = params[3].replace('台', '臺')
+        else:
+            self.city = None
+        self.command_text = " ".join(text for text in params)
 
     def verify_date(self):
         # 檢查年份是否為數字
@@ -108,6 +112,7 @@ class LivestockSlaughterApiView(BasicApiView):
             self.message = f"城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
             self.message = f"查無城市「{self.city}」"
+        raise CustomError(self.message)
 
     def get_query(self):
         # 選擇主分類
@@ -165,10 +170,8 @@ class LivestockSlaughterApiView(BasicApiView):
             return
         self.get_result()
         if not self.message:
-            self.message = f"搜尋「屠宰 {self.year} {self.product}_city_1」的結果為：\n" + f"{self.year}年 {self.obj_product.name}_city_2 供應屠宰量：{self.result}(頭)"
+            self.message = f"{self.year}年 {self.obj_product.name}_city_2 供應屠宰量：{self.result}(頭)"
             if self.city is not None:
-                self.message = self.message.replace('_city_1', f' {self.city}')
                 self.message = self.message.replace('_city_2', f' {self.obj_city}')
             else:
-                self.message = self.message.replace('_city_1', '')
                 self.message = self.message.replace('_city_2', '')

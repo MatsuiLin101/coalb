@@ -92,6 +92,7 @@ from .livestockfeedamount import LivestockFeedamountApiView
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
+reviewed
 已開發完成待測試
 '''
 
@@ -107,5 +108,6 @@ from .livestockbyproduct import LivestockByproductApiView
 
 from .productcode import ProductCodeApiView
 '''
+reviewed
 已開發完成待測試
 '''
