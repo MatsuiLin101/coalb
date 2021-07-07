@@ -11,7 +11,7 @@ class ProductCodeApiView(BasicApiView):
         self.product = product
         self.message = ""
 
-    def api(self):
+    def execute_api(self):
         try:
             qs = ProductCode.objects.filter(name__icontains=self.product)
             if qs.count() == 0:

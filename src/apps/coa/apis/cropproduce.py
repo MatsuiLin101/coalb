@@ -194,7 +194,7 @@ class CropProduceUnitApiView(object):
         if len(self.city) > 2:
             self.city, self.district = self.city[:2], self.city[2:]
 
-    def api(self):
+    def execute_api(self):
         try:
             self.get_data()
         except Exception as e:

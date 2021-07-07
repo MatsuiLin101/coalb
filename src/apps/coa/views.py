@@ -2,7 +2,7 @@ from openpyxl import load_workbook
 
 from django.shortcuts import render
 
-from apps.coa.apis import *
+from apps.coa.execute_apis import *
 from apps.coa.utils import (
     pre_process_text_2,
     query_produce_value,
@@ -35,75 +35,75 @@ def api_view(text):
         reply = f"{text}\n{response}"
     elif command == "產值":
         api = ValueApiView(year, city_product)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command == "生產毛額":
         api = GrossApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command == "農家所得":
         api = IncomeApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command  == "農牧戶":
         api = FarmerApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command == "耕地面積":
         api = FarmerAreaApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command == "災害":
         api = DisasterApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command == "就業人口":
         api = LaborforceApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command in ["農保", "老農津貼", "獎助學金"]:
         api = WelfareApiView(command, year, city_product)
-        response = api.choose_api().api()
+        response = api.choose_api().execute_api()
         reply = f"{text}\n{response}"
     elif command in ["產地", "批發"]:
         api = CropPriceApiView(command, year, city_product, city)
-        response = api.choose_api_api().api()
+        response = api.choose_api_api().execute_api()
         reply = f"{text}\n{response}"
     elif command in ["產量", "種植面積", "單位產值", "單位產量"]:
         api = CropProduceApiView(command, year, city, city_product)
-        response = api.choose_api().api()
+        response = api.choose_api().execute_api()
         reply = f"{text}\n{response}"
     elif command in ["生產成本", "生產費用", "粗收益", "淨收入率", "工時"]:
         api = CropCostApiView(command, year, city_product)
-        response = api.choose_api().api()
+        response = api.choose_api().execute_api()
         reply = f"{text}\n{response}"
     elif command in ["交易量", "價格", "重量"]:
         api = LivestockHogApiView(command, year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command in ["拍賣價", "產地價", "零售價"]:
         api = LivestockPriceApiView(command, year, city_product)
-        response = api.choose_api().api()
+        response = api.choose_api().execute_api()
         reply = f"{text}\n{response}"
     elif command in ["場數"]:
         api = LivestockFeedlotApiView(year, city_product, city)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command in ["在養量"]:
         api = LivestockFeedamountApiView(year, city_product, city)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command in ["屠宰"]:
         api = LivestockSlaughterApiView(year, city_product, city)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command in ["副產", "副產品", "副產物"]:
         api = LivestockByproductApiView(year, city_product, city)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     elif command in ["代碼"]:
         api = ProductCodeApiView(year)
-        response = api.api()
+        response = api.execute_api()
         reply = f"{text}\n{response}"
     # elif '產地' in text or '批發' in text or '零售' in text:
     #     reply = parser_product(text)

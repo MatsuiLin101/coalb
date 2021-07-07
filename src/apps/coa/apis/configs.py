@@ -26,7 +26,7 @@ class BasicApiView(object):
         self.driver = get_driver()
         self.driver.get(self.url)
 
-    def api(self):
+    def execute_api(self):
         '''
         execute api
         '''
