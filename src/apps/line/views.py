@@ -55,7 +55,10 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 
+from apps.log.models import TracebackLog
+
 from apps.coa.views import api_view, file_view_product_code, file_view_crop_produce
+from apps.coa.apis.configs import CustomError
 from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 
 from .models import LineUser, SD
@@ -152,9 +155,15 @@ def handle_message_text(event):
         log.reply = reply
         log.save()
         line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+    except CustomError as ce:
+        reply = str(ce)
+        log.reply = reply
+        log.save()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
     except Exception as e:
-        reply = f"發生錯誤，錯誤訊息編號「{log.id}」，請通知工程師處理。"
-        log.reply = traceback.format_exc()
+        traceback_log = TracebackLog.objects.create(app="handle_message_text", message=traceback.format_exc())
+        reply = f"發生錯誤，訊息編號「{log.id}」，錯誤訊息編號「{traceback_log.id}」，請通知管理員處理。"
+        log.reply = reply
         log.status = False
         log.save()
         line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
