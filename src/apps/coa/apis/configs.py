@@ -34,10 +34,10 @@ class BasicApiView(object):
             self.verify_date()
             self.get_data()
         except CustomError:
-            pass
+            raise
         except Exception as e:
             traceback_log = TracebackLog.objects.create(app=f"{self.classname}", message=traceback.format_exc())
-            self.message = f"發生錯誤，請通知管理員處理，錯誤編號「{traceback_log.id}」"
+            self.message = f"「{self.command_text}」發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理"
         if self.driver:
             self.driver.close()
         return self.message
