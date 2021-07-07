@@ -81,6 +81,7 @@ class LivestockSlaughterApiView(BasicApiView):
             self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
             self.message = f"查無品項「{self.product}」"
+        raise CustomError(self.message)
 
     def get_city(self):
         # 是否有完全符合name的物件
@@ -145,7 +146,7 @@ class LivestockSlaughterApiView(BasicApiView):
             date_start = options[0]
             date_end = options[-1]
             self.message = f"年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間"
-            return
+            raise CustomError(self.message)
 
         btn_query = self.driver.find_element(By.ID, self.id_query)
         btn_query.click()
@@ -158,20 +159,14 @@ class LivestockSlaughterApiView(BasicApiView):
     def get_data(self):
         self.parser()
         self.get_group()
-        if self.message:
-            return
         if self.city is not None:
             self.get_city()
-        if self.message:
-            return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
-        if not self.message:
-            self.message = f"{self.year}年 {self.obj_product.name}_city_2 供應屠宰量：{self.result}(頭)"
-            if self.city is not None:
-                self.message = self.message.replace('_city_2', f' {self.obj_city}')
-            else:
-                self.message = self.message.replace('_city_2', '')
+        
+        self.message = f"{self.year}年 {self.obj_product.name}_city_2 供應屠宰量：{self.result}(頭)"
+        if self.city is not None:
+            self.message = self.message.replace('_city_2', f' {self.obj_city}')
+        else:
+            self.message = self.message.replace('_city_2', '')
