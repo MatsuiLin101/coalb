@@ -27,7 +27,7 @@ class LivestockFeedamountApiView(BasicApiView):
         self.message = ""
 
         if not 3 <= len(params) <= 4:
-            raise CustomError(f"在養數量的指令為「在養量 畜禽 年份」或「在養量 畜禽 年份 縣市」，例如：\n「在養 豬 108」\n「在養 鴨 105 彰化」")
+            raise CustomError(f"在養數量的指令為「在養量 畜禽 年份」或「在養量 畜禽 年份 縣市」，例如：\n「在養量 豬 108」\n「在養量 鴨 105 彰化」")
         self.command = params[0]
         self.product = params[1]
         self.query_date = params[2]
