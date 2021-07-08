@@ -164,9 +164,9 @@ class LivestockFeedlotApiView(BasicApiView):
         self.get_query()
         self.get_table()
         self.get_result()
-        if not self.message:
-            self.message = f"{self.year}年 {self.obj_product.name}_city_2 飼養場數：{self.result}(場)"
-            if self.city is not None:
-                self.message = self.message.replace('_city_2', f' {self.obj_city}')
-            else:
-                self.message = self.message.replace('_city_2', '')
+
+        self.message = f"{self.year}年 {self.obj_product.name}_city_2 飼養場數：{self.result}(場)"
+        if self.city is not None:
+            self.message = self.message.replace('_city_2', f' {self.obj_city}')
+        else:
+            self.message = self.message.replace('_city_2', '')
