@@ -16,7 +16,6 @@ class ProductCodeApiView(BasicApiView):
 
     def execute_api(self):
         try:
-            a - b
             query_set = ProductCode.objects.filter(name__icontains=self.product)
             if query_set.count() == 0:
                 self.message = f"「{self.command_text}」查無結果"
