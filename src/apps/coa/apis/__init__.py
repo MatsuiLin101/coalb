@@ -63,7 +63,15 @@ from .cropproduce import CropProduceApiView
 
 from .cropcost import CropCostApiView
 '''
+reviewed
 已開發完成待測試
+
+指令
+-成本、生產成本
+-費用、生產費用
+-粗收益
+-淨收入率
+-工時
 '''
 
 from .livestockhog import LivestockHogApiView
@@ -84,18 +92,27 @@ from .livestockfeedlot import LivestockFeedlotApiView
 '''
 reviewed
 已開發完成待測試
+
+指令
+-場數
 '''
 
 from .livestockfeedamount import LivestockFeedamountApiView
 '''
 reviewed
 已開發完成待測試
+
+指令
+-在養、在養量
 '''
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
 reviewed
 已開發完成待測試
+
+指令
+-屠宰、屠宰量
 '''
 
 from .livestockbyproduct import LivestockByproductApiView
@@ -112,4 +129,7 @@ from .productcode import ProductCodeApiView
 '''
 reviewed
 已開發完成待測試
+
+指令
+-代碼
 '''

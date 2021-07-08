@@ -20,8 +20,7 @@ class CropCostApiView(BasicApiView):
     動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃人工時數(小時)：人工時數×生產費用與收益_農產品項目]>>[男工＋女工]合計
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
-    def __init__(self, command, query_date, product):
-        super()
+    def __init__(self, params):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "農畜產品生產成本統計"
@@ -38,23 +37,28 @@ class CropCostApiView(BasicApiView):
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
         self.id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
-        self.command = command
-        self.query_date = str(query_date)
-        self.product = product
         self.group = None
         self.message = ""
+        self.params = params
+
+        if not len(params) == 3:
+            raise CustomError(f"生產成本(生產費用、粗收益、淨收入率、工時)的指令為「成本 作物 年份」，例如：\n「成本 香蕉 107」\n\n也可單獨查詢，例如：\n「生產費用 香蕉 107」\n「粗收益 香蕉 107」\n「淨收入率 香蕉 107」\n「工時 香蕉 107」")
+        self.command = params[0]
+        self.product = params[1]
+        self.query_date = params[2]
+        self.command_text = " ".join(text for text in params)
 
     def choose_api(self):
-        if self.command == "生產成本":
-            return TotalCost(self.command, self.query_date, self.product)
-        elif self.command == "生產費用":
-            return ProduceCost(self.command, self.query_date, self.product)
+        if self.command in ["成本", "生產成本"]:
+            return TotalCost(self.params)
+        elif self.command in ["費用", "生產費用"]:
+            return ProduceCost(self.params)
         elif self.command == "粗收益":
-            return CrudeIncome(self.command, self.query_date, self.product)
+            return CrudeIncome(self.params)
         elif self.command == "淨收入率":
-            return PureIncomeRate(self.command, self.query_date, self.product)
+            return PureIncomeRate(self.params)
         elif self.command == "工時":
-            return WorkHour(self.command, self.query_date, self.product)
+            return WorkHour(self.params)
 
     def verify_date(self):
         # 檢查年份是否為數字
@@ -100,6 +104,7 @@ class CropCostApiView(BasicApiView):
             self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
             self.message = f"查無品項「{self.product}」"
+        raise CustomError(self.message)
 
     def get_query(self):
         driver_select(self.driver, self.id_group, "text", self.text_group)
@@ -126,7 +131,7 @@ class CropCostApiView(BasicApiView):
             date_start = options[0]
             date_end = options[-1]
             self.message = f"年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間"
-            return
+            raise CustomError(self.message)
 
         btn_query = self.driver.find_element(By.ID, self.id_query)
         btn_query.click()
@@ -143,23 +148,19 @@ class CropCostApiView(BasicApiView):
     def get_data(self):
         self.parser()
         self.get_product()
-        if self.message:
-            return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
-        if not self.message:
-            self.message = f"搜尋「{self.command} {self.year} {self.product}」的結果為：\n" + f"{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}"
+
+        self.message = f"{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}"
 
 
 class TotalCost(CropCostApiView):
     '''
     生產成本api介面
     '''
-    def __init__(self, command, query_date, product):
-        super(TotalCost, self).__init__(command, query_date, product)
+    def __init__(self, params):
+        super(TotalCost, self).__init__(params)
         self.text_group1 = "農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目"
         self.text_category1 = "生產費用總計"
         self.text_group2 = "農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目"
@@ -178,12 +179,8 @@ class TotalCost(CropCostApiView):
         self.text_category = self.text_category1
         self.parser()
         self.get_product()
-        if self.message:
-            return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
         self.result_a = self.result
 
@@ -192,13 +189,8 @@ class TotalCost(CropCostApiView):
         self.re_query()
         self.text_group = self.text_group2
         self.text_category = self.text_category2
-        # self.get_product()
-        # if self.message:
-        #     return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
         self.result_b = self.result
 
@@ -206,9 +198,6 @@ class TotalCost(CropCostApiView):
         # 取得工時
         self.re_query()
         self.text_group = self.text_group4
-        # self.get_product()
-        # if self.message:
-        #     return
 
         # get_query
         # 選擇主分類
@@ -225,8 +214,6 @@ class TotalCost(CropCostApiView):
         btn_search.click()
 
         self.get_table()
-        if self.message:
-            return
 
         # get_result()
         WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
@@ -246,17 +233,11 @@ class TotalCost(CropCostApiView):
 
     def get_data(self):
         self.get_produce_cost()
-        if self.message:
-            return
         self.get_crude_income()
-        if self.message:
-            return
         self.get_work_hour()
-        if self.message:
-            return
 
         self.calc_income_rate()
-        self.message = f"搜尋「{self.command} {self.year} {self.product}」的結果為：\n" + f"{self.year}年 {self.obj_product.name} {self.command}：\n"
+        self.message = f"{self.year}年 {self.obj_product.name} {self.command}：\n"
         self.message += f"生產費用：{self.result_a:,d}{self.unit1}\n"
         self.message += f"粗收益：{self.result_b:,d}{self.unit2}\n"
         self.message += f"淨收入率：{self.result_c:,d}{self.unit3}\n"
@@ -267,8 +248,8 @@ class ProduceCost(CropCostApiView):
     '''
     生產費用api介面
     '''
-    def __init__(self, command, query_date, product):
-        super(ProduceCost, self).__init__(command, query_date, product)
+    def __init__(self, params):
+        super(ProduceCost, self).__init__(params)
         self.text_group = "農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目"
         self.text_category = "生產費用總計"
         self.unit = "(元/公頃)"
@@ -278,8 +259,8 @@ class CrudeIncome(CropCostApiView):
     '''
     粗收益api介面
     '''
-    def __init__(self, command, query_date, product):
-        super(CrudeIncome, self).__init__(command, query_date, product)
+    def __init__(self, params):
+        super(CrudeIncome, self).__init__(params)
         self.text_group = "農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目"
         self.text_category = "粗收益"
         self.unit = "(元/公頃)"
@@ -289,8 +270,8 @@ class PureIncomeRate(CropCostApiView):
     '''
     淨收入率api介面
     '''
-    def __init__(self, command, query_date, product):
-        super(PureIncomeRate, self).__init__(command, query_date, product)
+    def __init__(self, params):
+        super(PureIncomeRate, self).__init__(params)
         self.text_group1 = "農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目"
         self.text_category1 = "生產費用總計"
         self.text_group2 = "農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目"
@@ -307,36 +288,28 @@ class PureIncomeRate(CropCostApiView):
         self.text_category = self.text_category1
         self.parser()
         self.get_product()
-        if self.message:
-            return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
         self.result_a = self.result
         self.re_query()
         self.text_group = self.text_group2
         self.text_category = self.text_category2
         self.get_product()
-        if self.message:
-            return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
         self.result_b = self.result
         self.calc_result()
-        self.message = f"搜尋「{self.command} {self.year} {self.product}」的結果為：\n" + f"{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}"
+        self.message = f"{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}"
 
 
 class WorkHour(CropCostApiView):
     '''
     工時api介面
     '''
-    def __init__(self, command, query_date, product):
-        super(WorkHour, self).__init__(command, query_date, product)
+    def __init__(self, oarams):
+        super(WorkHour, self).__init__(oarams)
         self.text_group = "農產品每公頃人工時數(小時)：人工時數×生產費用與收益_農產品項目"
         self.text_category1 = "男工"
         self.text_category2 = "女工"
@@ -363,4 +336,4 @@ class WorkHour(CropCostApiView):
         try:
             self.result = round(float(self.result_male) + float(self.result_female))
         except Exception as e:
-            self.message = f"搜尋「{self.command} {self.year} {self.product}」的結果為：\n" + f"{self.year}年 {self.obj_product.name} {self.command}：\n男工：{self.result_male}{self.unit}\n女工：{self.result_female}{self.unit}"
+            self.message = f"{self.year}年 {self.obj_product.name} {self.command}：\n男工：{self.result_male}{self.unit}\n女工：{self.result_female}{self.unit}"
