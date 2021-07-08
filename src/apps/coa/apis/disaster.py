@@ -1,56 +1,21 @@
 from .configs import *
 
 
-class DisasterApiView(BasicApiView):
+class DisasterApiView(AnnualReportBasicApiView):
     '''
     災害api介面
     disaster(災害)
     年報十、1
     https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
     '''
-    def __init__(self, selfyear):
-        super()
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx"
-        self.id_book = "ctl00_cphMain_uctlBook_grdBook_ctl10_btnBookName"
+    def __init__(self, params):
+        super(DisasterApiView, self).__init__(params)
         self.id_ods = "ctl00_cphMain_uctlBook_repChapter_ctl77_dtlFile_ctl00_lnkFile"
-        self.selfyear = str(selfyear)
-        self.xlsx_name = ""
-        self.message = ""
-        self.row = ""
 
-    def execute_api(self):
-        try:
-            self.download()
-            self.open_wb()
-            self.check_year()
-            if not self.message:
-                self.get_data()
-        except Exception as e:
-            self.message = f"搜尋「災害 {self.selfyear}」發生錯誤"
-        os.remove(self.xlsx_name) if self.xlsx_name else None
-        return self.message
-
-    def open_wb(self):
-        # open value xslx
-        wb = load_workbook(filename=self.xlsx_name)
-        self.ws = wb[wb.sheetnames[0]]
-
-    def check_year(self):
-        # check years
-        list_years = list()
-        for row in self.ws.rows:
-            year = row[1].value
-            if year is not None:
-                try:
-                    int(year)
-                    list_years.append(year)
-                except Exception as e:
-                    continue
-
-                if self.selfyear == str(year):
-                    self.row = row[0].row
-                    return
-        self.message = f"「災害 {self.selfyear}」年份必需在{list_years[0]}~{list_years[-1]}之間"
+        if not len(params) == 2:
+            raise CustomError(f"災害的指令為「災害 年份」，例如：\n「災害 107」")
+        self.command = params[0]
+        self.query_date = params[1]
 
     def get_data(self):
         data_total = round(self.ws[f"D{self.row}"].value)

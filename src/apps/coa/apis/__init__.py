@@ -55,7 +55,7 @@ from .farmerarea import FarmerAreaApiView
 
 from .laborforce import LaborforceApiView
 '''
-資料來源：年報
+資料來源：動態查詢
 
 指令
 -勞動力
@@ -122,6 +122,7 @@ from .cropproduce import CropProduceApiView
 
 from .cropcost import CropCostApiView
 '''
+reviewed
 資料來源：動態查詢
 
 指令(choos)
@@ -131,7 +132,6 @@ from .cropcost import CropCostApiView
 -淨收入率
 -工時
 
-reviewed
 已開發完成待測試
 '''
 
@@ -166,37 +166,37 @@ from .livestockprice import LivestockPriceApiView
 
 from .livestockfeedlot import LivestockFeedlotApiView
 '''
+reviewed
 資料來源：動態查詢
 
 指令
 -場數
 -飼養場數
 
-reviewed
 已開發完成待測試
 '''
 
 from .livestockfeedamount import LivestockFeedamountApiView
 '''
+reviewed
 資料來源：動態查詢
 
 指令
 -在養
 -在養量
 
-reviewed
 已開發完成待測試
 '''
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
+reviewed
 資料來源：動態查詢
 
 指令
 -屠宰
 -屠宰量
 
-reviewed
 已開發完成待測試
 '''
 
@@ -219,13 +219,13 @@ from .livestockbyproduct import LivestockByproductApiView
 
 from .productcode import ProductCodeApiView
 '''
+reviewed
 資料來源：匯入
 
 指令
 -代碼
 -作物代碼
 
-reviewed
 
 已開發完成待測試
 '''
