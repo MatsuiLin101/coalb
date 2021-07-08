@@ -4,38 +4,95 @@ coa.apis package
 
 from .value import ValueApiView
 '''
+資料來源：動態查詢、年報
+
+指令(choose)
+-總產值
+-產值
+
 總產值修改縣市查詢規則，有完全符合的就不檢查其他選項
 台南市
 台灣省台南市
 '''
 
 from .gross import GrossApiView
+'''
+資料來源：年報
+
+指令
+-毛額
+-生產毛額
+'''
 
 from .income import IncomeApiView
+'''
+資料來源：年報
+
+指令
+-所得
+-農家所得
+'''
 
 from .farmer import FarmerApiView
+'''
+資料來源：年報
+
+指令
+-農牧戶
+-農牧戶人口數
+-農牧戶戶數
+-人口數
+-戶數
+'''
 
 from .farmerarea import FarmerAreaApiView
+'''
+資料來源：年報
+
+指令
+-耕地面積
+'''
 
 from .laborforce import LaborforceApiView
+'''
+資料來源：年報
+
+指令
+-勞動力
+-就業人口
+'''
 
 from .disaster import DisasterApiView
 '''
+資料來源：年報
+
+指令
+-災害
+
 待確認
 數字加上逗點區隔
 '''
 
 from .welfare import WelfareApiView
 '''
+資料來源：動態查詢
+
+指令(choose)
+-農保
+-津貼、老農津貼
+-獎助學金
+
 待修正
 Scholarship無法查詢到縣市
 '''
 
 from .cropprice import CropPriceApiView
 '''
-指令
-產地價
-批發價
+資料來源：產地價查報、動態查詢
+
+指令(choose)
+-產地
+-批發
 
 已開發完成待測試
 
@@ -45,11 +102,13 @@ from .cropprice import CropPriceApiView
 
 from .cropproduce import CropProduceApiView
 '''
-指令
-產量
-種植面積
-單位產值
-單位產量
+資料來源：農情報告、匯入
+
+指令(choose)
+-產量
+-種植面積
+-單位產值
+-單位產量
 
 已開發完成待測試
 
@@ -63,25 +122,42 @@ from .cropproduce import CropProduceApiView
 
 from .cropcost import CropCostApiView
 '''
-reviewed
-已開發完成待測試
+資料來源：動態查詢
 
-指令
+指令(choos)
 -成本、生產成本
 -費用、生產費用
 -粗收益
 -淨收入率
 -工時
+
+reviewed
+已開發完成待測試
 '''
 
 from .livestockhog import LivestockHogApiView
 '''
+資料來源：畜產行情
+
+指令
+-毛豬
+-交易量
+-價格
+-重量
+
 待開發
 更改指令統一為「毛豬」
 '''
 
 from .livestockprice import LivestockPriceApiView
 '''
+資料來源：畜產查詢
+
+指令(choose)
+-拍賣價
+-產地價
+-零售價
+
 已開發完成待測試
 
 待修正
@@ -90,33 +166,49 @@ from .livestockprice import LivestockPriceApiView
 
 from .livestockfeedlot import LivestockFeedlotApiView
 '''
-reviewed
-已開發完成待測試
+資料來源：動態查詢
 
 指令
 -場數
+-飼養場數
+
+reviewed
+已開發完成待測試
 '''
 
 from .livestockfeedamount import LivestockFeedamountApiView
 '''
-reviewed
-已開發完成待測試
+資料來源：動態查詢
 
 指令
--在養、在養量
+-在養
+-在養量
+
+reviewed
+已開發完成待測試
 '''
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
-reviewed
-已開發完成待測試
+資料來源：動態查詢
 
 指令
--屠宰、屠宰量
+-屠宰
+-屠宰量
+
+reviewed
+已開發完成待測試
 '''
 
 from .livestockbyproduct import LivestockByproductApiView
 '''
+資料來源：動態查詢
+
+指令
+-副產
+-副產品
+-副產物
+
 已開發完成待測試
 
 待開發
@@ -127,9 +219,13 @@ from .livestockbyproduct import LivestockByproductApiView
 
 from .productcode import ProductCodeApiView
 '''
-reviewed
-已開發完成待測試
+資料來源：匯入
 
 指令
 -代碼
+-作物代碼
+
+reviewed
+
+已開發完成待測試
 '''
