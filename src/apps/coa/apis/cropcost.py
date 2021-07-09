@@ -52,11 +52,11 @@ class CropCostApiView(BasicApiView):
             return TotalCost(self.params)
         elif self.command in ["費用", "生產費用"]:
             return ProduceCost(self.params)
-        elif self.command == "粗收益":
+        elif self.command in ["粗收益"]:
             return CrudeIncome(self.params)
-        elif self.command == "淨收入率":
+        elif self.command in ["淨收入率"]:
             return PureIncomeRate(self.params)
-        elif self.command == "工時":
+        elif self.command in ["工時"]:
             return WorkHour(self.params)
 
     def verify_date(self):
