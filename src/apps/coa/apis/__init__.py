@@ -145,6 +145,7 @@ reviewed
 
 from .livestockhog import LivestockHogApiView
 '''
+reviewed
 資料來源：畜產行情
 
 指令
@@ -153,7 +154,7 @@ from .livestockhog import LivestockHogApiView
 -價格
 -重量
 
-待開發
+已修改
 更改指令統一為「毛豬」
 '''
 
