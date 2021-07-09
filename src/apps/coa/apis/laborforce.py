@@ -8,8 +8,7 @@ class LaborforceApiView(BasicApiView):
     動態查詢 [勞工統計]>>[勞動力統計]>>[農業就業人口]
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
-    def __init__(self, query_date):
-        super()
+    def __init__(self, params):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "勞動力統計"
@@ -24,32 +23,35 @@ class LaborforceApiView(BasicApiView):
         self.id_end_month = "ctl00_cphMain_uctlInquireAdvance_ddlMonthEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-        self.query_date = str(query_date)
-        self.selfyear = ""
-        self.selfmonth = None
-        self.select_value = ""
         self.message = ""
+        self.year = ""
+        self.month = ""
 
-        query_date = str(query_date).split("/")
-        self.selfyear = query_date[0]
-        if len(query_date) > 1:
-            self.selfmonth = query_date[1]
+        if not len(params) == 2:
+            raise CustomError(f"就業人口的指令為「就業人口 年份」或「就業人口 年份/月份」，例如：\n「就業人口 108」\n「就業人口 109/3」")
+        self.command = params[0]
+        self.query_date = params[1]
+        self.command_text = " ".join(text for text in params)
 
     def verify_date(self):
         # 檢查年份是否為數字
+        if '/' in self.query_date:
+            self.year, self.month = self.query_date.split('/')
+        else:
+            self.year = self.query_date
         try:
-            int(self.selfyear)
+            self.year = int(self.year)
         except Exception as e:
-            self.message = f"年份「{self.selfyear}」無效，請輸入民國年"
+            self.message = f"年份「{self.year}」無效，請輸入民國年"
             raise CustomError(self.message)
         # 檢查月份是否為數字
-        if self.selfmonth:
+        if self.month:
             try:
-                int(self.selfmonth)
+                self.month = int(self.month)
             except Exception as e:
-                self.message = f"月份「{self.selfmonth}」無效，請輸入1～12"
+                self.message = f"月份「{self.month}」無效，請輸入1～12"
                 raise CustomError(self.message)
-        self.select_value = f"{self.selfyear.zfill(3)}{self.selfmonth.zfill(2)}" if self.selfmonth else f"{self.selfyear.zfill(3)}"
+        self.select_value = f"{str(self.year).zfill(3)}{str(self.month).zfill(2)}" if self.month else f"{str(self.year).zfill(3)}"
 
     def parser(self):
         super(LaborforceApiView, self).parser()
@@ -60,24 +62,22 @@ class LaborforceApiView(BasicApiView):
         btn_search.click()
 
     def get_table(self):
-        if self.selfmonth:
+        if self.month:
             check_select = self.driver.find_element(By.ID, self.id_check_year)
             select_start = self.id_start_month
             select_end = self.id_end_month
-            value = f"{self.selfyear.zfill(3)}{self.selfmonth.zfill(2)}"
         else:
             check_select = self.driver.find_element(By.ID, self.id_check_month)
             select_start = self.id_start_year
             select_end = self.id_end_year
-            value = self.selfyear.zfill(3)
 
         check_select.click()
         try:
-            driver_select(self.driver, select_start, "value", value)
-            driver_select(self.driver, select_end, "value", value)
+            driver_select(self.driver, select_start, "value", self.select_value)
+            driver_select(self.driver, select_end, "value", self.select_value)
         except Exception as e:
             options = self.driver.find_element(By.ID, select_start).text.replace(" ", "").replace("月", "")
-            if self.selfmonth:
+            if self.month:
                 options = options.replace("年", "/")
             else:
                 options = options.replace("年", "")
@@ -85,7 +85,7 @@ class LaborforceApiView(BasicApiView):
             date_start = options[0]
             date_end = options[-1]
             self.message = f"日期「{self.query_date}」無效，日期需介於「{date_start}」～「{date_end}」之間"
-            return
+            raise CustomError(self.message)
         btn_query = self.driver.find_element(By.ID, self.id_query)
         btn_query.click()
 
@@ -99,5 +99,7 @@ class LaborforceApiView(BasicApiView):
         self.parser()
         self.get_table()
         self.get_result()
-        if not self.message:
-            self.message = f"搜尋「就業人口 {self.query_date}」的結果為：\n" + f"就業人口：{self.result}{self.unit}\n"
+        if self.month:
+            self.message = f"{self.year}年{self.month}月 就業人口：{self.result}{self.unit}"
+        else:
+            self.message = f"{self.year}年 就業人口：{self.result}{self.unit}"

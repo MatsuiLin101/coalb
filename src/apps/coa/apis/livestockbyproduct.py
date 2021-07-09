@@ -27,7 +27,6 @@ class LivestockByproductApiView(BasicApiView):
         self.query_date = str(query_date)
         self.product = product
         self.city =  city
-        self.group = None
         self.message = ""
 
         if self.city is not None:
