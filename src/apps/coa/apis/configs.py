@@ -41,6 +41,24 @@ class BasicApiView(object):
         self.driver = get_driver()
         self.driver.get(self.url)
 
+    def get_table(self):
+        # select_start_year = self.driver.find_element(By.ID, self.id_start_year)
+        # select_end_year = self.driver.find_element(By.ID, self.id_end_year)
+        value = str(self.year).zfill(3)
+        try:
+            driver_select(self.driver, self.id_start_year, "value", value)
+            driver_select(self.driver, self.id_end_year, "value", value)
+        except Exception as e:
+            options = self.driver.find_element(By.ID, self.id_start_year).text.replace(" ", "").replace("年", "")
+            options = options.split("\n")
+            date_start = options[0]
+            date_end = options[-1]
+            self.message = f"年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間"
+            raise CustomError(self.message)
+
+        btn_query = self.driver.find_element(By.ID, self.id_query)
+        btn_query.click()
+
 
 class AnnualReportBasicApiView(BasicApiView):
     '''
