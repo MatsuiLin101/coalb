@@ -17,15 +17,15 @@ class TotalValueBuilder(object):
 
     def build(self):
         TotalValue.objects.all().delete()
-        self.driver = get_driver(False)
+        self.driver = get_driver()
         self.driver.get(self.url)
         # 進入農業產值結構與指標頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+        self.build_city(self.text_group)
         self.build_category(self.text_group)
-        self.build_product(self.text_group)
         self.driver.close()
 
-    def build_category(self, text_group):
+    def build_city(self, text_group):
         # 選擇主分類
         driver_select(self.driver, self.id_group, "text", text_group)
         # 取得次分類城市
@@ -63,7 +63,7 @@ class TotalValueBuilder(object):
             if parent is None:
                 parent = obj
 
-    def build_product(self, text_group):
+    def build_category(self, text_group):
         # 取得次分類產品
         time.sleep(1)
         group_category = self.driver.find_element(By.ID, self.id_category)
@@ -80,7 +80,7 @@ class TotalValueBuilder(object):
 
             if parent is not None:
                 if level - parent.level != 1:
-                    parent = TotalValue.objects.filter(main_class=text_group, sub_class="product", level=level-1).last()
+                    parent = TotalValue.objects.filter(main_class=text_group, sub_class="category", level=level-1).last()
 
                 origin_parent = parent
                 while True:
@@ -91,11 +91,11 @@ class TotalValueBuilder(object):
                         parent = parent.parent
                 parent = origin_parent
 
-            print(f"Create {parent} {text_group} product {level} {name} {value} {search_name}")
+            print(f"Create {parent} {text_group} category {level} {name} {value} {search_name}")
             obj = TotalValue.objects.create(
                 parent = parent,
                 main_class = text_group,
-                sub_class = "product",
+                sub_class = "category",
                 level = level,
                 name = name,
                 value = value,

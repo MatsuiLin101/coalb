@@ -26,11 +26,8 @@ def api_view(command_text):
 
     command = list_params[0]
     # 判斷分割後的第一組文字是哪一個指令
-    if command == "總產值":
-        response = query_produce_value(year, city_product)
-        reply = f"{text}\n{response}"
-    elif command in ["產值"]:
-        apiview = ValueApiView
+    if command in ["產值", "總產值"]:
+        apiview = ProduceValueApiView
     elif command in ["毛額", "生產毛額"]:
         apiview = GrossApiView
     elif command in ["所得", "農家所得"]:

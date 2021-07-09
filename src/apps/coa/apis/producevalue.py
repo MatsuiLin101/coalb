@@ -17,7 +17,9 @@ class ProduceValueApiView(BasicApiView):
         self.command = params[0]
 
     def choose_api(self):
-        if self.command in ["產值"]:
+        if self.command in ["總產值"]:
+            return TotalValueApiView(self.params)
+        elif self.command in ["產值"]:
             return ValueApiView(self.params)
 
 
@@ -37,12 +39,125 @@ class TotalValueApiView(BasicApiView):
         self.id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
         self.id_category = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
         self.id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
-        self.id_start = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
-        self.id_end = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
+        self.id_start_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
+        self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
         self.id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
         self.message = ""
+        self.params = params
+
+        if not 2 <= len(params) <= 3:
+            raise CustomError(f"總產值的指令為「總產值 年份」或可加上城市「總產值 城市 年份」，例如：\n「總產值 107」\n「總產值 台中 108」")
+        self.command = params[0]
+        if len(params) == 2:
+            self.city = None
+            self.query_date = params[1]
+        else:
+            self.city = params[1].replace('台', '臺')
+            self.query_date = params[2]
+        self.command_text = " ".join(text for text in params)
+
+    def verify_date(self):
+        # 檢查年份是否為數字
+        try:
+            self.year = int(self.query_date)
+        except Exception as e:
+            self.message = f"年份「{self.query_date}」無效，請輸入民國年"
+            raise CustomError(self.message)
+
+    def parser(self):
+        super(TotalValueApiView, self).parser()
+        # 進入畜禽產品飼養數量統計頁面
+        self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+
+    def get_city(self):
+        # 是否有完全符合name的物件
+        try:
+            self.obj_city = TotalValue.objects.get(name=self.city, sub_class="city")
+            return
+        except Exception as e:
+            pass
+
+        # 是否有部分符合name的物件
+        try:
+            self.obj_city = TotalValue.objects.get(name__icontains=self.city, sub_class="city")
+            return
+        except Exception as e:
+            pass
+
+        # 是否有完全符合search_name的物件
+        try:
+            self.obj_city = TotalValue.objects.get(search_name=self.city, sub_class="city")
+            return
+        except Exception as e:
+            pass
+
+        # 可能有多種結果，請使用者改用詳細關鍵字
+        qs = TotalValue.objects.filter(name__icontains=self.city, sub_class="city")
+        if qs.count() > 0:
+            list_city = list(qs.values_list("search_name", flat=True))
+            message = '\n'.join([city for city in list_city])
+            self.message = f"城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+        else:
+            self.message = f"查無城市「{self.city}」"
+        raise CustomError(self.message)
+
+    def get_query(self):
+        driver_select(self.driver, self.id_group, "text", self.text_group)
+        # 選擇城市
+        if self.city is not None:
+            time.sleep(0.5)
+            driver_select(self.driver, self.id_city, "value", self.obj_city.value, True)
+        # 選擇全部農業別
+        time.sleep(0.5)
+        qs_category = TotalValue.objects.filter(sub_class="category")
+        for obj in qs_category:
+            driver_select(self.driver, self.id_category, "value", obj.value)
+        # 送出查詢
+        btn_search = self.driver.find_element(By.ID, self.id_search)
+        btn_search.click()
+
+    def get_table(self):
+        # select_start_year = self.driver.find_element(By.ID, self.id_start_year)
+        # select_end_year = self.driver.find_element(By.ID, self.id_end_year)
+        value = str(self.year).zfill(3)
+        try:
+            driver_select(self.driver, self.id_start_year, "value", value)
+            driver_select(self.driver, self.id_end_year, "value", value)
+        except Exception as e:
+            options = self.driver.find_element(By.ID, self.id_start_year).text.replace(" ", "").replace("年", "")
+            options = options.split("\n")
+            date_start = options[0]
+            date_end = options[-1]
+            self.message = f"年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間"
+            raise CustomError(self.message)
+
+        btn_query = self.driver.find_element(By.ID, self.id_query)
+        btn_query.click()
+
+    def get_result(self):
+        WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
+        table = self.driver.find_element(By.ID, self.id_table)
+        self.result_1 = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
+        self.result_2 = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_elements(By.CSS_SELECTOR, ".ValueTop")[0].text
+        self.result_3 = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_elements(By.CSS_SELECTOR, ".ValueTop")[1].text
+        self.result_4 = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_elements(By.CSS_SELECTOR, ".ValueTop")[2].text
+        self.result_5 = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_elements(By.CSS_SELECTOR, ".ValueTop")[3].text
+
+    def get_data(self):
+        self.parser()
+        if self.city is not None:
+            self.get_city()
+        self.get_query()
+        self.get_table()
+        self.get_result()
+
+
+        if self.city is not None:
+            self.message = f"{self.year}年 {self.obj_city.name} 總產值：\n" + f"農業：{self.result_1}(千元)\n" + f"農產：{self.result_2}(千元)\n" + f"林產：{self.result_3}(千元)\n" + f"畜產：{self.result_4}(千元)\n" + f"漁產：{self.result_5}(千元)"
+        else:
+            self.message = f"{self.year}年 總產值：\n" + f"農業：{self.result_1}(千元)\n" + f"農產：{self.result_2}(千元)\n" + f"林產：{self.result_3}(千元)\n" + f"畜產：{self.result_4}(千元)\n" + f"漁產：{self.result_5}(千元)"
 
 
 

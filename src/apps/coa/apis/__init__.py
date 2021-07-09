@@ -4,12 +4,14 @@ coa.apis package
 
 from .producevalue import ProduceValueApiView
 '''
+reviewed
 資料來源：動態查詢、年報
 
 指令(choose)
 -總產值
 -產值
 
+已修正
 總產值修改縣市查詢規則，有完全符合的就不檢查其他選項
 台南市
 台灣省台南市
