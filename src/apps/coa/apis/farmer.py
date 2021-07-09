@@ -20,4 +20,4 @@ class FarmerApiView(AnnualReportBasicApiView):
     def get_data(self):
         data_person = round(self.ws[f"G{self.row}"].value)
         data_family = round(self.ws[f"F{self.row}"].value)
-        self.message = f"{self.year}年 農牧戶 人口數：{data_person}(人)\n" + f"{self.year}年 農牧戶 戶數：{data_family}(戶)"
+        self.message = f"{self.year}年 農牧戶 人口數：{data_person:,d}(人)\n" + f"{self.year}年 農牧戶 戶數：{data_family:,d}(戶)\n\n" + f"資料來源：{self.source}"

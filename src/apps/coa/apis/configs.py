@@ -48,7 +48,13 @@ class AnnualReportBasicApiView(BasicApiView):
     def __init__(self, params):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx"
-        self.id_book = "ctl00_cphMain_uctlBook_grdBook_ctl03_btnBookName"
+        self.radio_history = "ctl00_cphMain_uctlBook_rdoPeriodAll"
+        self.btn_total = "ctl00_cphMain_uctlBook_chkQCategoryAll"
+        self.btn_book = "ctl00_cphMain_uctlBook_dltQCategory_ctl00_chkQCategory"
+        self.btn_search = "ctl00_cphMain_uctlBook_btnQuery"
+        self.id_table = "ctl00_cphMain_uctlBook_grdBook"
+        self.id_book1 = ""
+        self.id_book2 = ""
         self.xlsx_name = ""
         self.message = ""
         self.row = ""
@@ -102,15 +108,53 @@ class AnnualReportBasicApiView(BasicApiView):
         self.ws = wb[wb.sheetnames[0]]
 
     def download(self):
+        '''
+        避免年報更新時的空窗期，抓取最新一期的年報及前一期的年報，並備註資料來源
+        '''
         # download ods and transfer to xlsx
         self.driver = get_driver()
         try:
             self.driver.get(self.url)
-            WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_book)))
-            self.driver.find_element(By.ID, self.id_book).click()
-            ods = self.driver.find_element(By.ID, self.id_ods)
-            ods_href = ods.get_attribute("href")
+            WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.btn_search)))
+            self.driver.find_element(By.ID, self.radio_history).click()
+            self.driver.find_element(By.ID, self.btn_total).click()
+            self.driver.find_element(By.ID, self.btn_book).click()
+            self.driver.find_element(By.ID, self.btn_search).click()
+            WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
+            table = self.driver.find_element(By.ID, self.id_table)
+            reports = table.find_elements(By.TAG_NAME, 'a')
+            for report in reports:
+                if "農業統計年報" in report.text and self.id_book1 == "":
+                    self.id_book1 = report.get_attribute("id")
+                    self.source1 = report.text
+                    continue
+                elif "農業統計年報" in report.text and self.id_book2 == "":
+                    self.id_book2 = report.get_attribute("id")
+                    self.source2 = report.text
+                    continue
+                elif self.id_book1 and self.id_book2:
+                    break
 
+            try:
+                self.driver.find_element(By.ID, self.id_book1).click()
+                ods = self.driver.find_element(By.ID, self.id_ods)
+                self.source = self.source1
+            except Exception as e:
+                try:
+                    self.driver.get(self.url)
+                    WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.btn_search)))
+                    self.driver.find_element(By.ID, self.radio_history).click()
+                    self.driver.find_element(By.ID, self.btn_total).click()
+                    self.driver.find_element(By.ID, self.btn_book).click()
+                    self.driver.find_element(By.ID, self.btn_search).click()
+                    WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_book2)))
+                    self.driver.find_element(By.ID, self.id_book2).click()
+                    ods = self.driver.find_element(By.ID, self.id_ods)
+                    self.source = self.source2
+                except Exception as e:
+                    raise
+
+            ods_href = ods.get_attribute("href")
             ods_name = f"ods_{int(datetime.datetime.now().timestamp())}.ods"
             res = requests.get(ods_href)
             with open(ods_name, 'wb') as f:

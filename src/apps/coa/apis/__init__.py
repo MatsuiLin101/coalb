@@ -17,6 +17,7 @@ from .value import ValueApiView
 
 from .gross import GrossApiView
 '''
+reviewed
 資料來源：年報
 
 指令
@@ -26,6 +27,7 @@ from .gross import GrossApiView
 
 from .income import IncomeApiView
 '''
+reviewed
 資料來源：年報
 
 指令
@@ -35,6 +37,7 @@ from .income import IncomeApiView
 
 from .farmer import FarmerApiView
 '''
+reviewed
 資料來源：年報
 
 指令
@@ -47,6 +50,7 @@ from .farmer import FarmerApiView
 
 from .farmerarea import FarmerAreaApiView
 '''
+reviewed
 資料來源：年報
 
 指令
@@ -64,13 +68,11 @@ from .laborforce import LaborforceApiView
 
 from .disaster import DisasterApiView
 '''
+reviewed
 資料來源：年報
 
 指令
 -災害
-
-待確認
-數字加上逗點區隔
 '''
 
 from .welfare import WelfareApiView
