@@ -2,7 +2,7 @@
 coa.apis package
 """
 
-from .value import ValueApiView
+from .producevalue import ProduceValueApiView
 '''
 資料來源：動態查詢、年報
 
@@ -102,8 +102,6 @@ from .cropprice import CropPriceApiView
 -產地
 -批發
 
-已開發完成待測試
-
 待修正
 產地價 - 部署後無法使用需要除錯
 '''
@@ -118,14 +116,13 @@ from .cropproduce import CropProduceApiView
 -單位產值
 -單位產量
 
-已開發完成待測試
-
 待開發
 合併「產量」「種植面積」指令
 合併「單位產值」「單位產量」指令
 
 待修正
 「產量」「種植面積」 - 作物太多查詢時間過長會導致reply_token失效(30秒)
+透過line上傳檔案會因為檔案太大處理時間超過30秒，導致上傳者無法取得機器人回應，可以開發一個檔案上傳頁面取代透過line上傳檔案
 '''
 
 from .cropcost import CropCostApiView
@@ -139,8 +136,6 @@ reviewed
 -粗收益
 -淨收入率
 -工時
-
-已開發完成待測試
 '''
 
 from .livestockhog import LivestockHogApiView
@@ -167,8 +162,6 @@ from .livestockprice import LivestockPriceApiView
 -產地價
 -零售價
 
-已開發完成待測試
-
 待修正
 部署後無法使用需要除錯
 '''
@@ -181,8 +174,6 @@ reviewed
 指令
 -場數
 -飼養場數
-
-已開發完成待測試
 '''
 
 from .livestockfeedamount import LivestockFeedamountApiView
@@ -193,8 +184,6 @@ reviewed
 指令
 -在養
 -在養量
-
-已開發完成待測試
 '''
 
 from .livestockslaughter import LivestockSlaughterApiView
@@ -205,8 +194,6 @@ reviewed
 指令
 -屠宰
 -屠宰量
-
-已開發完成待測試
 '''
 
 from .livestockbyproduct import LivestockByproductApiView
@@ -217,8 +204,6 @@ from .livestockbyproduct import LivestockByproductApiView
 -副產
 -副產品
 -副產物
-
-已開發完成待測試
 
 待開發
 原指令「產量」與 CropProduceApiView 重複
@@ -234,7 +219,4 @@ reviewed
 指令
 -代碼
 -作物代碼
-
-
-已開發完成待測試
 '''
