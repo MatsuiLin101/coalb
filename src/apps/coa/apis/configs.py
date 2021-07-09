@@ -1,10 +1,4 @@
-import os
-import traceback
-
-from apps.log.models import TracebackLog
-
 from apps.coa.utils import *
-from apps.coa.models import *
 
 
 class BasicApiView(object):
@@ -172,7 +166,3 @@ class AnnualReportBasicApiView(BasicApiView):
             os.remove(ods_name)
         except Exception as e:
             raise
-
-
-class CustomError(Exception):
-    pass

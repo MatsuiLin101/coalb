@@ -7,12 +7,7 @@ from django.shortcuts import render
 from apps.log.models import TracebackLog
 
 from apps.coa.apis import *
-from apps.coa.apis.configs import CustomError
-from apps.coa.utils import (
-    pre_process_text_2,
-    query_produce_value,
-    query_produce_value_product,
-)
+from apps.coa.utils import CustomError
 from apps.coa.models import ProductCode, CropProduceUnit
 
 

@@ -58,7 +58,7 @@ from django.views.decorators.csrf import csrf_exempt
 from apps.log.models import TracebackLog
 
 from apps.coa.views import api_view, file_view_product_code, file_view_crop_produce
-from apps.coa.apis.configs import CustomError
+from apps.coa.utils import CustomError
 from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 
 from .models import LineUser, SD
