@@ -3,52 +3,7 @@ from django.contrib import admin
 from apps.coa.models import *
 
 
-class ProduceValueCityAdmin(admin.ModelAdmin):
-    list_display = [
-        "id", "name", "value", "province", "type"
-    ]
-    list_filter = [
-        "type"
-    ]
-
-
-class ProduceValueProductAdmin(admin.ModelAdmin):
-    list_display = [
-        "id", "name", "value", "category", "city_type"
-    ]
-    list_filter = [
-        "category", "city_type"
-    ]
-    search_fields = [
-        "name"
-    ]
-
-
-class LivestockFeedlotAdmin(admin.ModelAdmin):
-    list_display = [
-        "parent", "search_name", "level", "name", "main_class", "sub_class"
-    ]
-
-
-class LivestockFeedamountAdmin(admin.ModelAdmin):
-    list_display = [
-        "parent", "search_name", "level", "name", "main_class", "sub_class"
-    ]
-
-
-class LivestockSlaughterAdmin(admin.ModelAdmin):
-    list_display = [
-        "parent", "search_name", "level", "name", "main_class", "sub_class"
-    ]
-
-
-class LivestockByproductAdmin(admin.ModelAdmin):
-    list_display = [
-        "parent", "search_name", "level", "name", "main_class", "sub_class"
-    ]
-
-
-class CropCostAdmin(admin.ModelAdmin):
+class DynamicSearchAdmin(admin.ModelAdmin):
     list_display = [
         "parent", "search_name", "level", "name", "main_class", "sub_class"
     ]
@@ -66,12 +21,6 @@ class CropPriceOriginAdmin(admin.ModelAdmin):
     ]
 
 
-class CropPriceWholesaleAdmin(admin.ModelAdmin):
-    list_display = [
-        "parent", "search_name", "level", "name", "main_class", "sub_class"
-    ]
-
-
 class CropProduceUnitAdmin(admin.ModelAdmin):
     list_display = [
         "name", "city_district", "amount_average", "value_average"
@@ -81,15 +30,13 @@ class CropProduceUnitAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(ProduceValueCity, ProduceValueCityAdmin)
-admin.site.register(ProduceValueFarmCategory)
-admin.site.register(ProduceValueProduct, ProduceValueProductAdmin)
-admin.site.register(LivestockFeedlot, LivestockFeedlotAdmin)
-admin.site.register(LivestockFeedamount, LivestockFeedamountAdmin)
-admin.site.register(LivestockSlaughter, LivestockSlaughterAdmin)
-admin.site.register(LivestockByproduct, LivestockByproductAdmin)
-admin.site.register(CropCost, CropCostAdmin)
+admin.site.register(TotalValue, DynamicSearchAdmin)
+admin.site.register(LivestockFeedlot, DynamicSearchAdmin)
+admin.site.register(LivestockFeedamount, DynamicSearchAdmin)
+admin.site.register(LivestockSlaughter, DynamicSearchAdmin)
+admin.site.register(LivestockByproduct, DynamicSearchAdmin)
+admin.site.register(CropCost, DynamicSearchAdmin)
 admin.site.register(ProductCode, ProductCodeAdmin)
 admin.site.register(CropPriceOrigin, CropPriceOriginAdmin)
-admin.site.register(CropPriceWholesale, CropPriceWholesaleAdmin)
+admin.site.register(CropPriceWholesale, DynamicSearchAdmin)
 admin.site.register(CropProduceUnit, CropProduceUnitAdmin)
