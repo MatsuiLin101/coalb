@@ -78,6 +78,7 @@ reviewed
 
 from .welfare import WelfareApiView
 '''
+reviewed
 資料來源：動態查詢
 
 指令(choose)
@@ -85,8 +86,12 @@ from .welfare import WelfareApiView
 -津貼、老農津貼
 -獎助學金
 
-待修正
+已修正
 Scholarship無法查詢到縣市
+獎助學金沒有提供縣市月份資料，應該是有帶月份才會查詢不到
+
+待優化
+改善縣市查詢方式
 '''
 
 from .cropprice import CropPriceApiView
