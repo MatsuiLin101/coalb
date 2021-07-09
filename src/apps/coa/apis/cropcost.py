@@ -37,7 +37,6 @@ class CropCostApiView(BasicApiView):
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
         self.id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
-        self.group = None
         self.message = ""
         self.params = params
 

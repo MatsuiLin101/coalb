@@ -23,7 +23,6 @@ class LivestockFeedlotApiView(BasicApiView):
         self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-        self.group = None
         self.message = ""
 
         if not 3 <= len(params) <= 4:

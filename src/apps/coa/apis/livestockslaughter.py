@@ -23,7 +23,6 @@ class LivestockSlaughterApiView(BasicApiView):
         self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-        self.group = None
         self.message = ""
 
         if not 3 <= len(params) <= 4:
@@ -164,7 +163,7 @@ class LivestockSlaughterApiView(BasicApiView):
         self.get_query()
         self.get_table()
         self.get_result()
-        
+
         self.message = f"{self.year}年 {self.obj_product.name}_city_2 供應屠宰量：{self.result}(頭)"
         if self.city is not None:
             self.message = self.message.replace('_city_2', f' {self.obj_city}')
