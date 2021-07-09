@@ -19,4 +19,4 @@ class FarmerAreaApiView(AnnualReportBasicApiView):
 
     def get_data(self):
         data_farmerarea = round(self.ws[f"D{self.row}"].value)
-        self.message = f"搜尋「耕地面積 {self.selfyear}」的結果為：\n" + f"耕地面積：{data_farmerarea}(公頃)\n"
+        self.message = f"{self.year}年 耕地面積：{data_farmerarea:,d}(公頃)\n\n" + f"資料來源：{self.source}"

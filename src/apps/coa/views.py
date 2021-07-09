@@ -103,7 +103,7 @@ def api_view(command_text):
         reply += "作物代碼"
         return reply
     else:
-        reply = f"很抱歉，您輸入的指令「{text}」可能有誤，無法為您查詢，輸入「指令」可以查詢目前可用的指令。"
+        reply = f"很抱歉，本系統不支援您輸入的指令「{command_text}」，無法為您查詢，請輸入「指令」查詢目前可用的指令。"
         return reply
 
     try:

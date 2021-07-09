@@ -22,4 +22,4 @@ class GrossApiView(AnnualReportBasicApiView):
         data_farm = self.ws[f"F{self.row}"].value
         data_factor = self.ws[f"H{self.row}"].value
         data_service = self.ws[f"K{self.row}"].value
-        self.message = f"搜尋「生產毛額 {self.selfyear}」的結果為：\n" + f"合計：{data_total}(百萬元)\n" + f"農業：{data_farm}(百萬元)\n" + f"工業：{data_factor}(百萬元)\n" + f"服務業：{data_service}(百萬元)\n"
+        self.message = f"{self.year}年 國內生產毛額：\n合計：{data_total:,d}(百萬元)\n" + f"農業：{data_farm:,d}(百萬元)\n" + f"工業：{data_factor:,d}(百萬元)\n" + f"服務業：{data_service:,d}(百萬元)\n\n" + f"資料來源：{self.source}"
