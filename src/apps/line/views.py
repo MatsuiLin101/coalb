@@ -154,19 +154,21 @@ def handle_message_text(event):
         reply = api_view(text).strip()
         log.reply = reply
         log.save()
-        line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
     except CustomError as ce:
         reply = str(ce)
         log.reply = reply
         log.save()
-        line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app="handle_message_text", message=traceback.format_exc())
         reply = f"發生錯誤，訊息編號「{log.id}」，錯誤訊息編號「{traceback_log.id}」，請通知管理員處理。"
         log.reply = reply
         log.status = False
         log.save()
-        line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+
+    try:
+        message = line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+    except Exception as e:
+        traceback_log = TracebackLog.objects.create(app="handle_message_text_reply_message", message=traceback.format_exc())
 
 
 @handler.add(MessageEvent, message=StickerMessage)
