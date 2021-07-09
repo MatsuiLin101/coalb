@@ -59,14 +59,6 @@ class CropCostApiView(BasicApiView):
         elif self.command in ["工時"]:
             return WorkHour(self.params)
 
-    def verify_date(self):
-        # 檢查年份是否為數字
-        try:
-            self.year = int(self.query_date)
-        except Exception as e:
-            self.message = f"年份「{self.query_date}」無效，請輸入民國年"
-            raise CustomError(self.message)
-
     def parser(self):
         super(CropCostApiView, self).parser()
         # 進入農畜產品生產成本統計頁面

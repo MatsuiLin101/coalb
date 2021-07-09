@@ -19,10 +19,6 @@ class BasicApiView(object):
     def classname(self):
         return self.__class__.__name__
 
-    def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
-
     def execute_api(self):
         '''
         execute api
@@ -38,6 +34,18 @@ class BasicApiView(object):
         if self.driver:
             self.driver.close()
         return self.message
+
+    def verify_date(self):
+        # 檢查年份是否為數字
+        try:
+            self.year = int(self.query_date)
+        except Exception as e:
+            self.message = f"年份「{self.query_date}」無效，請輸入民國年"
+            raise CustomError(self.message)
+
+    def parser(self):
+        self.driver = get_driver()
+        self.driver.get(self.url)
 
 
 class AnnualReportBasicApiView(BasicApiView):
