@@ -8,8 +8,7 @@ class LivestockByproductApiView(BasicApiView):
     動態查詢 [農業生產統計]>>[畜禽產品生產量值統計]>> [畜禽副產品產量]、[蜂蠶飼養產量]
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
-    def __init__(self, query_date, product, city=None):
-        super()
+    def __init__(self, params):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品生產量值統計"
@@ -24,13 +23,18 @@ class LivestockByproductApiView(BasicApiView):
         self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
         self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-        self.query_date = str(query_date)
-        self.product = product
-        self.city =  city
         self.message = ""
 
-        if self.city is not None:
-            self.city = city.replace('台', '臺')
+        if not 3 <= len(params) <= 4:
+            raise CustomError(f"副產物的指令為「副產物 品項 年份」或「副產物 品項 年份 縣市」，例如：\n「副產物 蜂蜜 108」\n「副產物 蜂蜜 105 彰化」")
+        self.command = params[0]
+        self.product = params[1]
+        self.query_date = params[2]
+        if len(params) == 4:
+            self.city = params[3].replace('台', '臺')
+        else:
+            self.city = None
+        self.command_text = " ".join(text for text in params)
 
     def parser(self):
         super(LivestockByproductApiView, self).parser()
@@ -68,6 +72,7 @@ class LivestockByproductApiView(BasicApiView):
             self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
             self.message = f"查無品項「{self.product}」"
+        raise CustomError(self.message)
 
     def get_city(self):
         # 是否有完全符合name的物件
@@ -99,6 +104,7 @@ class LivestockByproductApiView(BasicApiView):
             self.message = f"城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
             self.message = f"查無城市「{self.city}」"
+        raise CustomError(self.message)
 
     def get_query(self):
         # 選擇主分類
@@ -131,7 +137,7 @@ class LivestockByproductApiView(BasicApiView):
             date_start = options[0]
             date_end = options[-1]
             self.message = f"年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間"
-            return
+            raise CustomError(self.message)
 
         btn_query = self.driver.find_element(By.ID, self.id_query)
         btn_query.click()
@@ -149,22 +155,14 @@ class LivestockByproductApiView(BasicApiView):
     def get_data(self):
         self.parser()
         self.get_group()
-        if self.message:
-            return
         if self.city is not None:
             self.get_city()
-        if self.message:
-            return
         self.get_query()
         self.get_table()
-        if self.message:
-            return
         self.get_result()
-        if not self.message:
-            self.message = f"搜尋「副產品 {self.year} {self.product}_city_1」的結果為：\n" + f"{self.year}年 {self.obj_product.name}_city_2 產量：{self.result}{self.unit}"
-            if self.city is not None:
-                self.message = self.message.replace('_city_1', f' {self.city}')
-                self.message = self.message.replace('_city_2', f' {self.obj_city}')
-            else:
-                self.message = self.message.replace('_city_1', '')
-                self.message = self.message.replace('_city_2', '')
+
+        self.message = f"{self.year}年 {self.obj_product.name}_city_2 產量：{self.result}{self.unit}"
+        if self.city is not None:
+            self.message = self.message.replace('_city_2', f' {self.obj_city}')
+        else:
+            self.message = self.message.replace('_city_2', '')
