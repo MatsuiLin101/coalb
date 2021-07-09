@@ -62,14 +62,6 @@ class CropProduceTotalApiView(BasicApiView):
             else:
                 self.city, self.district = self.city[:2], self.city[2:]
 
-    def verify_date(self):
-        # 檢查年份是否為數字
-        try:
-            self.year = int(self.query_date)
-        except Exception as e:
-            self.message = f"年份「{self.query_date}」無效，請輸入民國年"
-            raise CustomError(self.message)
-
     def set_query(self):
         # switch frame
         frame_left = self.driver.find_element(By.XPATH, self.frame_left)
