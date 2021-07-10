@@ -4,7 +4,6 @@ coa.apis package
 
 from .producevalue import ProduceValueApiView
 '''
-reviewed
 資料來源：動態查詢、年報
 
 指令(choose)
@@ -19,7 +18,6 @@ reviewed
 
 from .gross import GrossApiView
 '''
-reviewed
 資料來源：年報
 
 指令
@@ -29,7 +27,6 @@ reviewed
 
 from .income import IncomeApiView
 '''
-reviewed
 資料來源：年報
 
 指令
@@ -39,7 +36,6 @@ reviewed
 
 from .farmer import FarmerApiView
 '''
-reviewed
 資料來源：年報
 
 指令
@@ -52,7 +48,6 @@ reviewed
 
 from .farmerarea import FarmerAreaApiView
 '''
-reviewed
 資料來源：年報
 
 指令
@@ -61,7 +56,6 @@ reviewed
 
 from .laborforce import LaborforceApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令
@@ -71,7 +65,6 @@ reviewed
 
 from .disaster import DisasterApiView
 '''
-reviewed
 資料來源：年報
 
 指令
@@ -80,7 +73,6 @@ reviewed
 
 from .welfare import WelfareApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令(choose)
@@ -110,7 +102,6 @@ from .cropprice import CropPriceApiView
 
 from .cropproduce import CropProduceApiView
 '''
-reviewed
 資料來源：農情報告、匯入
 
 指令(choose)
@@ -130,7 +121,6 @@ reviewed
 
 from .cropcost import CropCostApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令(choos)
@@ -143,7 +133,6 @@ reviewed
 
 from .livestockhog import LivestockHogApiView
 '''
-reviewed
 資料來源：畜產行情
 
 指令
@@ -158,7 +147,6 @@ reviewed
 
 from .livestockprice import LivestockPriceApiView
 '''
-reviewed
 資料來源：畜產查詢
 
 指令(choose)
@@ -176,7 +164,6 @@ reviewed
 
 from .livestockfeedlot import LivestockFeedlotApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令
@@ -186,7 +173,6 @@ reviewed
 
 from .livestockfeedamount import LivestockFeedamountApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令
@@ -196,7 +182,6 @@ reviewed
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令
@@ -206,7 +191,6 @@ reviewed
 
 from .livestockbyproduct import LivestockByproductApiView
 '''
-reviewed
 資料來源：動態查詢
 
 指令
@@ -222,7 +206,6 @@ reviewed
 
 from .productcode import ProductCodeApiView
 '''
-reviewed
 資料來源：匯入
 
 指令
