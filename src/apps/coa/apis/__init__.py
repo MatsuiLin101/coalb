@@ -157,6 +157,7 @@ reviewed
 
 from .livestockprice import LivestockPriceApiView
 '''
+reviewed
 資料來源：畜產查詢
 
 指令(choose)
@@ -164,8 +165,12 @@ from .livestockprice import LivestockPriceApiView
 -產地價
 -零售價
 
-待修正
+待開發
+控制查詢品項數量避免查詢時間過長無法回應
+
+已修正
 部署後無法使用需要除錯
+-切換選單速度過快會導致新內容還沒出現爬蟲就先抓取，抓不到內容報錯
 '''
 
 from .livestockfeedlot import LivestockFeedlotApiView
