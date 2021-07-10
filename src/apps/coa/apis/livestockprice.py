@@ -9,7 +9,7 @@ class LivestockPriceApiView(BasicApiView):
     -retail(零售價)
     畜產品價格查詢系統 http://price.naif.org.tw/Query/Query_now.aspx
     '''
-    def __init__(self, command, query_date, product):
+    def __init__(self, params):
         self.driver = None
         self.url = "http://price.naif.org.tw/Query/Query_now.aspx"
         self.radio_year = "ContentPlaceHolder_content_uc_timeSelector_RadionButton_year"
@@ -24,18 +24,20 @@ class LivestockPriceApiView(BasicApiView):
         self.btn_query = "ContentPlaceHolder_content_Button_query"
         self.table = "ContentPlaceHolder_content_GridView_data"
         self.xpath = "/html/body/form/div[3]/div[2]/div[2]/div/table/tbody/tr[4]/td[2]"
-        self.command = command
-        self.query_date = query_date
-        self.product = product
         self.message = ""
+        self.year = ""
+        self.month = ""
+        self.params = params
+        self.command = params[0]
+        self.command_text = " ".join(text for text in params)
 
     def choose_api(self):
         if self.command == "拍賣價":
-            return Sale(self.command, self.query_date, self.product)
+            return Sale(self.params)
         elif self.command == "產地價":
-            return Origin(self.command, self.query_date, self.product)
+            return Origin(self.params)
         elif self.command == "零售價":
-            return Retail(self.command, self.query_date, self.product)
+            return Retail(self.params)
 
     def verify_date(self):
         try:
@@ -54,17 +56,16 @@ class LivestockPriceApiView(BasicApiView):
         except Exception as e:
             self.message = f"年份「{self.year}」無效，請輸入民國年"
             raise CustomError(self.message)
-        self.query_date = f"{self.year - 1911}年"
         # 檢查月份是否為數字
         if self.month:
             try:
                 self.month = int(self.month)
                 if not 1 <= self.month <= 12:
                     self.message = f"月份「{self.month}」無效，請輸入1～12"
+                    raise CustomError(self.message)
             except Exception as e:
                 self.message = f"月份「{self.month}」無效，請輸入1～12"
                 raise CustomError(self.message)
-            self.query_date += f"{self.month}月"
 
     def set_date(self):
         if self.month:
@@ -74,7 +75,7 @@ class LivestockPriceApiView(BasicApiView):
             if not str(self.year) in select_year.text:
                 range_year = select_year.text.replace(' ', '').split('\n')
                 self.message = f"年份「{self.year - 1911}」必需在「{int(range_year[0]) - 1911}」到「{int(range_year[-1]) - 1911}」之間"
-                return
+                raise CustomError(self.message)
             driver_select(self.driver, self.select_month_start_year, "value", str(self.year))
             driver_select(self.driver, self.select_month_start_month, "value", str(self.month))
             driver_select(self.driver, self.select_month_end_year, "value", str(self.year))
@@ -86,13 +87,14 @@ class LivestockPriceApiView(BasicApiView):
             if not str(self.year) in select_year.text:
                 range_year = select_year.text.replace(' ', '').split('\n')
                 self.message = f"年份「{self.year - 1911}」必需在「{int(range_year[0]) - 1911}」到「{int(range_year[-1]) - 1911}」之間"
-                return
+                raise CustomError(self.message)
             driver_select(self.driver, self.select_year_start_year, "value", str(self.year))
             driver_select(self.driver, self.select_year_end_year, "value", str(self.year))
 
     def get_table(self):
         check_type = self.driver.find_element(By.ID, self.check_type)
         check_type.click()
+        time.sleep(1)
         list_product = self.driver.find_element(By.ID, self.list_product)
         products = list_product.text.replace('家畜類\n', '').replace('家禽類\n', '').replace('飼料\n', '').replace(' ', '\n').split('\n')
         target_product = list()
@@ -108,8 +110,10 @@ class LivestockPriceApiView(BasicApiView):
             for target in target_product:
                 check_product = list_product.find_element(By.XPATH, f"//*[contains(text(), '{target}')]")
                 check_product.click()
+                time.sleep(1)
                 btn_query = self.driver.find_element(By.ID, self.btn_query)
                 btn_query.click()
+                time.sleep(1)
                 table = self.driver.find_element(By.ID, self.table)
                 if "查無資料" in table.text:
                     list_result.append(f"{target} 查無資料")
@@ -119,21 +123,20 @@ class LivestockPriceApiView(BasicApiView):
                 list_product = self.driver.find_element(By.ID, self.list_product)
                 check_product = list_product.find_element(By.XPATH, f"//*[contains(text(), '{target}')]")
                 check_product.click()
+                time.sleep(1)
                 list_product = self.driver.find_element(By.ID, self.list_product)
             self.list_result = list_result
 
     def get_data(self):
         self.parser()
         self.set_date()
-        if self.message:
-            return
         self.get_table()
         if self.list_result:
-            self.message = f"{self.query_date} {self.product} {self.command}：\n"
-            for result in self.list_result:
-                self.message += f"{result}\n"
-            if self.message.endswith('\n'):
-                self.message = self.message[:-1]
+            if self.month:
+                self.message = f"{self.year - 1911}年{self.month}月 {self.product} {self.command}：\n"
+            else:
+                self.message = f"{self.year - 1911}年 {self.product} {self.command}：\n"
+            self.message += "\n".join(f"{result}" for result in self.list_result)
         else:
             self.message = f"找不到品項「{self.product}」，可使用的品項如下：\n" + "、".join(product for product in self.products)
 
@@ -142,24 +145,39 @@ class Sale(LivestockPriceApiView):
     '''
     拍賣價api介面
     '''
-    def __init__(self, *args):
-        super(Sale, self).__init__(*args)
+    def __init__(self, params):
+        super(Sale, self).__init__(params)
         self.check_type = "ContentPlaceHolder_content_uc_productList_mixVer_CheckBoxList_priceType_1"
+
+        if not len(params) == 3:
+            raise CustomError(f"{self.command}的指令為「{self.command} 品項 年份」或「{self.command} 品項 年份/月份」，例如：\n「{self.command} 羊 108」\n「{self.command} 羊 108/12」")
+        self.product = params[1]
+        self.query_date = params[2]
 
 
 class Origin(LivestockPriceApiView):
     '''
     產地價api介面
     '''
-    def __init__(self, *args):
-        super(Origin, self).__init__(*args)
+    def __init__(self, params):
+        super(Origin, self).__init__(params)
         self.check_type = "ContentPlaceHolder_content_uc_productList_mixVer_CheckBoxList_priceType_0"
+
+        if not len(params) == 3:
+            raise CustomError(f"{self.command}的指令為「{self.command} 品項 年份」或「{self.command} 品項 年份/月份」，例如：\n「{self.command} 白肉雞 108」\n「{self.command} 白肉雞 108/12」")
+        self.product = params[1]
+        self.query_date = params[2]
 
 
 class Retail(LivestockPriceApiView):
     '''
     零售價api介面
     '''
-    def __init__(self, *args):
-        super(Retail, self).__init__(*args)
+    def __init__(self, params):
+        super(Retail, self).__init__(params)
         self.check_type = "ContentPlaceHolder_content_uc_productList_mixVer_CheckBoxList_priceType_2"
+
+        if not len(params) == 3:
+            raise CustomError(f"{self.command}的指令為「{self.command} 品項 年份」或「{self.command} 品項 年份/月份」，例如：\n「{self.command} 雞蛋 108」\n「{self.command} 雞蛋 108/12」")
+        self.product = params[1]
+        self.query_date = params[2]
