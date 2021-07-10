@@ -67,6 +67,7 @@ def api_view(command_text):
         if not 3 <= len(list_params) <= 4:
             return reply
 
+        apiview = None
         if len(list_params) == 3:
             command_text = command_text.replace("產量", "產量（副產物產量）")
             apiview = LivestockByproductApiView
@@ -77,6 +78,7 @@ def api_view(command_text):
             if query_set.count() > 0:
                 command_text = command_text.replace("產量", "產量（副產物產量）")
                 apiview = LivestockByproductApiView
+
             query_set = CropProduceTotal.objects.filter(name__icontains=product)
             if query_set.count() > 0:
                 command_text = command_text.replace("產量", "產量（作物產量）")
@@ -87,13 +89,15 @@ def api_view(command_text):
             if query_set.count() > 0:
                 command_text = command_text.replace("產量", "產量（副產物產量）")
                 apiview = LivestockByproductApiView
+
             query_set = CropProduceTotal.objects.filter(name__icontains=product)
             if query_set.count() > 0:
                 command_text = command_text.replace("產量", "產量（作物產量）")
                 apiview = CropProduceApiView
 
-            reply = f"無法搜尋「{command_text}」\n" + f"查無品項，請修改品項關鍵字後重新查詢"
-            return reply
+            if apiview is None:
+                reply = f"無法搜尋「{command_text}」\n" + f"查無品項，請修改品項關鍵字後重新查詢"
+                return reply
 
     elif "指令" in command_text:
         reply = f"直接輸入指令可以查詢使用方式(括號內為備註不需輸入)，目前提供的指令如下\n\n"
