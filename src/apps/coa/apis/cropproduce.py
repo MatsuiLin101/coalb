@@ -59,7 +59,7 @@ class CropProduceTotalApiView(BasicApiView):
         self.city = params[1].replace('台', '臺')
         self.product = params[2]
         self.query_date = params[3]
-        if len(self.city) > 3:
+        if len(self.city) > 2:
             if "市" in self.city or "縣" in self.city:
                 self.city, self.district = self.city[:3], self.city[3:]
             else:
@@ -67,6 +67,16 @@ class CropProduceTotalApiView(BasicApiView):
         else:
             self.district = ""
         self.command_text = " ".join(text for text in params)
+
+    def get_product(self):
+        query_set = CropProduceTotal.objects.filter(name__icontains=self.product)
+        if 0 < query_set.count() <= 5:
+            return
+        elif query_set.count() == 0:
+            self.message = f"作物「{self.product}」不在清單中，請修改作物名後重新查詢"
+        else:
+            self.message = f"搜尋品項「{self.product}」結果過多，請修改作物名後重新查詢"
+        raise CustomError(self.message)
 
     def set_query(self):
         # switch frame
@@ -147,28 +157,29 @@ class CropProduceTotalApiView(BasicApiView):
             table = self.driver.find_element(By.XPATH, self.table)
             if "查無資料" in table.text:
                 self.message += f"產量 {self.year} {self.city}{self.district} {product.split('.')[-1]}：查無資料\n"
-                self.message += f"種植面積 {self.year} {self.city}{self.district} {product.split('.')[-1]}：查無資料\n"
+                self.message += f"種植面積 {self.year} {self.city}{self.district} {product.split('.')[-1]}：查無資料\n\n"
             elif self.district:
                 if self.district in table.text:
                     data_list = table.text.split('\n')
                     for data in data_list:
-                        if self.district in data:
+                        if self.district in data and "縣市鄉鎮" not in data:
                             district = data.split(' ')[0]
                             produce = data.split(' ')[-1]
                             farmerarea = round(float(data.split(' ')[1].replace(',', '')))
                             self.message += f"產量 {self.year} {district} {product.split('.')[-1]}：{produce}(公斤)\n"
-                            self.message += f"種植面積 {self.year} {district} {product.split('.')[-1]}：{farmerarea:,d}(公頃)\n"
+                            self.message += f"種植面積 {self.year} {district} {product.split('.')[-1]}：{farmerarea:,d}(公頃)\n\n"
                 else:
                     self.message += f"產量 {self.year} {self.city}{self.district} {product.split('.')[-1]}：查無資料\n"
-                    self.message += f"種植面積 {self.year} {self.city}{self.district} {product.split('.')[-1]}：查無資料\n"
+                    self.message += f"種植面積 {self.year} {self.city}{self.district} {product.split('.')[-1]}：查無資料\n\n"
             else:
                 produce = table.text.split('\n')[-1].split(' ')[-1]
                 farmerarea = round(float(table.text.split('\n')[-1].split(' ')[1].replace(',', '')))
                 self.message += f"產量 {self.year} {self.city}{self.district} {product.split('.')[-1]}：{produce}(公斤)\n"
-                self.message += f"種植面積 {self.year} {self.city}{self.district} {product.split('.')[-1]}：{farmerarea:,d}(公頃)\n"
+                self.message += f"種植面積 {self.year} {self.city}{self.district} {product.split('.')[-1]}：{farmerarea:,d}(公頃)\n\n"
         self.message = self.message[:-1]
 
     def get_data(self):
+        self.get_product()
         self.parser()
         self.set_query()
         self.get_table()

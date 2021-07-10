@@ -114,9 +114,10 @@ from .cropproduce import CropProduceApiView
 合併「產量」「種植面積」指令
 合併「單位產值」「單位產量」指令
 與副產物產量(LivestockByproductApiView)共用「產量」指令
+「產量」「種植面積」 - 作物太多查詢時間過長會導致reply_token失效(30秒)
+-限制查詢作物不可超過5個
 
 待修正
-「產量」「種植面積」 - 作物太多查詢時間過長會導致reply_token失效(30秒)
 透過line上傳檔案(單位產值、單位產量excel)會因為檔案太大處理時間超過30秒，導致上傳者無法取得機器人回應，可以開發一個檔案上傳頁面取代透過line上傳檔案
 '''
 
