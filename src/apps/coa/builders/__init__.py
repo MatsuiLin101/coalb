@@ -14,9 +14,9 @@ def build():
     LivestockFeedamountBuilder().build()
     LivestockSlaughterBuilder().build()
     LivestockByproductBuilder().build()
-    CropPriceOriginBuilder().build()
+    CropCostBuilder().build()
     CropPriceWholesaleBuilder().build()
     CropProduceTotalBuilder().build()
 
     # 目前部署後無法執行
-    CropCostBuilder().build()
+    # CropPriceOriginBuilder().build()

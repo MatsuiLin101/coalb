@@ -84,6 +84,7 @@ class CropPriceOriginApiView(CropPriceApiView):
             self.product = params[2]
             self.query_date = params[3]
         self.command_text = " ".join(text for text in params)
+        raise CustomError(f"目前產地價指令因系統問題無法使用")
 
     def get_product(self):
         qs = CropPriceOrigin.objects.filter(name__icontains=self.product)
