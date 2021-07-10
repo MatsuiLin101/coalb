@@ -52,12 +52,8 @@ class CropProduceTotalApiView(BasicApiView):
 
         self.command = params[0]
         if len(params) != 4:
-            if self.command == "產量":
-                message = f"產量的指令為「產量 縣市 品項 年份」可加上鄉鎮「產量 縣市鄉鎮 品項 年份」，例如：\n"
-                message += f"「產量 雲林 落花生 108」\n「產量 雲林土庫 落花生 108」"
-            else:
-                message = f"種植面積的指令為「種植面積 縣市 品項 年份」可加上鄉鎮「種植面積 縣市鄉鎮 品項 年份」，例如：\n"
-                message += f"「種植面積 雲林 落花生 108」\n「種植面積 雲林土庫 落花生 108」"
+            message = f"種植面積的指令為「種植面積 縣市 品項 年份」可加上鄉鎮「種植面積 縣市鄉鎮 品項 年份」，例如：\n"
+            message += f"「種植面積 雲林 落花生 108」\n「種植面積 雲林土庫 落花生 108」"
             raise CustomError(message)
 
         self.city = params[1].replace('台', '臺')

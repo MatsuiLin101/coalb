@@ -8,7 +8,7 @@ from apps.log.models import TracebackLog
 
 from apps.coa.apis import *
 from apps.coa.utils import CustomError
-from apps.coa.models import ProductCode, CropProduceUnit
+from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, CropProduceTotal
 
 
 def api_view(command_text):
@@ -39,7 +39,7 @@ def api_view(command_text):
         apiview = WelfareApiView
     elif command in ["產地", "批發"]:
         apiview = CropPriceApiView
-    elif command in ["產量", "種植面積", "單位產值", "單位產量"]:
+    elif command in ["種植面積", "單位產值", "單位產量"]:
         apiview = CropProduceApiView
     elif command in ["成本", "生產成本", "費用", "生產費用", "粗收益", "淨收入率", "工時"]:
         apiview = CropCostApiView
@@ -57,6 +57,44 @@ def api_view(command_text):
         apiview = LivestockByproductApiView
     elif command in ["代碼", "作物代碼"]:
         apiview = ProductCodeApiView
+    elif command in ["產量"]:
+        reply = f"無法搜尋「{command_text}」\n\n"
+        reply += f"產量（作物產量）的指令為「產量 縣市 品項 年份」可加上鄉鎮「產量 縣市鄉鎮 品項 年份」，例如：\n"
+        reply += f"「產量 雲林 落花生 108」\n「產量 雲林土庫 落花生 108」\n\n"
+        reply += f"產量（副產物產量）的指令為「產量 品項 年份」或「產量 品項 年份 縣市」，也可使用替代指令「副產物」或「副產品」，例如：\n"
+        reply += f"「產量 雞蛋 108」\n「產量 牛乳 109 雲林」\n"
+        reply += f"「副產物 蜂蜜 108」\n「副產品 蜂蜜 105 彰化」"
+        if not 3 <= len(list_params) <= 4:
+            return reply
+
+        if len(list_params) == 3:
+            command_text = command_text.replace("產量", "產量（副產物產量）")
+            apiview = LivestockByproductApiView
+
+        if len(list_params) == 4:
+            product = list_params[1]
+            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class="product")
+            if query_set.count() > 0:
+                command_text = command_text.replace("產量", "產量（副產物產量）")
+                apiview = LivestockByproductApiView
+            query_set = CropProduceTotal.objects.filter(name__icontains=product)
+            if query_set.count() > 0:
+                command_text = command_text.replace("產量", "產量（作物產量）")
+                apiview = CropProduceApiView
+
+            product = list_params[2]
+            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class="product")
+            if query_set.count() > 0:
+                command_text = command_text.replace("產量", "產量（副產物產量）")
+                apiview = LivestockByproductApiView
+            query_set = CropProduceTotal.objects.filter(name__icontains=product)
+            if query_set.count() > 0:
+                command_text = command_text.replace("產量", "產量（作物產量）")
+                apiview = CropProduceApiView
+
+            reply = f"無法搜尋「{command_text}」\n" + f"查無品項，請修改品項關鍵字後重新查詢"
+            return reply
+
     elif "指令" in command_text:
         reply = f"直接輸入指令可以查詢使用方式(括號內為備註不需輸入)，目前提供的指令如下\n\n"
         reply += "經濟指標及其他類：\n"
@@ -75,7 +113,7 @@ def api_view(command_text):
         reply += "農耕類：\n"
         reply += "產地\n"
         reply += "批發\n"
-        reply += "產量\n"
+        reply += "產量(作物產量)\n"
         reply += "種植面積\n"
         reply += "單位產值\n"
         reply += "單位產量\n"
@@ -89,7 +127,7 @@ def api_view(command_text):
         reply += "飼養場數\n"
         reply += "在養量\n"
         reply += "屠宰量\n"
-        reply += "產量\n\n"
+        reply += "產量(副產物產量，替代指令：副產物、副產品)\n\n"
 
         reply += "其他類：\n"
         reply += "作物代碼"
