@@ -110,6 +110,7 @@ from .cropprice import CropPriceApiView
 
 from .cropproduce import CropProduceApiView
 '''
+reviewed
 資料來源：農情報告、匯入
 
 指令(choose)
@@ -118,7 +119,7 @@ from .cropproduce import CropProduceApiView
 -單位產值
 -單位產量
 
-待開發
+已完成
 合併「產量」「種植面積」指令
 合併「單位產值」「單位產量」指令
 

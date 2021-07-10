@@ -14,17 +14,15 @@ class CropProduceApiView(BasicApiView):
     —-單位產量
     EXCEL匯入
     '''
-    def __init__(self, command, query_date, city, product):
-        self.command = command
-        self.query_date = query_date
-        self.city = city
-        self.product = product
+    def __init__(self, params):
+        self.params = params
+        self.command = params[0]
 
     def choose_api(self):
         if self.command in ["產量", "種植面積"]:
-            return CropProduceTotalApiView(self.command, self.query_date, self.city, self.product)
+            return CropProduceTotalApiView(self.params)
         elif self.command in ["單位產值", "單位產量"]:
-            return CropProduceUnitApiView(self.command, self.query_date, self.product)
+            return CropProduceUnitApiView(self.params)
 
 
 class CropProduceTotalApiView(BasicApiView):
@@ -36,7 +34,7 @@ class CropProduceTotalApiView(BasicApiView):
     --(NEW)種植面積
     農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
     '''
-    def __init__(self, command, query_date, city, product):
+    def __init__(self, params):
         self.driver = None
         self.url = "https://agr.afa.gov.tw/afa/afa_frame.jsp"
         self.frame_left = "/html/frameset/frameset/frame[1]"
@@ -49,18 +47,30 @@ class CropProduceTotalApiView(BasicApiView):
         self.select_city = "/html/body/div/form/div/table/tbody/tr[4]/td[2]/select"
         self.btn_query = "/html/body/div/form/div/table/tbody/tr[5]/td[2]/input[1]"
         self.table = "/html/body/div/form/div/table"
-        self.command = command
-        self.query_date = query_date
-        self.city = city.replace("台", "臺")
-        self.district = ""
-        self.product = product
         self.message = ""
+        self.params = params
 
+        self.command = params[0]
+        if len(params) != 4:
+            if self.command == "產量":
+                message = f"產量的指令為「產量 縣市 品項 年份」可加上鄉鎮「產量 縣市鄉鎮 品項 年份」，例如：\n"
+                message += f"「產量 雲林 落花生 108」\n「產量 雲林土庫 落花生 108」"
+            else:
+                message = f"種植面積的指令為「種植面積 縣市 品項 年份」可加上鄉鎮「種植面積 縣市鄉鎮 品項 年份」，例如：\n"
+                message += f"「種植面積 雲林 落花生 108」\n「種植面積 雲林土庫 落花生 108」"
+            raise CustomError(message)
+
+        self.city = params[1].replace('台', '臺')
+        self.product = params[2]
+        self.query_date = params[3]
         if len(self.city) > 3:
             if "市" in self.city or "縣" in self.city:
                 self.city, self.district = self.city[:3], self.city[3:]
             else:
                 self.city, self.district = self.city[:2], self.city[2:]
+        else:
+            self.district = ""
+        self.command_text = " ".join(text for text in params)
 
     def set_query(self):
         # switch frame
@@ -82,7 +92,7 @@ class CropProduceTotalApiView(BasicApiView):
                 range_year = range_year[:-1]
             range_year = range_year.split('\n')
             self.message = f"年份「{self.year}」必需在「{int(range_year[-1])}」到「{int(range_year[0])}」之間"
-            return
+            raise CustomError(self.message)
         driver_select_xpath(self.driver, self.select_year, "value", str(self.year).zfill(3))
 
         # select product
@@ -94,7 +104,7 @@ class CropProduceTotalApiView(BasicApiView):
                     self.target_product.append(product)
         else:
             self.message = f"作物「{self.product}」不在清單中，請修改作物名後重新查詢"
-            return
+            raise CustomError(self.message)
 
         # select city
         select_city = self.driver.find_element(By.XPATH, self.select_city)
@@ -108,11 +118,11 @@ class CropProduceTotalApiView(BasicApiView):
                 for target in self.target_city:
                     self.message += f"{target.split('.')[-1]}\n"
                 self.message = self.message[:-1]
-                return
+                raise CustomError(self.message)
             driver_select_xpath(self.driver, self.select_city, "text", self.target_city[0])
         else:
             self.message = f"縣市「{self.city}」不在清單中，請修改縣市名後重新查詢"
-            return
+            raise CustomError(self.message)
 
     def get_table(self):
         self.list_result = list()
@@ -165,33 +175,45 @@ class CropProduceTotalApiView(BasicApiView):
     def get_data(self):
         self.parser()
         self.set_query()
-        if self.message:
-            return
         self.get_table()
 
 
-class CropProduceUnitApiView(object):
+class CropProduceUnitApiView(BasicApiView):
     '''
     —-單位產值
     EXCEL匯入
     —-單位產量
     EXCEL匯入
     '''
-    def __init__(self, command, city, product):
-        self.command = command
-        self.city = city.replace("台", "臺")
-        self.district = None
-        self.product = product
+    def __init__(self, params):
+        self.params = params
+        self.command = params[0]
+        self.command_text = " ".join(text for text in params)
 
+        if len(params) != 3:
+            if self.command == "單位產值":
+                message = f"單位產值的指令為「單位產值 縣市 品項」，也可加上鄉鎮「單位產值 縣市鄉鎮 品項」，例如：\n「單位產值 屏東 香蕉」\n「單位產值 雲林二崙 香蕉」"
+            else:
+                message = f"單位產量的指令為「單位產量 縣市 品項」，也可加上鄉鎮「單位產量 縣市鄉鎮 品項」，例如：\n「單位產量 屏東 香蕉」\n「單位產量 雲林二崙 香蕉」"
+            raise CustomError(message)
+
+        self.city = params[1].replace("台", "臺")
+        self.product = params[2]
         if len(self.city) > 2:
-            self.city, self.district = self.city[:2], self.city[2:]
+            if self.city[2] in ["市", "縣"]:
+                self.city, self.district = self.city[:3], self.city[3:]
+            else:
+                self.city, self.district = self.city[:2], self.city[2:]
+        else:
+            self.district = None
+        self.command_text = " ".join(text for text in params)
 
     def execute_api(self):
         try:
             self.get_data()
         except Exception as e:
             traceback_log = TracebackLog.objects.create(app=f"{self.classname}", message=traceback.format_exc())
-            self.message = f"發生錯誤，請通知管理員處理，錯誤編號「{traceback_log.id}」"
+            self.message = f"「{self.command_text}」發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理"
         return self.message
 
     def get_data(self):
@@ -222,8 +244,7 @@ class CropProduceUnitApiView(object):
             result += f"平均單位產量：\n平均：{amount_average:,d}{amount_unit}\n最小值：{amount_min:,d}{amount_unit}\n最大值：{amount_max:,d}{amount_unit}"
             list_result.append(result)
 
-        self.message = f"搜尋「{self.command} {self.city}_district {self.product}」的結果為：\n\n" + "\n\n".join(result for result in list_result)
-        if self.district is not None:
-            self.message = self.message.replace("_district", self.district)
+        if len(list_result) > 0:
+            self.message = "\n\n".join(result for result in list_result)
         else:
-            self.message = self.message.replace("_district", "")
+            self.message = f"{self.city}{self.district} {self.product}\n平均單位產值：查無資料\n平均單位產量：查無資料"
