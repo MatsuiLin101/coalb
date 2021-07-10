@@ -7,6 +7,9 @@ class DynamicSearchAdmin(admin.ModelAdmin):
     list_display = [
         "parent", "search_name", "level", "name", "main_class", "sub_class"
     ]
+    list_filter = [
+        "sub_class"
+    ]
 
 
 class ProductCodeAdmin(admin.ModelAdmin):
@@ -40,3 +43,4 @@ admin.site.register(ProductCode, ProductCodeAdmin)
 admin.site.register(CropPriceOrigin, CropPriceOriginAdmin)
 admin.site.register(CropPriceWholesale, DynamicSearchAdmin)
 admin.site.register(CropProduceUnit, CropProduceUnitAdmin)
+admin.site.register(CropProduceTotal)

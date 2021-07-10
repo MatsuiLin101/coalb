@@ -216,3 +216,15 @@ class CropProduceUnit(models.Model):
 
     def __str__(self):
         return f"{self.display_name}"
+
+
+class CropProduceTotal(models.Model):
+    name = models.CharField(max_length=20, verbose_name="名稱")
+    value = models.CharField(max_length=10, verbose_name="值")
+
+    class Meta:
+        verbose_name = "作物產量作物清單"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.name}"
