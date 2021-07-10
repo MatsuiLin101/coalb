@@ -40,7 +40,7 @@ class CropCostApiView(BasicApiView):
         self.message = ""
         self.params = params
 
-        if not len(params) == 3:
+        if len(params) != 3:
             raise CustomError(f"生產成本(生產費用、粗收益、淨收入率、工時)的指令為「成本 作物 年份」，例如：\n「成本 香蕉 107」\n\n也可單獨查詢，例如：\n「生產費用 香蕉 107」\n「粗收益 香蕉 107」\n「淨收入率 香蕉 107」\n「工時 香蕉 107」")
         self.command = params[0]
         self.product = params[1]

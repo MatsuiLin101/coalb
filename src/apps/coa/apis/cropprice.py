@@ -12,18 +12,15 @@ class CropPriceApiView(BasicApiView):
     動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
-    def __init__(self, command, query_date, product, city=None):
-        self.command = command
-        self.query_date = query_date
-        self.select_date = ""
-        self.product = product
-        self.city = city
+    def __init__(self, params):
+        self.params = params
+        self.command = params[0]
 
     def choose_api(self):
-        if "產地" in self.command:
-            return CropPriceOriginApiView(self.command, self.query_date, self.product, self.city)
-        elif "批發" in self.command:
-            return CropPriceWholesaleApiView(self.command, self.query_date, self.product)
+        if self.command in ["產地"]:
+            return CropPriceOriginApiView(self.params)
+        elif self.command in ["批發"]:
+            return CropPriceWholesaleApiView(self.params)
 
     def verify_date(self):
         # 檢查年份是否為數字
@@ -59,7 +56,7 @@ class CropPriceOriginApiView(CropPriceApiView):
     農糧署農產品產地價格查報系統
     https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105
     '''
-    def __init__(self, command, query_date, product, city=None):
+    def __init__(self, params):
         self.driver = None
         self.url = "https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105"
         self.id_radio_month = "WR1_1_Q_AvgPriceType_C1_1"
@@ -69,27 +66,33 @@ class CropPriceOriginApiView(CropPriceApiView):
         self.id_select_month_end = "WR1_1_Q_PRSR_Month2_C1"
         self.id_category = "WR1_1_Q_GroupCode_XX_C1"
         self.id_result_table = "WR1_1_WG1"
-        self.command = command
-        self.query_date = str(query_date)
-        self.product = product
-        self.city = city
         self.year = ""
         self.month = ""
         self.result = list()
         self.message = ""
-        self.start_time = datetime.datetime.now()
+        self.params = params
 
-        if city:
-            self.city = self.city.replace("臺", "台")
+        if not 3 <= len(params) <= 4:
+            raise CustomError(f"產地價的指令為「產地 品項 年份」也可加上縣市或月份「產地 縣市 品項 年份/月份」，例如：\n「產地 芒果 108」\n「產地 芒果 108/12」\n「產地 屏東 芒果 108」\n「產地 屏東 芒果 108/12」")
+        self.command = params[0]
+        if len(params) == 3:
+            self.city = None
+            self.product = params[1]
+            self.query_date = params[2]
+        else:
+            self.city = params[1].replace("臺", "台")
+            self.product = params[2]
+            self.query_date = params[3]
+        self.command_text = " ".join(text for text in params)
 
     def get_product(self):
         qs = CropPriceOrigin.objects.filter(name__icontains=self.product)
         if qs.count() == 0:
             self.message = f"查無品項「{self.product}」"
-            return
+            raise CustomError(self.message)
         elif qs.count() > 5:
             self.message = f"搜尋品項「{self.product}」結果過多，請修改關鍵字後重新查詢：\n" + "\n".join(obj.name for obj in qs)
-            return
+            raise CustomError(self.message)
         else:
             self.query_set = qs
 
@@ -114,7 +117,7 @@ class CropPriceOriginApiView(CropPriceApiView):
             option_year_start = int(options_year[0].text) - 1911
             option_year_end = int(options_year[-1].text) - 1911
             self.message = f"年份「{self.year}」超過範圍，請輸入{option_year_start}～{option_year_end}"
-            raise
+            raise CustomError(self.message)
 
     def get_query(self, obj):
         select_category = self.driver.find_element(By.ID, self.id_category)
@@ -168,8 +171,6 @@ class CropPriceOriginApiView(CropPriceApiView):
     def get_data(self):
         self.parser()
         self.get_product()
-        if self.message:
-            return
         self.set_query()
         for obj in self.query_set:
             self.get_query(obj)
@@ -177,19 +178,23 @@ class CropPriceOriginApiView(CropPriceApiView):
             self.result.append((obj, result))
         self.calc_result()
         if self.city:
-            self.message = f"搜尋「{self.command} {self.query_date} {self.product} {self.city}」的結果為：\n"
+            self.message = f"{self.year}年_month_ {self.city} {self.product} 產地價：\n"
             product = None
             for result in self.list_result:
+                if type(result) == str:
+                    self.message += f"{result}\n"
+                    continue
                 if product != result[0]:
                     product = result[0]
                     self.message += f"{product}\n"
                 self.message += f"{result[1]}\n"
             self.message = self.message[:-1]
         else:
-            self.message = f"搜尋「{self.command} {self.query_date} {self.product}」的結果為：\n" + "\n".join(result for result in self.list_result)
-
-        self.end_time = datetime.datetime.now()
-        self.exe_time = self.end_time - self.start_time
+            self.message = f"{self.year}年_month_ {self.product} 產地價：\n" + "\n".join(result for result in self.list_result)
+        if self.month:
+            self.message = self.message.replace('_month_', f'{self.month}月')
+        else:
+            self.message = self.message.replace('_month_', '')
 
 
 class CropPriceWholesaleApiView(CropPriceApiView):
@@ -198,8 +203,7 @@ class CropPriceWholesaleApiView(CropPriceApiView):
     動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
     https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
-    def __init__(self, command, query_date, product):
-        super()
+    def __init__(self, params):
         self.driver = None
         self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "農產品價格統計"
@@ -219,12 +223,16 @@ class CropPriceWholesaleApiView(CropPriceApiView):
         self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
         self.id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
         self.option_selected = None
-        self.command = command
-        self.query_date = str(query_date)
-        self.product = product
-        self.message = ""
         self.result = list()
-        self.start_time = datetime.datetime.now()
+        self.message = ""
+        self.params = params
+
+        if len(params) != 3:
+            raise CustomError(f"批發的指令為「批發 品項 年份」也可加上月份「批發 品項 年份/月份」，例如：\n「批發 甘藍 108」\n「批發 甘藍 109/1」")
+        self.command = params[0]
+        self.product = params[1]
+        self.query_date = params[2]
+        self.command_text = " ".join(text for text in params)
 
     def parser(self):
         super(CropPriceWholesaleApiView, self).parser()
@@ -243,10 +251,10 @@ class CropPriceWholesaleApiView(CropPriceApiView):
             list_product = list(qs.values_list("name", flat=True))
             message = '\n'.join([product for product in list_product])
             self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
-            raise CustomError()
+            raise CustomError(self.message)
         elif qs.count() == 0:
             self.message = f"查無品項「{self.product}」"
-            raise CustomError()
+            raise CustomError(self.message)
         else:
             self.query_set = qs
 
@@ -342,8 +350,7 @@ class CropPriceWholesaleApiView(CropPriceApiView):
             except CustomError:
                 pass
             self.get_back()
-        self.message = f"搜尋「批發 {self.query_date} {self.product}」的結果為：\n" + "\n".join(result for result in self.result)
         if self.month:
-            self.message = self.message.replace('_month', f'/{self.month}')
+            self.message = f"{self.year}年{self.month}月 {self.product} 批發：\n" + "\n".join(result for result in self.result)
         else:
-            self.message = self.message.replace('_month', '')
+            self.message = f"{self.year}年 {self.product} 批發：\n" + "\n".join(result for result in self.result)
