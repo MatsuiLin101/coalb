@@ -21,6 +21,9 @@ class BasicApiView(object):
             self.verify_date()
             self.get_data()
         except CustomError:
+            if hasattr(self, 'driver'):
+                if self.driver:
+                    self.driver.close()
             raise
         except Exception as e:
             traceback_log = TracebackLog.objects.create(app=f"{self.classname}", message=traceback.format_exc())

@@ -96,8 +96,12 @@ from .cropprice import CropPriceApiView
 -產地
 -批發
 
-待修正
+已修正
 產地價 - 部署後無法使用需要除錯
+- 網站似乎有限制台灣ip才能訪問，設定產地價api會特別使用proxy(需事先設定，失效需要更換)
+Taiwan proxy
+http://free-proxy.cz/zh/proxylist/country/TW/all/ping/all
+1.2.3.4:5678
 '''
 
 from .cropproduce import CropProduceApiView

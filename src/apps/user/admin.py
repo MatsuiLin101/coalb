@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import ModelForm
 
-from apps.user.models import CustomUser
+from apps.user.models import CustomUser, CustomSetting
 
 
 class CustomUserCreationForm(ModelForm):
@@ -31,4 +31,11 @@ class CustomUserAdmin(admin.ModelAdmin):
     search_fields = ['username', 'fullname']
 
 
+class CustomSettingAdmin(admin.ModelAdmin):
+    list_display = [
+        'name', 'value'
+    ]
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(CustomSetting, CustomSettingAdmin)

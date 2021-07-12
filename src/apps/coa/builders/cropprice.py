@@ -15,7 +15,8 @@ a = CropPriceOriginBuilder()
 
     def build(self):
         CropPriceOrigin.objects.all().delete()
-        self.driver = get_driver()
+        headless, proxy = True, True
+        self.driver = get_driver(True, True)
         self.driver.get(self.url)
         # 進入農糧署農產品產地價格查報系統
         select_category = self.driver.find_element(By.ID, self.id_category)

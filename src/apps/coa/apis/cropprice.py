@@ -84,7 +84,16 @@ class CropPriceOriginApiView(CropPriceApiView):
             self.product = params[2]
             self.query_date = params[3]
         self.command_text = " ".join(text for text in params)
-        raise CustomError(f"目前產地價指令因系統問題無法使用")
+
+    def parser(self):
+        headless, proxy = True, True
+        self.driver = get_driver(headless, proxy)
+        self.driver.set_page_load_timeout(20)
+        try:
+            self.driver.get(self.url)
+        except TimeoutException:
+            self.message = "請通知管理員檢查代理是否失效"
+            raise CustomError(self.message)
 
     def get_product(self):
         qs = CropPriceOrigin.objects.filter(name__icontains=self.product)
