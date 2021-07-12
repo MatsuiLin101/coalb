@@ -12,3 +12,7 @@ backup/
 .*-prod*
 
 .DS_Store
+
+basic.css
+dropzone.css
+dropzone.js

@@ -1,0 +1,189 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="zh-Hant" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>
+        {% block head_title %}
+        {% endblock head_title %}
+    </title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'dropzone/basic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dropzone/dropzone.min.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/jquery-easy-loading@1.3.0/dist/jquery.loading.min.css" rel="stylesheet" />
+
+    {% block external_css %}
+    {% endblock external_css %}
+
+    <style>
+        {% block internal_css %}
+        {% endblock internal_css %}
+        .banner-inner {
+          color: white;
+          height: 70px;
+          font-size: 36px;
+          display: flex;
+          align-items: center;
+        }
+        .banner-outer {
+          background-color: #00b19d;
+        }
+
+        .container-upload, .container-response {
+          margin-top: 30px;
+        }
+        .note {
+          font-weight: 200;
+          display: block;
+          margin-top: 1.4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid banner-outer">
+        <div class="banner-inner">
+            上傳檔案
+        </div>
+    </div>
+
+<div class="container container-upload">
+    <div id="dropzone">
+        <form action="/coa/upload/" class="dropzone needsclick dz-clickable" id="uploadexcel">
+            {% csrf_token %}
+            <div class="dz-message needsclick">
+                <button type="button" class="dz-button">將檔案拖曳至這裡</button><br>
+                <span class="note needsclick">或是點選<strong>這裡</strong>選擇裝置中的檔案</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9.10.9/dist/sweetalert2.all.min.js"></script>
+    <script src="{% static 'dropzone/dropzone.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-easy-loading@1.3.0/dist/jquery.loading.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/highcharts@8.0.4/highcharts.min.js"></script> -->
+
+    {% block external_js %}
+    {% endblock external_js %}
+
+    <script type="text/javascript">
+        {% block internal_js %}
+        {% endblock internal_js %}
+
+        Dropzone.options.uploadexcel = {
+            timeout: 600000,
+            sending: function sending() {
+                $( "body" ).loading({
+                    'message': '上傳檔案中請稍候...'
+                });
+            },
+            success: function(file, response) {
+                $( "body" ).loading( "stop" );
+                var status = response['status'];
+                var message = response['content'];
+                if (status == 200) {
+                    if (file.previewElement) {
+                        file.previewElement.classList.add("dz-success");
+                    }
+                    Swal.fire({
+                      icon: 'success',
+                      title: '上傳成功',
+                      text: message,
+                      confirmButtonText: '關閉',
+                      allowOutsideClick: false
+                    });
+                } else {
+                    if (file.previewElement) {
+                      file.previewElement.classList.add("dz-error");
+
+                      if (typeof response !== "String" && response.error) {
+                        message = response.error;
+                      }
+
+                      var _iteratorNormalCompletion7 = true;
+                      var _didIteratorError7 = false;
+                      var _iteratorError7 = undefined;
+
+                      try {
+                        for (var _iterator7 = file.previewElement.querySelectorAll("[data-dz-errormessage]")[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                          var node = _step7.value;
+                          node.textContent = message;
+                        }
+                      } catch (err) {
+                        _didIteratorError7 = true;
+                        _iteratorError7 = err;
+                      } finally {
+                        try {
+                          if (!_iteratorNormalCompletion7 && _iterator7["return"] != null) {
+                            _iterator7["return"]();
+                          }
+                        } finally {
+                          if (_didIteratorError7) {
+                            throw _iteratorError7;
+                          }
+                        }
+                      }
+                    }
+                    Swal.fire({
+                      icon: 'error',
+                      title: '上傳失敗',
+                      text: message,
+                      confirmButtonText: '關閉',
+                      allowOutsideClick: false
+                    });
+                }
+            },
+            error: function(file) {
+              $( "body" ).loading( "stop" );
+              if (file.previewElement) {
+                file.previewElement.classList.add("dz-error");
+
+                message = "伺服器沒有回應，請重新上傳，若伺服器仍然無回應，請通知管理員處理。"
+
+                var _iteratorNormalCompletion7 = true;
+                var _didIteratorError7 = false;
+                var _iteratorError7 = undefined;
+
+                try {
+                  for (var _iterator7 = file.previewElement.querySelectorAll("[data-dz-errormessage]")[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+                    var node = _step7.value;
+                    node.textContent = message;
+                  }
+                } catch (err) {
+                  _didIteratorError7 = true;
+                  _iteratorError7 = err;
+                } finally {
+                  try {
+                    if (!_iteratorNormalCompletion7 && _iterator7["return"] != null) {
+                      _iterator7["return"]();
+                    }
+                  } finally {
+                    if (_didIteratorError7) {
+                      throw _iteratorError7;
+                    }
+                  }
+                }
+              }
+              Swal.fire({
+                icon: 'warning',
+                title: '上傳異常',
+                text: message,
+                confirmButtonText: '關閉',
+                allowOutsideClick: false
+              });
+            }
+        }
+    </script>
+</body>
+
+</html>

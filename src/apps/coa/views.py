@@ -1,8 +1,11 @@
+import datetime
+import os
 import traceback
 
 from openpyxl import load_workbook
 
 from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
 
 from apps.log.models import TracebackLog
 
@@ -294,3 +297,47 @@ def file_view_crop_produce(file_name):
                 update = True
             if update:
                 obj.save()
+    return f"{file_name} 上傳成功！"
+
+
+def upload(request):
+    if request.method == "POST":
+        file = request.FILES.get('file')
+        data = file.read()
+        filename = file.name
+        if "產量" not in filename and "產值" not in filename and "主力" not in filename and "勞動力" not in filename:
+            response = f"上傳的檔案名稱「{filename}」不符要求，上傳失敗！"
+            data = {
+                'status': 500,
+                'error': response,
+                'content': response,
+            }
+        else:
+            new_filename = filename.split('.')[0] + f"_{datetime.datetime.now().timestamp()}." + filename.split('.')[-1]
+
+            with open(f"{new_filename}", "wb") as f:
+                f.write(data)
+
+            try:
+                if "產量" in filename:
+                    response = file_view_crop_produce(new_filename)
+                else:
+                    response = file_view_product_code(new_filename)
+                data = {
+                    'status': 200,
+                    'success': response,
+                    'content': response
+                }
+            except Exception as e:
+                traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())
+                response = f"{filename} 上傳時發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理"
+                data = {
+                    'status': 500,
+                    'error': response,
+                    'content': response,
+                }
+            if os.path.exists(new_filename):
+                os.remove(new_filename)
+        return JsonResponse(data)
+    
+    return render(request, 'coa/upload.html', locals())

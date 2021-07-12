@@ -165,6 +165,9 @@ AUTH_USER_MODEL = 'user.CustomUser'
 # LOGIN_URL = '/users/login/'
 ADMIN_URL = env.str('ADMIN_URL', default='admin')
 
+# Auto add slash in the end of url
+APPEND_SLASH=True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
