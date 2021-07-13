@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils import timezone
 
@@ -11,6 +11,12 @@ class CustomUser(AbstractUser):
     class Meta:
         verbose_name = '使用者'
         verbose_name_plural = verbose_name
+
+    def set_password(self):
+        manager = BaseUserManager()
+        password = manager.make_random_password()
+        super(CustomUser, self).set_password(password)
+        return password
 
     def __str__(self):
         return f"{self.username}"
