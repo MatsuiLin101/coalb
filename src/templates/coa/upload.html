@@ -82,12 +82,26 @@
 
         Dropzone.options.uploadexcel = {
             timeout: 600000,
-            sending: function sending() {
+            sending: function sending(file) {
+                size = file.size;
+                filename = file.name;
+                spend = Math.round(size / 42406);
+                console.log('檔案：' + filename + '\n大小：' + size);
+                if (filename.includes('產量') && filename.includes('產值')) {
+                    message = '上傳檔案中請稍候（大約需要' + spend + '秒）...';
+                } else {
+                    message = '上傳檔案中請稍候...';
+                }
+                start_at = new Date();
+                console.log('開始上傳時間：' + start_at);
                 $( "body" ).loading({
-                    'message': '上傳檔案中請稍候...'
+                    'message': message
                 });
             },
             success: function(file, response) {
+                end_at = new Date();
+                console.log('完成上傳時間：' + end_at);
+                console.log('總共花費：' + ((end_at - start_at) / 1000) + '秒');
                 $( "body" ).loading( "stop" );
                 var status = response['status'];
                 var message = response['content'];
@@ -144,6 +158,9 @@
                 }
             },
             error: function(file) {
+              end_at = new Date();
+              console.log('上傳中斷時間：' + end_at);
+              console.log('總共花費：' + ((end_at - start_at) / 1000) + '秒');
               $( "body" ).loading( "stop" );
               if (file.previewElement) {
                 file.previewElement.classList.add("dz-error");

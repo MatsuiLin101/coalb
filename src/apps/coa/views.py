@@ -297,7 +297,7 @@ def file_view_crop_produce(file_name):
                 update = True
             if update:
                 obj.save()
-    return f"{file_name} 上傳成功！"
+    return f"上傳成功！"
 
 
 def upload(request):
@@ -320,7 +320,7 @@ def upload(request):
 
             try:
                 if "產量" in filename:
-                    response = file_view_crop_produce(new_filename)
+                    response = f"{filename}" + file_view_crop_produce(new_filename)
                 else:
                     response = file_view_product_code(new_filename)
                 data = {
@@ -339,5 +339,5 @@ def upload(request):
             if os.path.exists(new_filename):
                 os.remove(new_filename)
         return JsonResponse(data)
-    
+
     return render(request, 'coa/upload.html', locals())
