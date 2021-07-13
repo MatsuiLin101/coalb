@@ -60,7 +60,10 @@ from apps.log.models import TracebackLog
 from apps.coa.views import api_view, file_view_product_code, file_view_crop_produce
 from apps.coa.utils import CustomError
 from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
-from apps.user.views import create_user_view
+from apps.user.views import (
+    create_user_view,
+    bind_line_user,
+)
 
 from .models import LineUser, SD
 from .utils import parser_product
@@ -153,7 +156,9 @@ def handle_message_text(event):
         )
 
         if text.startswith('建立帳號'):
-            reply = create_user_view(text)
+            reply = create_user_view(text, user)
+        elif text.startswith('綁定帳號'):
+            reply = bind_line_user(text, user)
         else:
             reply = api_view(text).strip()
         log.reply = reply

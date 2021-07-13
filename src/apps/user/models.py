@@ -7,14 +7,17 @@ from django.utils import timezone
 
 class CustomUser(AbstractUser):
     fullname = models.CharField(max_length=20, verbose_name="顯示名稱")
+    line_uid = models.CharField(max_length=255, verbose_name="Line識別碼")
+    allowed_upload = models.BooleanField(default=False, verbose_name="是否允許上傳檔案")
 
     class Meta:
         verbose_name = '使用者'
         verbose_name_plural = verbose_name
 
-    def set_password(self):
-        manager = BaseUserManager()
-        password = manager.make_random_password()
+    def set_password(self, password=None):
+        if password is None:
+            manager = BaseUserManager()
+            password = manager.make_random_password()
         super(CustomUser, self).set_password(password)
         return password
 
