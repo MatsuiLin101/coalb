@@ -6,8 +6,10 @@ from openpyxl import load_workbook
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
 
 from apps.log.models import TracebackLog
+from apps.user.models import CustomUser, DatabaseControl
 
 from apps.coa.apis import *
 from apps.coa.utils import CustomError
@@ -300,7 +302,25 @@ def file_view_crop_produce(file_name):
     return f"上傳成功！"
 
 
+def check_database_locked(model_name):
+    query_set = DatabaseControl.objects.filter(name=model_name)
+    if query_set.count() == 0:
+        return
+
+    last_obj = query_set.last()
+    wait_time = round(last_obj.expire_time.timestamp() - datetime.datetime.now().timestamp())
+    if last_obj.status == True or wait_time < 0:
+        return
+    else:
+        raise CustomError(f"其他使用者更新資料中，請過{wait_time}秒後再嘗試。")
+
+
 def upload(request):
+    user = request.user
+    # print(isinstance(user, CustomUser))
+    if not isinstance(user, CustomUser):
+        return render(request, 'coa/upload-unauth.html')
+
     if request.method == "POST":
         file = request.FILES.get('file')
         data = file.read()
@@ -320,13 +340,27 @@ def upload(request):
 
             try:
                 if "產量" in filename:
+                    check_database_locked('CropProduceUnit')
+                    lock_obj = DatabaseControl.objects.create(user=user, name='CropProduceUnit')
                     response = f"{filename}" + file_view_crop_produce(new_filename)
                 else:
+                    check_database_locked('ProductCode')
+                    lock_obj = DatabaseControl.objects.create(user=user, name='ProductCode')
                     response = file_view_product_code(new_filename)
                 data = {
                     'status': 200,
                     'success': response,
                     'content': response
+                }
+                lock_obj.status = True
+                lock_obj.finish_time = timezone.now()
+                lock_obj.save()
+            except CustomError as ce:
+                response = str(ce)
+                data = {
+                    'status': 500,
+                    'error': response,
+                    'content': response,
                 }
             except Exception as e:
                 traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())

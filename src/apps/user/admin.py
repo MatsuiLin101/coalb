@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import ModelForm
 
-from apps.user.models import CustomUser, CustomSetting
+from apps.user.models import *
 
 
 class CustomUserCreationForm(ModelForm):
@@ -37,5 +37,12 @@ class CustomSettingAdmin(admin.ModelAdmin):
     ]
 
 
+class DatabaseControlAdmin(admin.ModelAdmin):
+    list_display = [
+        'user', 'name', 'status', 'start_time', 'finish_time', 'expire_time'
+    ]
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(CustomSetting, CustomSettingAdmin)
+admin.site.register(DatabaseControl, DatabaseControlAdmin)
