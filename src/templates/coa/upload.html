@@ -55,7 +55,7 @@
 
 <div class="container container-upload">
     <div id="dropzone">
-        <form action="/coa/upload/" class="dropzone needsclick dz-clickable" id="uploadexcel">
+        <form action="/coa/upload/?token={{ obj_token.token }}" class="dropzone needsclick dz-clickable" id="uploadexcel">
             {% csrf_token %}
             <div class="dz-message needsclick">
                 <button type="button" class="dz-button">將檔案拖曳至這裡</button><br>

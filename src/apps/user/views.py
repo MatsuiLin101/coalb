@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from apps.user.models import CustomUser
+from apps.user.models import *
 
 
 def user_login(request):
@@ -81,3 +81,19 @@ def bind_line_user(command_text, line_user):
     password = user.set_password()
     user.save()
     return f"已建立帳號「{user}」並與您的Line帳號綁定"
+
+
+def create_upload_token(line_user):
+    try:
+        user = CustomUser.objects.get(line_uid=line_user.user_id)
+    except Exception as e:
+        return f"請先綁定Line帳號"
+
+    if user.allowed_upload == False:
+        return f"沒有上傳檔案權限"
+
+    query_set = AnyToken.objects.filter(user=user, name="UPLOAD_LOGIN", status=True)
+    query_set.update(status=False, expire_time=timezone.now())
+
+    obj_token = AnyToken.objects.create(user=user, name="UPLOAD_LOGIN", token=BaseUserManager().make_random_password(), status=True)
+    return f"請透過以下網址上傳檔案：\nhttp://localhost:8000/coa/upload/?token={obj_token.token}"

@@ -7,9 +7,10 @@ from openpyxl import load_workbook
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
+from django.contrib.auth import login
 
 from apps.log.models import TracebackLog
-from apps.user.models import CustomUser, DatabaseControl
+from apps.user.models import CustomUser, DatabaseControl, AnyToken
 
 from apps.coa.apis import *
 from apps.coa.utils import CustomError
@@ -317,11 +318,53 @@ def check_database_locked(model_name):
 
 def upload(request):
     user = request.user
-    # print(isinstance(user, CustomUser))
-    if not isinstance(user, CustomUser):
-        return render(request, 'coa/upload-unauth.html')
+    token = request.GET.get('token') or None
+
+    if request.method == "GET":
+        if token is not None:
+            query_set = AnyToken.objects.filter(token=token)
+            if query_set.count() == 0:
+                return render(request, 'coa/upload-unauth.html', {'message': '網址無效，請向機器人取得正確的上傳網址'})
+
+            obj_token = query_set.first()
+            if obj_token.expire_time < timezone.now():
+                return render(request, 'coa/upload-unauth.html', {'message': '網址過期，請重新取得上傳網址'})
+        else:
+            return render(request, 'coa/upload-unauth.html', {'message': '請向機器人取得上傳網址'})
+        user = obj_token.user
+        login(request, user)
+        return render(request, 'coa/upload.html', locals())
 
     if request.method == "POST":
+        response = ''
+        if not isinstance(user, CustomUser):
+            response = '網址已過期，請重新取得上傳網址'
+            data = {
+                'status': 403,
+                'error': response,
+                'content': response,
+            }
+            return JsonResponse(data)
+
+        if token is None:
+            response = '請向機器人取得上傳網址'
+        else:
+            query_set = AnyToken.objects.filter(token=token)
+            if query_set.count() == 0:
+                response = '網址無效，請向機器人取得正確的上傳網址'
+
+            obj_token = query_set.first()
+            if obj_token.expire_time < timezone.now():
+                response = '網址過期，請重新取得上傳網址'
+
+        if response:
+            data = {
+                'status': 403,
+                'error': response,
+                'content': response,
+            }
+            return JsonResponse(data)
+
         file = request.FILES.get('file')
         data = file.read()
         filename = file.name

@@ -43,6 +43,13 @@ class DatabaseControlAdmin(admin.ModelAdmin):
     ]
 
 
+class AnyTokenAdmin(admin.ModelAdmin):
+    list_display = [
+        'user', 'name', 'token', 'status', 'create_time', 'expire_time'
+    ]
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(CustomSetting, CustomSettingAdmin)
 admin.site.register(DatabaseControl, DatabaseControlAdmin)
+admin.site.register(AnyToken, AnyTokenAdmin)

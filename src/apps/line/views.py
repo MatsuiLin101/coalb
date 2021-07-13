@@ -63,6 +63,7 @@ from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 from apps.user.views import (
     create_user_view,
     bind_line_user,
+    create_upload_token,
 )
 
 from .models import LineUser, SD
@@ -159,6 +160,8 @@ def handle_message_text(event):
             reply = create_user_view(text, user)
         elif text.startswith('綁定帳號'):
             reply = bind_line_user(text, user)
+        elif text.startswith('上傳檔案'):
+            reply = create_upload_token(user)
         else:
             reply = api_view(text).strip()
         log.reply = reply

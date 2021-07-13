@@ -51,3 +51,19 @@ class DatabaseControl(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+class AnyToken(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="使用者")
+    name = models.CharField(max_length=255, verbose_name="名稱")
+    token = models.CharField(max_length=20, verbose_name="通行證")
+    status = models.BooleanField(default=False, verbose_name="狀態")
+    create_time = models.DateTimeField(auto_now_add=True, verbose_name="建立時間")
+    expire_time = models.DateTimeField(default=timezone.now() + datetime.timedelta(0, 600), verbose_name="過期時間")
+
+    class Meta:
+        verbose_name = '萬用通行證'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return f"{self.name}"
