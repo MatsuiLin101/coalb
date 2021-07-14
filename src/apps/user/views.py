@@ -1,6 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.urls import reverse
+from django.conf import settings
 
 from apps.user.models import *
 
@@ -96,4 +98,4 @@ def create_upload_token(line_user):
     query_set.update(status=False, expire_time=timezone.now())
 
     obj_token = AnyToken.objects.create(user=user, name="UPLOAD_LOGIN", token=BaseUserManager().make_random_password(), status=True)
-    return f"請透過以下網址上傳檔案：\nhttp://localhost:8000/coa/upload/?token={obj_token.token}"
+    return f"請透過以下網址上傳檔案：\nhttp://{settings.ALLOWED_HOSTS[0]}{reverse('coa:upload')}?token={obj_token.token}"

@@ -23,7 +23,7 @@ urlpatterns = [
     path(f'{settings.ADMIN_URL}/', admin.site.urls),
     path('user/', include('apps.user.urls')),
     path('line/', include('apps.line.urls')),
-    path('coa/', include('apps.coa.urls')),
+    path('coa/', include('apps.coa.urls', namespace="coaapp")),
 ]
 
 if settings.DEBUG:
