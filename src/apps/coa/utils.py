@@ -33,7 +33,7 @@ class CustomError(Exception):
     pass
 
 
-def get_driver(headless=True, proxy=False):
+def get_driver(headless=True, use_proxy=False, new_proxy=None):
     """
     取得selenium驅動瀏覽器
     headless: True為啟動無頭模式(不會開啟瀏覽器， 只會在背景運行)
@@ -43,12 +43,15 @@ def get_driver(headless=True, proxy=False):
     chrome_options = Options()
     if headless:
         chrome_options.add_argument('--headless')
-    if proxy:
-        try:
-            obj = CustomSetting.objects.get(name='proxy')
-        except Exception as e:
-            raise CustomError('請通知管理員設定代理再使用此指令')
-        chrome_options.add_argument(f'--proxy-server={obj.value}')
+    if use_proxy:
+        if new_proxy:
+            chrome_options.add_argument(f'--proxy-server={new_proxy}')
+        else:
+            try:
+                obj = CustomSetting.objects.get(name='proxy')
+            except Exception as e:
+                raise CustomError('請通知管理員設定代理再使用此指令')
+            chrome_options.add_argument(f'--proxy-server={obj.value}')
         chrome_options.add_argument('--ignore-ssl-errors=yes')
         chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')

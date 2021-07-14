@@ -57,7 +57,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from apps.log.models import TracebackLog
 
-from apps.coa.views import api_view, file_view_product_code, file_view_crop_produce
+from apps.coa.views import (
+    api_view,
+    file_view_product_code,
+    file_view_crop_produce,
+    change_proxy,
+)
 from apps.coa.utils import CustomError
 from apps.log.models import LineMessageLog, LineFollowLog, LineCallBackLog
 from apps.user.views import (
@@ -162,6 +167,8 @@ def handle_message_text(event):
             reply = bind_line_user(text, user)
         elif text.startswith('上傳檔案'):
             reply = create_upload_token(user)
+        elif text.startswith('更換代理'):
+            reply = change_proxy(text, user)
         else:
             reply = api_view(text).strip()
         log.reply = reply

@@ -1,8 +1,11 @@
+import time
 import datetime
 import os
 import traceback
 
 from openpyxl import load_workbook
+
+from selenium.common.exceptions import TimeoutException
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
@@ -10,10 +13,10 @@ from django.utils import timezone
 from django.contrib.auth import login
 
 from apps.log.models import TracebackLog
-from apps.user.models import CustomUser, DatabaseControl, AnyToken
+from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToken
 
 from apps.coa.apis import *
-from apps.coa.utils import CustomError
+from apps.coa.utils import CustomError, get_driver
 from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, CropProduceTotal
 
 
@@ -418,3 +421,39 @@ def upload(request):
         return JsonResponse(data)
 
     return render(request, 'coa/upload.html', locals())
+
+
+def change_proxy(command_text, line_user):
+    if CustomUser.objects.filter(line_uid=line_user.user_id, is_superuser=True).count() == 0:
+        return ''
+
+    list_params = command_text.strip().split(' ')
+    if len(list_params) == 1:
+        return f"請輸入要更換的代理內容"
+    else:
+        proxy = list_params[1]
+
+    headless, user_proxy = True, True
+    driver = get_driver(headless, user_proxy, proxy)
+    driver.set_page_load_timeout(20)
+    try:
+        driver.get('https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105')
+        source = driver.page_source
+        if "這個網頁無法正常運作" in source or "重新載入" in source or "詳細資訊" in source:
+            return f"{proxy} 無法使用"
+        else:
+            try:
+                obj = CustomSetting.objects.get(name='proxy')
+                obj.value = proxy
+                obj.save()
+            except Exception as e:
+                CustomSetting.objects.create(name='proxy', value=proxy)
+
+        driver.close()
+        return f"{proxy} 可以使用，已更新"
+    except TimeoutException:
+        driver.close()
+        return f"{proxy} 無法使用"
+    except Exception as e:
+        driver.close()
+        return f"更換代理發生錯誤"
