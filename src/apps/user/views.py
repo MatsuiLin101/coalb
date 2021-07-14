@@ -97,5 +97,8 @@ def create_upload_token(line_user):
     query_set = AnyToken.objects.filter(user=user, name="UPLOAD_LOGIN", status=True)
     query_set.update(status=False, expire_time=timezone.now())
 
-    obj_token = AnyToken.objects.create(user=user, name="UPLOAD_LOGIN", token=BaseUserManager().make_random_password(), status=True)
+    obj_token = AnyToken.objects.create(
+        user=user, name="UPLOAD_LOGIN", token=BaseUserManager().make_random_password(),
+        status=True, expire_time=(timezone.now() + datetime.timedelta(0, 600))
+    )
     return f"請透過以下網址上傳檔案：\nhttp://{settings.ALLOWED_HOSTS[0]}{reverse('coa:upload')}?token={obj_token.token}"
