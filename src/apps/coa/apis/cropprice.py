@@ -86,7 +86,7 @@ class CropPriceOriginApiView(CropPriceApiView):
         self.command_text = " ".join(text for text in params)
 
     def parser(self):
-        headless, proxy = True, True
+        headless, proxy = True, False
         self.driver = get_driver(headless, proxy)
         self.driver.set_page_load_timeout(20)
         try:
