@@ -65,16 +65,16 @@ def create_user_view(command_text, line_user):
 
 
 def bind_line_user(command_text, line_user):
+    query_set = CustomUser.objects.filter(line_uid=line_user.user_id)
+    if query_set.count() > 0:
+        obj = query_set.first()
+        return f"您的Line帳號已經綁定帳號「{obj.username}」"
+
     list_params = command_text.strip().split(' ')
     if len(list_params) != 2:
         return f"指令為「綁定帳號 帳號」，例如：\n「綁定帳號 user001」"
     else:
         username = list_params[1]
-
-    query_set = CustomUser.objects.filter(line_uid=line_user.user_id)
-    if query_set.count() > 0:
-        obj = query_set.first()
-        return f"您的Line帳號已經綁定帳號「{obj.username}」"
 
     if CustomUser.objects.filter(username=username).count() > 0:
         return f"帳號「{username}」已存在，請更換一個帳號"

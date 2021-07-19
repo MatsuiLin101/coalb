@@ -167,8 +167,8 @@ def handle_message_text(event):
             reply = bind_line_user(text, user)
         elif text.startswith('上傳檔案'):
             reply = create_upload_token(user)
-        elif text.startswith('更換代理'):
-            reply = change_proxy(text, user)
+        # elif text.startswith('更換代理'):
+        #     reply = change_proxy(text, user)
         else:
             reply = api_view(text).strip()
         log.reply = reply
