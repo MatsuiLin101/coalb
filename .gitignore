@@ -4,6 +4,8 @@ staticfiles/
 document/
 chrome/
 backup/
+nginx/
+systemd/
 
 *.sqlite3
 #*.dev
