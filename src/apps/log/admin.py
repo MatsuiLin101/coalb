@@ -11,7 +11,7 @@ class LineBodyLogAdmin(admin.ModelAdmin):
 
 class LineMessageLogAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'user', 'message', 'status', 'method', 'created'
+        'id', 'user', 'message', 'status', 'method', 'created', 'reply_at'
     ]
     list_filter = ['status', 'method']
 
