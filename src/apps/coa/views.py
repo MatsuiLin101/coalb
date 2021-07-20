@@ -475,6 +475,7 @@ def proxy_parser(request):
     try:
         obj = CropPriceOriginApiView(params)
         reply = obj.execute_api()
+        reply = 'end proxy obj.execute_api()'
     except Exception as e:
         reply = str(e)
     return HttpResponse(reply)
