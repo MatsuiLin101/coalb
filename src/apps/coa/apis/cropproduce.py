@@ -254,4 +254,7 @@ class CropProduceUnitApiView(BasicApiView):
         if len(list_result) > 0:
             self.message = "\n\n".join(result for result in list_result)
         else:
-            self.message = f"{self.city}{self.district} {self.product}\n平均單位產值：查無資料\n平均單位產量：查無資料"
+            if self.district:
+                self.message = f"{self.city}{self.district} {self.product}\n平均單位產值：查無資料\n平均單位產量：查無資料"
+            else:
+                self.message = f"{self.city} {self.product}\n平均單位產值：查無資料\n平均單位產量：查無資料"
