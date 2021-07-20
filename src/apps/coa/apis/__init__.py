@@ -88,7 +88,7 @@ Scholarship無法查詢到縣市
 改善縣市查詢方式
 '''
 
-from .cropprice import CropPriceApiView
+from .cropprice import CropPriceApiView, CropPriceOriginApiView
 '''
 資料來源：產地價查報、動態查詢
 

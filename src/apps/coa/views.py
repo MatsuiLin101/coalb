@@ -1,7 +1,7 @@
-import time
 import datetime
 import os
 import traceback
+import urllib
 
 from openpyxl import load_workbook
 
@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.contrib.auth import login
+from django.conf import settings
 
 from apps.log.models import TracebackLog
 from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToken
@@ -387,11 +388,11 @@ def upload(request):
             try:
                 if "產量" in filename:
                     check_database_locked('CropProduceUnit')
-                    lock_obj = DatabaseControl.objects.create(user=user, name='CropProduceUnit')
+                    lock_obj = DatabaseControl.objects.create(user=user, name='CropProduceUnit', expire_time=(timezone.now() + datetime.timedelta(0, 600)))
                     response = f"{filename}" + file_view_crop_produce(new_filename)
                 else:
                     check_database_locked('ProductCode')
-                    lock_obj = DatabaseControl.objects.create(user=user, name='ProductCode')
+                    lock_obj = DatabaseControl.objects.create(user=user, name='ProductCode', expire_time=(timezone.now() + datetime.timedelta(0, 600)))
                     response = file_view_product_code(new_filename)
                 data = {
                     'status': 200,
@@ -433,8 +434,8 @@ def change_proxy(command_text, line_user):
     else:
         proxy = list_params[1]
 
-    headless, user_proxy = True, True
-    driver = get_driver(headless, user_proxy, proxy)
+    headless, use_proxy = True, True
+    driver = get_driver(headless, use_proxy, proxy)
     driver.set_page_load_timeout(20)
     try:
         driver.get('https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105')
@@ -457,3 +458,17 @@ def change_proxy(command_text, line_user):
     except Exception as e:
         driver.close()
         return f"更換代理發生錯誤"
+
+
+def proxy_parser(request):
+    token = request.GET.get('token')
+    if token != settings.PROXY_TOKEN:
+        return HttpResponse('無法使用此功能')
+    body = request.body.decode()
+    params = urllib.parse.unquote(body.replace('params=', '')).split('&')
+    try:
+        obj = CropPriceOriginApiView(params, use_proxy=True)
+        reply = obj.execute_api()
+    except Exception as e:
+        reply = str(e)
+    return HttpResponse(reply)
