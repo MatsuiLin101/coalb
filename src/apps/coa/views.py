@@ -478,6 +478,7 @@ def proxy_parser(request):
         reply = 'end proxy obj.execute_api()'
     except Exception as e:
         reply = str(e)
+        reply = 'end proxy Exception'
     return HttpResponse(reply)
 
 
