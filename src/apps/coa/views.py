@@ -465,12 +465,18 @@ def proxy_parser(request):
     token = request.GET.get('token')
     if token != settings.PROXY_TOKEN:
         return HttpResponse('無法使用此功能')
-    body = request.body.decode()
-    params = urllib.parse.unquote(body.replace('params=', '')).split('&')
+
+    uri = request.get_raw_uri()
+    data = uri.split('data=')[-1]
+    params = urllib.parse.unquote(data).split('&')
+    # body = request.body.decode()
+    # params = urllib.parse.unquote(body.replace('params=', '')).split('&')
+    # return HttpResponse(f"data is {data}\nparams is {params}")
     try:
-        obj = CropPriceOriginApiView(params, use_proxy=True)
+        obj = CropPriceOriginApiView(params)
         reply = obj.execute_api()
     except Exception as e:
+        traceback_log = TracebackLog.objects.create(app="proxy_parser", message=traceback.format_exc())
         reply = str(e)
     return HttpResponse(reply)
 

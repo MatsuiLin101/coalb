@@ -18,7 +18,7 @@ class CropPriceApiView(BasicApiView):
 
     def choose_api(self):
         if self.command in ["產地"]:
-            return CropPriceOriginApiView(self.params)
+            return CropPriceOriginApiView(self.params, use_proxy=True)
         elif self.command in ["批發"]:
             return CropPriceWholesaleApiView(self.params)
 
@@ -89,23 +89,14 @@ class CropPriceOriginApiView(CropPriceApiView):
 
     def execute_api(self):
         if self.use_proxy:
-            return super(CropPriceOriginApiView, self).execute_api()
-        else:
-            data = {
-                'params': self.params
-            }
-            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}", data=data)
+            # data = {
+            #     'params': self.params
+            # }
+            data = "&".join(params for params in self.params)
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}&data={data}")
             return res.text
-
-    def parser(self):
-        headless, proxy = True, False
-        self.driver = get_driver(headless, proxy)
-        self.driver.set_page_load_timeout(20)
-        try:
-            self.driver.get(self.url)
-        except TimeoutException:
-            self.message = "請通知管理員檢查代理是否失效"
-            raise CustomError(self.message)
+        else:
+            return super(CropPriceOriginApiView, self).execute_api()
 
     def get_product(self):
         qs = CropPriceOrigin.objects.filter(name__icontains=self.product)
