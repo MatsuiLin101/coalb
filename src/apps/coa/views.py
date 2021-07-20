@@ -467,7 +467,7 @@ def proxy_parser(request):
         return HttpResponse('無法使用此功能')
     body = request.body.decode()
     params = urllib.parse.unquote(body.replace('params=', '')).split('&')
-    return HttpResponse('qwer')
+    return HttpResponse(f"params is {params}")
     try:
         obj = CropPriceOriginApiView(params)
         reply = obj.execute_api()
