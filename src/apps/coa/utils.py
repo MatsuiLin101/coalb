@@ -21,6 +21,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException
 
 from django.conf import settings
+from django.urls import reverse
 
 from apps.log.models import TracebackLog
 

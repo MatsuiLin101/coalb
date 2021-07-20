@@ -13,16 +13,26 @@ a = CropPriceOriginBuilder()
         self.id_table = "WR1_1_PRMG_0_X"
         self.css_query = "div.CSS_ABS_Normal"
 
-    def build(self):
-        CropPriceOrigin.objects.all().delete()
-        headless, proxy = True, False
-        self.driver = get_driver(headless, proxy)
+    def build(self, use_proxy=False):
+        if use_proxy:
+            return self._build()
+        else:
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={settings.PROXY_TOKEN}")
+            data = json.loads(res.text)
+            CropPriceOrigin.objects.all().delete()
+            for obj in data:
+                obj = CropPriceOrigin.objects.create(**obj)
+                print(f'create {obj.category} {obj}')
+
+    def _build(self):
+        self.driver = get_driver()
         self.driver.get(self.url)
         # 進入農糧署農產品產地價格查報系統
         select_category = self.driver.find_element(By.ID, self.id_category)
         options = select_category.find_elements(By.TAG_NAME, "option")
         count_option = 0
         count_table = 0
+        data = list()
         while count_option < len(options):
             select_category = self.driver.find_element(By.ID, self.id_category)
             option = select_category.find_elements(By.TAG_NAME, "option")[count_option]
@@ -44,12 +54,16 @@ a = CropPriceOriginBuilder()
                 input = td.find_element(By.TAG_NAME, 'input')
                 value = input.get_attribute('value')
                 code = input.get_attribute('id')
-                obj = CropPriceOrigin.objects.create(
-                    category=category, id_table=id_table, id_query=id_query,
-                    value=value, code=code, name=name
-                )
-                print(f'create {category} {obj}')
+                data.append({
+                    'category': category,
+                    'id_table': id_table,
+                    'id_query': id_query,
+                    'value': value,
+                    'code': code,
+                    'name': name
+                })
         self.driver.close()
+        return data
 
     def close(self):
         self.driver.close()

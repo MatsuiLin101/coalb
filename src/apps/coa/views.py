@@ -17,6 +17,7 @@ from apps.log.models import TracebackLog
 from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToken
 
 from apps.coa.apis import *
+from apps.coa.builders import CropPriceOriginBuilder
 from apps.coa.utils import CustomError, get_driver
 from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, CropProduceTotal
 
@@ -472,3 +473,11 @@ def proxy_parser(request):
     except Exception as e:
         reply = str(e)
     return HttpResponse(reply)
+
+
+def proxy_build(request):
+    token = request.GET.get('token')
+    if token != settings.PROXY_TOKEN:
+        return HttpResponse('無法使用此功能')
+    data = CropPriceOriginBuilder().build(use_proxy=True)
+    return JsonResponse(data, safe=False)
