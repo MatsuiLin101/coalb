@@ -38,6 +38,7 @@ class LineMessageLog(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name="建立時間")
     timestamp = models.FloatField(blank=True, null=True, verbose_name="請求時間戳")
     method = models.CharField(max_length=10, default="reply", verbose_name="回應方式")
+    reply_at = models.DateTimeField(auto_now=True, verbose_name="回應時間")
 
     class Meta:
         verbose_name = "LINE文字訊息記錄"

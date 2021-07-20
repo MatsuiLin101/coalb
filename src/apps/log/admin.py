@@ -13,7 +13,7 @@ class LineMessageLogAdmin(admin.ModelAdmin):
     list_display = [
         'id', 'user', 'message', 'status', 'method', 'created'
     ]
-    search_fields = ['status', 'method']
+    list_filter = ['status', 'method']
 
 
 class LineFollowLogAdmin(admin.ModelAdmin):
