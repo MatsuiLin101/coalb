@@ -89,10 +89,11 @@ class CropPriceOriginApiView(CropPriceApiView):
 
     def execute_api(self):
         if self.use_proxy:
-            data = {
-                'params': self.params
-            }
-            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}", data=data)
+            # data = {
+            #     'params': self.params
+            # }
+            data = "&".join(params for params in self.params)
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}&data={data}")
             return res.text
         else:
             return super(CropPriceOriginApiView, self).execute_api()
