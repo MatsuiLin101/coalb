@@ -92,7 +92,6 @@ class CropPriceOriginApiView(CropPriceApiView):
             data = {
                 'params': self.params
             }
-            return str(data)
             res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}", data=data)
             return res.text
         else:
