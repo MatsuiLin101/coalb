@@ -467,7 +467,7 @@ def proxy_parser(request):
         return HttpResponse('無法使用此功能')
     body = request.body.decode()
     params = urllib.parse.unquote(body.replace('params=', '')).split('&')
-    return HttpResponse(f"params is {params}")
+    return HttpResponse(f"request.body is {request.body}\nbody is {body}\nbody.replace('params=', '') is {body.replace('params=', '')}\n{urllib.parse.unquote(body.replace('params=', ''))}\nparams is {params}\n")
     try:
         obj = CropPriceOriginApiView(params)
         reply = obj.execute_api()
