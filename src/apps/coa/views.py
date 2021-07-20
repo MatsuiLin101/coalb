@@ -475,11 +475,9 @@ def proxy_parser(request):
     try:
         obj = CropPriceOriginApiView(params)
         reply = obj.execute_api()
-        reply = 'end proxy obj.execute_api()'
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app="proxy_parser", message=traceback.format_exc())
         reply = str(e)
-        reply = 'end proxy Exception'
     return HttpResponse(reply)
 
 
