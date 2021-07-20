@@ -468,7 +468,7 @@ def proxy_parser(request):
     body = request.body.decode()
     params = urllib.parse.unquote(body.replace('params=', '')).split('&')
     try:
-        obj = CropPriceOriginApiView(params, use_proxy=True)
+        obj = CropPriceOriginApiView(params)
         reply = obj.execute_api()
     except Exception as e:
         reply = str(e)
