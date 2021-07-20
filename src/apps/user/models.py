@@ -43,7 +43,7 @@ class DatabaseControl(models.Model):
     status = models.BooleanField(default=False, verbose_name="狀態")
     start_time = models.DateTimeField(auto_now_add=True, verbose_name="開始時間")
     finish_time = models.DateTimeField(blank=True, null=True, verbose_name="結束時間")
-    expire_time = models.DateTimeField(default=timezone.now() + datetime.timedelta(0, 600), verbose_name="過期時間")
+    expire_time = models.DateTimeField(verbose_name="過期時間")
 
     class Meta:
         verbose_name = '資料庫鎖定'

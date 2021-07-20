@@ -42,9 +42,10 @@ class CropPriceApiView(BasicApiView):
                 self.select_date += str(self.month).zfill(2)
                 if not 1 <= self.month <= 12:
                     self.message = f"月份「{self.month}」請輸入1~12"
+                    raise CustomError(self.message)
                 self.query_date += f"{self.month}月"
             except Exception as e:
-                self.message = f"月份「{self.month}」無效，請輸入民國年"
+                self.message = f"月份「{self.month}」無效，請輸入1~12"
                 raise CustomError(self.message)
 
 
@@ -56,7 +57,7 @@ class CropPriceOriginApiView(CropPriceApiView):
     農糧署農產品產地價格查報系統
     https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105
     '''
-    def __init__(self, params):
+    def __init__(self, params, use_proxy=False):
         self.driver = None
         self.url = "https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105"
         self.id_radio_month = "WR1_1_Q_AvgPriceType_C1_1"
@@ -71,6 +72,7 @@ class CropPriceOriginApiView(CropPriceApiView):
         self.result = list()
         self.message = ""
         self.params = params
+        self.use_proxy = use_proxy
 
         if not 3 <= len(params) <= 4:
             raise CustomError(f"產地價的指令為「產地 品項 年份」也可加上縣市或月份「產地 縣市 品項 年份/月份」，例如：\n「產地 芒果 108」\n「產地 芒果 108/12」\n「產地 屏東 芒果 108」\n「產地 屏東 芒果 108/12」")
@@ -84,6 +86,16 @@ class CropPriceOriginApiView(CropPriceApiView):
             self.product = params[2]
             self.query_date = params[3]
         self.command_text = " ".join(text for text in params)
+
+    def execute_api(self):
+        if self.use_proxy:
+            return super(CropPriceOriginApiView, self).execute_api()
+        else:
+            data = {
+                'params': self.params
+            }
+            res = requests.get(f"{settings.PROXY_PARSER}?token={settings.PROXY_TOKEN}", data=data)
+            return res.text
 
     def parser(self):
         headless, proxy = True, False

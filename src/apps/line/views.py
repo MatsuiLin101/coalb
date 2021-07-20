@@ -48,6 +48,7 @@ from linebot.models.template import (
     ConfirmTemplate,
     ImageCarouselTemplate,
 )
+from linebot.exceptions import LineBotApiError
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -154,11 +155,12 @@ def handle_message_text(event):
     message_id = event.message.id
     reply_token = event.reply_token
     text = event.message.text
+    start_timestamp = event.timestamp / 1000
     user_id = event.source.user_id
     user = LineUser.objects.get(user_id=user_id)
     try:
         log = LineMessageLog.objects.create(
-            user=user, message_id=message_id, reply_token=reply_token, message=text
+            user=user, message_id=message_id, reply_token=reply_token, message=text, timestamp=start_timestamp, method='reply'
         )
 
         if text.startswith('建立帳號'):
@@ -167,6 +169,8 @@ def handle_message_text(event):
             reply = bind_line_user(text, user)
         elif text.startswith('上傳檔案'):
             reply = create_upload_token(user)
+        elif text.startswith('未讀訊息'):
+            reply = '開發中...'
         # elif text.startswith('更換代理'):
         #     reply = change_proxy(text, user)
         else:
@@ -185,9 +189,21 @@ def handle_message_text(event):
         log.save()
 
     try:
+        end_at = datetime.datetime.now()
         message = line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
+    except LineBotApiError as e:
+        try:
+            message = line_bot_api.push_message(user_id, TextSendMessage(text=reply))
+            log.method = 'push'
+            log.save()
+        except Exception as e:
+            traceback_log = TracebackLog.objects.create(app="handle_message_text_push", message=traceback.format_exc())
+            log.status = False
+            log.save()
     except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="handle_message_text_reply_message", message=traceback.format_exc())
+        traceback_log = TracebackLog.objects.create(app="handle_message_text_reply", message=traceback.format_exc())
+        log.status = False
+        log.save()
 
 
 @handler.add(MessageEvent, message=StickerMessage)
