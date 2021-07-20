@@ -37,7 +37,7 @@ DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
 DOMAIN = env.str('DOMAIN', default='')
-PROXY_PARSER = env.str('PROXY_PARSER', default='')
+PROXY_DOMAIN = env.str('PROXY_DOMAIN', default='')
 PROXY_TOKEN = env.str('PROXY_TOKEN', default='')
 
 
