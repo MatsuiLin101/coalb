@@ -136,11 +136,23 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Logging
 if env.bool('PROXY_ADMIN_EMAIL_HANDLER', default=False):
-    from django.utils.log import DEFAULT_LOGGING
-    DEFAULT_LOGGING['handlers']['mail_admins'].update({
-        'class': 'config.log.ProxyAdminEmailHandler'
-    })
-    LOGGING = DEFAULT_LOGGING
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'mail_admins': {
+                'level': 'ERROR',
+                'class': 'config.log.ProxyAdminEmailHandler'
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['mail_admins'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
+        },
+    }
 
 
 # INITIAL DATA
