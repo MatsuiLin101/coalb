@@ -15,4 +15,4 @@ class ProxyAdminEmailHandler(AdminEmailHandler):
             'subject': subject,
             'message': message
         }
-        res = requests.post(url, data=data)
+        requests.post(url, data=data)
