@@ -1,0 +1,6 @@
+FROM coalbbase
+
+ENV PYTHONUNBUFFERED 1
+ENV DJANGO_SETTINGS_MODULE config.settings
+
+COPY src/ .

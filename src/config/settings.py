@@ -10,20 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import os
 import environ
+import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+# 讀取基本env中的環境設定
 BASE_DIR = environ.Path(__file__) - 2
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Load operating system environment variables and then prepare to use them
 env = environ.Env()
-# Try to load env in docker, except to load env in local
-if os.path.exists(BASE_DIR('.env-prod')):
-    environ.Env.read_env(BASE_DIR('.env-prod'))
-else:
-    environ.Env.read_env(BASE_DIR('.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, 'envs', 'base.env'))
+
+# 重新抓取對應環境的env
+env_name = env.str('ENV_NAME')
+environ.Env.read_env(os.path.join(BASE_DIR, 'envs', f'{env_name}'))
 
 
 # Quick-start development settings - unsuitable for production
