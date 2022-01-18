@@ -1,0 +1,29 @@
+version: "3.6"
+
+volumes:
+  coalb_postgres_data: {}
+
+services:
+  db:
+    container_name: coalb_pg01
+    image: postgres:10-alpine
+    restart: always
+    volumes:
+      - coalb_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../../src/envs/dev.env
+
+  web:
+    container_name: coalb_dg01
+    image: coalb_web_img
+    restart: always
+    build:
+      context: ../../
+      dockerfile: container/dev/Dockerfile
+    ports:
+      - "8000:8000"
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ../../src/:/code
+    depends_on:
+      - db
