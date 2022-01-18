@@ -1,7 +1,7 @@
 version: "3.6"
 
 volumes:
-    coalb_static_volume: {}
+  coalb_static_volume: {}
 
 services:
   db:
@@ -27,3 +27,15 @@ services:
       - coalb_static_volume:/code/staticfiles
     depends_on:
       - db
+
+  nginx:
+    container_name: coalb_ng01
+    image: nginx:latest
+    restart: always
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - coalb_static_volume:/code/staticfiles
+    depends_on:
+      - web
