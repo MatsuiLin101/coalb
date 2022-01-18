@@ -4,7 +4,6 @@ staticfiles/
 document/
 chrome/
 backup/
-nginx/
 systemd/
 pgdata/
 
