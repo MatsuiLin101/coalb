@@ -191,8 +191,8 @@ class TotalCost(CropCostApiView):
         # get_result()
         WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
         table = self.driver.find_element(By.ID, self.id_table)
-        self.result_male = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
-        self.result_female = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueTop").text
+        self.result_male = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text.replace(',', '')
+        self.result_female = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueTop").text.replace(',', '')
         try:
             self.result_d = f"{round(float(self.result_male) + float(self.result_female))}{self.unit4}"
         except Exception as e:
