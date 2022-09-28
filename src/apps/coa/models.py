@@ -136,6 +136,8 @@ class CropCost(models.Model):
     name = models.CharField(max_length=20, verbose_name="名稱")
     value = models.CharField(max_length=20, verbose_name="值")
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
+    start_year = models.IntegerField(null=True, verbose_name="起始年")
+    end_year = models.IntegerField(null=True, verbose_name="結束年")
 
     class Meta:
         verbose_name = "農畜產品生產成本統計"
