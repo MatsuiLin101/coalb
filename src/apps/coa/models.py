@@ -6,6 +6,7 @@ class AbstractModel(models.Model):
     value = models.CharField(max_length=255, null=True, blank=True, verbose_name="值")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "抽象模型"
         verbose_name_plural = verbose_name
 
@@ -23,6 +24,7 @@ class ProduceValueCity(AbstractModel):
     type = models.IntegerField(verbose_name="類型")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "產值表-城市"
         verbose_name_plural = verbose_name
 
@@ -30,6 +32,7 @@ class ProduceValueCity(AbstractModel):
 class ProduceValueFarmCategory(AbstractModel):
 
     class Meta:
+        ordering = ['id']
         verbose_name = "產值表-類別"
         verbose_name_plural = verbose_name
 
@@ -39,6 +42,7 @@ class ProduceValueProduct(AbstractModel):
     city_type = models.IntegerField(verbose_name="城市類型")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "產值表-產品"
         verbose_name_plural = verbose_name
 
@@ -53,6 +57,7 @@ class TotalValue(models.Model):
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "總產值"
         verbose_name_plural = verbose_name
 
@@ -70,6 +75,7 @@ class LivestockFeedlot(models.Model):
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "畜禽飼養場數"
         verbose_name_plural = verbose_name
 
@@ -87,6 +93,7 @@ class LivestockFeedamount(models.Model):
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "畜禽飼養頭數"
         verbose_name_plural = verbose_name
 
@@ -104,6 +111,7 @@ class LivestockSlaughter(models.Model):
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "畜禽供應屠宰頭數"
         verbose_name_plural = verbose_name
 
@@ -121,6 +129,7 @@ class LivestockByproduct(models.Model):
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "畜禽副產品產量"
         verbose_name_plural = verbose_name
 
@@ -140,6 +149,7 @@ class CropCost(models.Model):
     end_year = models.IntegerField(null=True, verbose_name="結束年")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "農畜產品生產成本統計"
         verbose_name_plural = verbose_name
 
@@ -153,6 +163,7 @@ class ProductCode(models.Model):
     name = models.CharField(max_length=50, verbose_name="名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "作物代碼"
         verbose_name_plural = verbose_name
 
@@ -169,6 +180,7 @@ class CropPriceOrigin(models.Model):
     name = models.CharField(max_length=50, verbose_name="名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "農耕作物產地價"
         verbose_name_plural = verbose_name
 
@@ -186,6 +198,7 @@ class CropPriceWholesale(models.Model):
     search_name = models.CharField(max_length=20, verbose_name="搜尋名稱")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "農耕作物批發價"
         verbose_name_plural = verbose_name
 
@@ -213,6 +226,7 @@ class CropProduceUnit(models.Model):
     value_unit = models.CharField(max_length=20, default="(元/公頃)", verbose_name="產值單位")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "農耕作物產值產量表"
         verbose_name_plural = verbose_name
 
@@ -225,6 +239,7 @@ class CropProduceTotal(models.Model):
     value = models.CharField(max_length=10, verbose_name="值")
 
     class Meta:
+        ordering = ['id']
         verbose_name = "作物產量作物清單"
         verbose_name_plural = verbose_name
 
