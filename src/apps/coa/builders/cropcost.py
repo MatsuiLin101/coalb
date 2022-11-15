@@ -16,6 +16,10 @@ class CropCostBuilder(object):
         self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
         self.id_category = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
         self.id_product = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
+        self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
+        self.id_back = "ctl00_cphMain_uctlInquireAdvance_btnBack2"
+        self.id_start_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
+        self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
 
     def build(self):
         CropCost.objects.all().delete()
@@ -64,7 +68,11 @@ class CropCostBuilder(object):
         group_product = self.driver.find_element(By.ID, self.id_product)
         options = group_product.find_elements_by_tag_name("option")
         parent = None
-        for option in options:
+        index = 0
+        while index < len(options):
+            group_product = self.driver.find_element(By.ID, self.id_product)
+            options = group_product.find_elements_by_tag_name("option")
+            option = options[index]
             value = option.get_attribute("value")
             name = option.text
             level = int(value.split('\t')[-1])
@@ -86,7 +94,32 @@ class CropCostBuilder(object):
                         parent = parent.parent
                 parent = origin_parent
 
-            print(f"Create {parent} {text_group} product {level} {name} {value} {search_name}")
+            # 取得作物資料起始到結束年份
+            driver_select(self.driver, self.id_product, "text", name, cancel=True)
+            # time.sleep(1)
+            self.driver.find_element(By.ID, self.id_query).click()
+            # time.sleep(1)
+            start_year_list = list()
+            start_year = self.driver.find_element(By.ID, self.id_start_year)
+            start_year_options = start_year.find_elements_by_tag_name('option')
+            for opt in start_year_options:
+                year = int(opt.get_attribute('value'))
+                start_year_list.append(year)
+            start_year = min(start_year_list)
+
+            end_year_list = list()
+            end_year = self.driver.find_element(By.ID, self.id_end_year)
+            end_year_options = end_year.find_elements_by_tag_name('option')
+            for opt in end_year_options:
+                year = int(opt.get_attribute('value'))
+                end_year_list.append(year)
+            end_year = max(end_year_list)
+
+            self.driver.find_element(By.ID, self.id_back).click()
+            # time.sleep(1)
+            index += 1
+
+            print(f"Create {parent} {text_group} product {level} {name} {value} {search_name} {start_year} {end_year}")
             obj = CropCost.objects.create(
                 parent = parent,
                 main_class = text_group,
@@ -94,7 +127,9 @@ class CropCostBuilder(object):
                 level = level,
                 name = name,
                 value = value,
-                search_name = search_name
+                search_name = search_name,
+                start_year = start_year,
+                end_year = end_year,
             )
 
             if parent is None:
