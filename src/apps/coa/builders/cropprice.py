@@ -17,11 +17,11 @@ a = CropPriceOriginBuilder()
         if use_proxy:
             return self._build()
         else:
-            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={settings.PROXY_TOKEN}")
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={settings.PROXY_TOKEN}&api=CropPriceOriginBuilder")
             data = json.loads(res.text)
             CropPriceOrigin.objects.all().delete()
-            for obj in data:
-                obj = CropPriceOrigin.objects.create(**obj)
+            for item in data:
+                obj = CropPriceOrigin.objects.create(**item)
                 print(f'create {obj.category} {obj}')
 
     def _build(self):

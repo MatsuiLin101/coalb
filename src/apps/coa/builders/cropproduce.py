@@ -23,8 +23,18 @@ a = CropProduceTotalBuilder()
         self.btn_query = "/html/body/div/form/div/table/tbody/tr[6]/td[2]/input[1]"
         self.table = "/html/body/div/form/div/table"
 
-    def build(self):
-        CropProduceTotal.objects.all().delete()
+    def build(self, use_proxy=False):
+        if use_proxy:
+            return self._build()
+        else:
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={settings.PROXY_TOKEN}&api=CropProduceTotalBuilder")
+            data = json.loads(res.text)
+            CropProduceTotal.objects.all().delete()
+            for item in data:
+                obj = CropProduceTotal.objects.create(**item)
+                print(f'create {obj.name} {obj}')
+
+    def _build(self):
         self.driver = get_driver()
         self.driver.get(self.url)
         # 進入農糧署農情報告資源網
@@ -39,10 +49,15 @@ a = CropProduceTotalBuilder()
 
         select_product = self.driver.find_element(By.XPATH, self.select_product)
         options = select_product.find_elements(By.TAG_NAME, 'option')
+        data = list()
         for option in options:
             name = option.text
             value = option.get_attribute('value')
+            data.append({
+                'name': name,
+                'value': value,
+            })
             obj = CropProduceTotal.objects.create(name=name, value=value)
-            print(f"Create {obj} {name} {value}")
 
         self.driver.close()
+        return data
