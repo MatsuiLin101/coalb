@@ -3,7 +3,7 @@ from .configs import *
 
 class CropPriceOriginBuilder(object):
     '''
-from apps.coa.builders.CropPriceOrigin import *
+from apps.coa.builders.cropprice import *
 a = CropPriceOriginBuilder()
     '''
     def __init__(self):
@@ -71,8 +71,8 @@ a = CropPriceOriginBuilder()
 
 class CropPriceWholesaleBuilder(object):
     '''
-    from apps.coa.builders.cropprice import *
-    a = CropPriceWholesaleBuilder()
+from apps.coa.builders.cropprice import *
+a = CropPriceWholesaleBuilder()
     '''
     def __init__(self):
         self.driver = None
