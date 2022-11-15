@@ -90,8 +90,8 @@ class CropCostApiView(BasicApiView):
         # 可能有多種結果，請使用者改用詳細關鍵字
         qs = CropCost.objects.filter(name__icontains=self.product, main_class=self.text_group, sub_class="product")
         if qs.count() > 0:
-            list_product = list(qs.values_list("name", flat=True))
-            message = '\n'.join([product for product in list_product])
+            list_product = list(qs.values('name', 'start_year', 'end_year'))
+            message = '\n'.join([f"{product['name']}　年份({product['start_year']}～{product['end_year']})" for product in list_product])
             self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
             self.message = f"查無品項「{self.product}」"
@@ -108,6 +108,19 @@ class CropCostApiView(BasicApiView):
         # 送出查詢
         btn_search = self.driver.find_element(By.ID, self.id_search)
         btn_search.click()
+
+    def get_table(self):
+        try:
+            super().get_table()
+        except Exception as e:
+            self.message = str(e)
+            qs = CropCost.objects.filter(name__icontains=self.product, main_class=self.text_group, sub_class="product")
+            if qs.count() > 1:
+                list_product = list(qs.values('name', 'start_year', 'end_year'))
+                message = '\n'.join([f"{product['name']}　年份({product['start_year']}～{product['end_year']})" for product in list_product])
+                self.message += f"\n\n有其他相似的品項如下：\n" + message
+            raise CustomError(self.message)
+
 
     def get_result(self):
         WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
