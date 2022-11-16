@@ -104,7 +104,7 @@ http://free-proxy.cz/zh/proxylist/country/TW/all/ping/all
 1.2.3.4:5678
 '''
 
-from .cropproduce import CropProduceApiView
+from .cropproduce import CropProduceApiView, CropProduceTotalApiView
 '''
 資料來源：農情報告、匯入
 
