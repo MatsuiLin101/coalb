@@ -92,8 +92,8 @@ class CropPriceOriginApiView(CropPriceApiView):
             # data = {
             #     'params': self.params
             # }
-            data = "&".join(params for params in self.params)
-            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}&data={data}")
+            data = "__paramlink__".join(params for params in self.params)
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}&api=CropPriceOriginApiView&data={data}")
             if res.status_code != 200:
                 return '該功能維護中...'
             return res.text
