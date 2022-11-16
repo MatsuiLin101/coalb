@@ -17,7 +17,7 @@ from apps.log.models import TracebackLog
 from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToken
 
 from apps.coa.apis import *
-from apps.coa.builders import CropPriceOriginBuilder
+from apps.coa.builders import CropPriceOriginBuilder, CropProduceTotalBuilder
 from apps.coa.utils import CustomError, get_driver
 from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, CropProduceTotal
 
@@ -463,27 +463,53 @@ def change_proxy(command_text, line_user):
 
 def proxy_parser(request):
     token = request.GET.get('token')
+    api = request.GET.get('api')
     if token != settings.PROXY_TOKEN:
         return HttpResponse('無法使用此功能')
 
-    uri = request.get_raw_uri()
-    data = uri.split('data=')[-1]
-    params = urllib.parse.unquote(data).split('&')
-    # body = request.body.decode()
-    # params = urllib.parse.unquote(body.replace('params=', '')).split('&')
-    # return HttpResponse(f"data is {data}\nparams is {params}")
-    try:
-        obj = CropPriceOriginApiView(params)
-        reply = obj.execute_api()
-    except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="proxy_parser", message=traceback.format_exc())
-        reply = str(e)
-    return HttpResponse(reply)
+    if api == 'CropPriceOriginApiView':
+        uri = request.get_raw_uri()
+        uri = urllib.parse.unquote(uri)
+        data_start = uri.find('data=')
+        data = uri[data_start + 5:]
+        params = data.split('__paramlink__')
+        # body = request.body.decode()
+        # params = urllib.parse.unquote(body.replace('params=', '')).split('&')
+        # return HttpResponse(f"data is {data}\nparams is {params}")
+        try:
+            obj = CropPriceOriginApiView(params)
+            reply = obj.execute_api()
+        except Exception as e:
+            traceback_log = TracebackLog.objects.create(app="proxy_parser_CropPriceOriginApiView", message=traceback.format_exc())
+            reply = str(e)
+        return HttpResponse(reply)
+    elif api == 'CropProduceTotalApiView':
+        uri = request.get_raw_uri()
+        uri = urllib.parse.unquote(uri)
+        data_start = uri.find('data=')
+        data = uri[data_start + 5:]
+        params = data.split('__paramlink__')
+        try:
+            obj = CropProduceTotalApiView(params)
+            reply = obj.execute_api()
+        except Exception as e:
+            traceback_log = TracebackLog.objects.create(app="proxy_parser_CropProduceTotalApiView", message=traceback.format_exc())
+            reply = str(e)
+        return HttpResponse(reply)
+    else:
+        return HttpResponse('無法使用此功能')
 
 
 def proxy_build(request):
     token = request.GET.get('token')
+    api = request.GET.get('api')
     if token != settings.PROXY_TOKEN:
         return HttpResponse('無法使用此功能')
-    data = CropPriceOriginBuilder().build(use_proxy=True)
+
+    if api == 'CropPriceOriginBuilder':
+        data = CropPriceOriginBuilder().build(use_proxy=True)
+    elif api == 'CropProduceTotalBuilder':
+        data = CropProduceTotalBuilder().build(use_proxy=True)
+    else:
+        return HttpResponse('無法使用此功能')
     return JsonResponse(data, safe=False)

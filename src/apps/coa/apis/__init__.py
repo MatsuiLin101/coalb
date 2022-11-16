@@ -104,7 +104,7 @@ http://free-proxy.cz/zh/proxylist/country/TW/all/ping/all
 1.2.3.4:5678
 '''
 
-from .cropproduce import CropProduceApiView
+from .cropproduce import CropProduceApiView, CropProduceTotalApiView
 '''
 資料來源：農情報告、匯入
 
@@ -120,6 +120,8 @@ from .cropproduce import CropProduceApiView
 與副產物產量(LivestockByproductApiView)共用「產量」指令
 「產量」「種植面積」 - 作物太多查詢時間過長會導致reply_token失效(30秒)
 -限制查詢作物不可超過5個
+
+2022/11/14 網站限制海外IP，改用proxy取得資料
 
 待修正
 透過line上傳檔案(單位產值、單位產量excel)會因為檔案太大處理時間超過30秒，導致上傳者無法取得機器人回應，可以開發一個檔案上傳頁面取代透過line上傳檔案

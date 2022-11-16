@@ -20,7 +20,7 @@ class CropProduceApiView(BasicApiView):
 
     def choose_api(self):
         if self.command in ["產量", "種植面積"]:
-            return CropProduceTotalApiView(self.params)
+            return CropProduceTotalApiView(self.params, use_proxy=True)
         elif self.command in ["單位產值", "單位產量"]:
             return CropProduceUnitApiView(self.params)
 
@@ -34,7 +34,7 @@ class CropProduceTotalApiView(BasicApiView):
     --(NEW)種植面積
     農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
     '''
-    def __init__(self, params):
+    def __init__(self, params, use_proxy=False):
         self.driver = None
         self.url = "https://agr.afa.gov.tw/afa/afa_frame.jsp"
         self.frame_left = "/html/frameset/frameset/frame[1]"
@@ -52,6 +52,7 @@ class CropProduceTotalApiView(BasicApiView):
         self.table = "/html/body/div/form/div/table"
         self.message = ""
         self.params = params
+        self.use_proxy = use_proxy
 
         self.command = params[0]
         if len(params) != 4:
@@ -70,6 +71,16 @@ class CropProduceTotalApiView(BasicApiView):
         else:
             self.district = ""
         self.command_text = " ".join(text for text in params)
+
+    def execute_api(self):
+        if self.use_proxy:
+            data = "__paramlink__".join(params for params in self.params)
+            res = requests.get(f"{settings.PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={settings.PROXY_TOKEN}&api=CropProduceTotalApiView&data={data}")
+            if res.status_code != 200:
+                return '該功能維護中...'
+            return res.text
+        else:
+            return super(CropProduceTotalApiView, self).execute_api()
 
     def get_product(self):
         query_set = CropProduceTotal.objects.filter(name__icontains=self.product)
