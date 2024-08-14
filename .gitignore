@@ -4,13 +4,14 @@ staticfiles/
 document/
 chrome/
 backup/
-nginx/
 systemd/
+pgdata/
 
 *.sqlite3
 #*.dev
 *.prod
 .env
+*.env
 .*-prod*
 
 .DS_Store

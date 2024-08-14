@@ -1,30 +1,28 @@
 import datetime
-import time
 import json
 import os
 import re
 import requests
 import subprocess
+import time
 import traceback
 
 from bs4 import BeautifulSoup as bs
 from decimal import Decimal
 from openpyxl import load_workbook
+
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.ui import Select
-from selenium.common.exceptions import TimeoutException
 
-from django.conf import settings
-from django.urls import reverse
+from config.settings import CHROME_PATH, REMOTE_BROWSER
 
 from apps.log.models import TracebackLog
-
 from apps.user.models import CustomSetting
 
 from apps.coa.models import *
@@ -40,7 +38,6 @@ def get_driver(headless=True, use_proxy=False, new_proxy=None):
     headless: True為啟動無頭模式(不會開啟瀏覽器， 只會在背景運行)
     return driver
     """
-    chrome = settings.CHROME_PATH
     chrome_options = Options()
     if headless:
         chrome_options.add_argument('--headless')
@@ -56,7 +53,14 @@ def get_driver(headless=True, use_proxy=False, new_proxy=None):
         chrome_options.add_argument('--ignore-ssl-errors=yes')
         chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument('User-Agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36"')
-    driver = webdriver.Chrome(executable_path=chrome, options=chrome_options)
+
+    # 設定 Docker 中 selenium/standalone-chrome 的 WebDriver URL
+    driver = WebDriver(
+        command_executor=f"{REMOTE_BROWSER}:4444/wd/hub",  # 根據 Docker 配置調整此 URL
+        options=chrome_options,
+        desired_capabilities=DesiredCapabilities.CHROME,
+    )
+
     return driver
 
 
