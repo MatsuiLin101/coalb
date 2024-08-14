@@ -1,0 +1,75 @@
+version: "3.6"
+
+services:
+    db:
+        container_name: coalb_db
+        image: postgres:10-alpine
+        restart: always
+        volumes:
+            - ../../pgdata/db:/var/lib/postgresql/data
+            - ../../pgdata/backup:/backup
+        env_file:
+            - ../../src/envs/prod.env
+        networks:
+            - backend_db
+
+    web:
+        container_name: coalb_web
+        image: coalb-img
+        restart: always
+        build:
+            context: ../../
+            dockerfile: container/prod/Dockerfile
+        expose:
+            - 8000
+        command: /code/scripts/start.sh
+        entrypoint: /code/scripts/entrypoint.sh
+        volumes:
+            - ../../src/logs:/code/logs
+            - ../../src/media:/code/media
+            - staticfiles:/code/staticfiles
+        depends_on:
+            - db
+        networks:
+            - backend_db
+            - frontend
+            - backend_selenium
+
+    # selenium:
+    #     container_name: coalb_selenium
+    #     image: selenium/standalone-chrome:91.0.4472.114-chromedriver-91.0.4472.101
+    #     restart: always
+    #     expose:
+    #         - 4444
+    #     networks:
+    #         - backend_app
+
+    nginx:
+        container_name: coalb_nginx
+        image: nginx-certbot
+        restart: always
+        ports:
+            - 8080:80
+            - 8081:443
+        volumes:
+            - ./nginx/conf.d:/etc/nginx/conf.d
+            - staticfiles:/code/staticfiles
+        networks:
+            - frontend
+            - loadbalance
+
+volumes:
+    staticfiles:
+        name: coalb-web-staticfiles
+
+networks:
+    backend_db:
+        name: coalb-backend-db-network
+    # backend_app:
+    #     name: coalb-backend-app-network
+    frontend:
+        name: coalb-frontend-network
+    backend_selenium:
+        name: selenium-network
+    loadbalance:
+        name: loadbalance-network

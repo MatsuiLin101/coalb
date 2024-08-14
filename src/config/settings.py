@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
-import os
 import environ
+import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = environ.Path(__file__) - 2
@@ -20,10 +20,8 @@ BASE_DIR = environ.Path(__file__) - 2
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
 # Try to load env in docker, except to load env in local
-if os.path.exists(BASE_DIR('.env-prod')):
-    environ.Env.read_env(BASE_DIR('.env-prod'))
-else:
-    environ.Env.read_env(BASE_DIR('.env'))
+environ.Env.read_env(str(BASE_DIR.path('envs', 'base.env')))
+environ.Env.read_env(str(BASE_DIR.path('envs', env.str('ENV_NAME'))))
 
 
 # Quick-start development settings - unsuitable for production
@@ -36,6 +34,7 @@ SECRET_KEY = env.str('SECRET_KEY', default='dev')
 DEBUG = env.bool('DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost'])
+
 DOMAIN = env.str('DOMAIN', default='')
 PROXY_DOMAIN = env.str('PROXY_DOMAIN', default='')
 PROXY_TOKEN = env.str('PROXY_TOKEN', default='')
@@ -48,7 +47,7 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = env.bool('SECURE_CONTENT_TYPE_NOSNIFF', default=True)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool('SECURE_HSTS_INCLUDE_SUBDOMAINS', default=True)
     SECURE_HSTS_PRELOAD = env.bool('SECURE_HSTS_PRELOAD', default=True)
-    SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
+    SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=False)
     SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
     SECURE_HSTS_SECONDS = env.int('SECURE_HSTS_SECONDS', default=31536000)
     X_FRAME_OPTIONS = env.str('X_FRAME_OPTIONS', default='DENY')
@@ -251,4 +250,5 @@ LINE_CHANNEL_SECRET_TEST = env.str('LINE_CHANNEL_SECRET_TEST', default='')
 
 
 CHROME_PATH = env.str("CHROME_PATH", default="")
+REMOTE_BROWSER = env.str("REMOTE_BROWSER", default="")
 LIBREOFFICE_PATH = env.str("LIBREOFFICE_PATH", default="")
