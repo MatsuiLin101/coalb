@@ -6,6 +6,7 @@ chrome/
 backup/
 systemd/
 pgdata/
+log/
 
 *.sqlite3
 #*.dev
