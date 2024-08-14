@@ -52,7 +52,11 @@ services:
             - 8080:80
             - 8081:443
         volumes:
-            - ./nginx/conf.d:/etc/nginx/conf.d
+            - /home/ubuntu/loadbalance/lb/nginx/nginx.conf:/etc/nginx/nginx.conf
+            - /home/ubuntu/loadbalance/lb/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+            - ./nginx/ssl:/etc/letsencrypt
+            - ./nginx/log:/var/log/nginx
+            - ./nginx/conf.d/coalb.conf:/etc/nginx/conf.d/coalb.conf
             - staticfiles:/code/staticfiles
         networks:
             - frontend
