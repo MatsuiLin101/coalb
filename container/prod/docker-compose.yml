@@ -48,8 +48,8 @@ services:
         image: nginx-certbot
         restart: always
         ports:
-            - 8080:80
-            - 8081:443
+            - 8020:80
+            # - 4420:443
         volumes:
             - ./nginx/ssl:/etc/letsencrypt
             - ./nginx/log:/var/log/nginx
