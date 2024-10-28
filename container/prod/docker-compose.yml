@@ -33,16 +33,14 @@ services:
         networks:
             - frontend
             - backend
-            - public_selenium
+            - backend_app
 
-    # selenium:
-    #     container_name: coalb_selenium
-    #     image: selenium/standalone-chrome:91.0.4472.114-chromedriver-91.0.4472.101
-    #     restart: always
-    #     expose:
-    #         - 4444
-    #     networks:
-    #         - backend_app
+    selenium:
+        container_name: coalb_selenium
+        image: selenium/standalone-chrome:123.0
+        restart: always
+        networks:
+            - backend_app
 
     nginx:
         container_name: coalb_nginx
@@ -66,10 +64,10 @@ volumes:
 networks:
     backend:
         name: coalb-backend-network
-    # backend_app:
-    #     name: coalb-backend-app-network
+    backend_app:
+        name: coalb-backend-app-network
     frontend:
         name: coalb-frontend-network
-    public_selenium:
-        name: public-selenium-network
-        external: true
+    # public_selenium:
+    #     name: public-selenium-network
+    #     external: true
