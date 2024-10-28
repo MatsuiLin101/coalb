@@ -31,8 +31,8 @@ services:
         depends_on:
             - db
         networks:
-            - backend
             - frontend
+            - backend
 
     # selenium:
     #     container_name: coalb_selenium
@@ -45,7 +45,7 @@ services:
 
     nginx:
         container_name: coalb_nginx
-        image: nginx-certbot
+        image: matsuilin101/nginx-cert-bot
         restart: always
         ports:
             - 8020:80
