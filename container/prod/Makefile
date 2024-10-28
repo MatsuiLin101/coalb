@@ -1,5 +1,5 @@
-DJANGO_CONTAINER_NAME = coalb_dg
-NGINX_CONTAINER_NAME = coalb_ng
+DJANGO_CONTAINER_NAME = coalb_web
+NGINX_CONTAINER_NAME = coalb_nginx
 
 bash:
 		docker exec -it $(DJANGO_CONTAINER_NAME) bash

@@ -33,6 +33,7 @@ services:
         networks:
             - frontend
             - backend
+            - public_selenium
 
     # selenium:
     #     container_name: coalb_selenium
@@ -69,3 +70,6 @@ networks:
     #     name: coalb-backend-app-network
     frontend:
         name: coalb-frontend-network
+    public_selenium:
+        name: public-selenium-network
+        external: true
