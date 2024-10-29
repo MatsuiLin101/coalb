@@ -1,5 +1,7 @@
 version: "3.8"
 
+name: "coalb_prod"
+
 services:
     db:
         container_name: coalb_db
@@ -37,14 +39,14 @@ services:
 
     selenium:
         container_name: coalb_selenium
-        image: selenium/standalone-chrome:123.0
+        image: seleniarm/standalone-chromium:123.0
         restart: always
         networks:
             - backend_app
 
     nginx:
         container_name: coalb_nginx
-        image: matsuilin101/nginx-cert-bot
+        image: matsuilin101/nginx-cert-bot:1.27.0
         restart: always
         ports:
             - 8020:80
