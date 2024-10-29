@@ -8,7 +8,7 @@ class TotalValueBuilder(object):
     '''
     def __init__(self):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "農業產值結構與指標"
         self.text_group = "農業產值：縣市別×農業別"
         self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"

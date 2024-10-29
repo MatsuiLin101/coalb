@@ -70,7 +70,7 @@ class AnnualReportBasicApiView(BasicApiView):
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx"
         self.radio_history = "ctl00_cphMain_uctlBook_rdoPeriodAll"
         self.btn_total = "ctl00_cphMain_uctlBook_chkQCategoryAll"
         self.btn_book = "ctl00_cphMain_uctlBook_dltQCategory_ctl00_chkQCategory"

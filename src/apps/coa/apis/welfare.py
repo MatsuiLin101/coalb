@@ -7,17 +7,17 @@ class WelfareApiView(BasicApiView):
     welfare(社會福利)
     -Insurance(農保)
     動態查詢 [社會保險及社會指標統計]>>[社會保險統計]>>[農民健康保險投保人數]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     -Allowance(老農津貼)
     動態查詢 [社會保險及社會指標統計]>>[社會福利統計]>>[老農津貼人數]、[老農津貼金額]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     -Scholarship(農漁民子女獎助學金)
     動態查詢 [社會保險及社會指標統計]>>[社會福利統計]>>[農漁民子弟就學獎助學金發放件數]、[農漁民子弟就學獎助學金發放金額：縣市別]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
         self.id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
         self.id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"

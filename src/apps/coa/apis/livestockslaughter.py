@@ -6,11 +6,11 @@ class LivestockSlaughterApiView(BasicApiView):
     畜禽供應屠宰量api介面
     -slaughter(供應屠宰量)
     動態查詢 [農業生產統計]>>[畜禽產品生產量值統計]>> [家畜供應屠宰頭數]、[家禽供應屠宰隻數]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品生產量值統計"
         self.text_group1 = "家畜供應屠宰頭數"
         self.text_group2 = "家禽供應屠宰隻數"
