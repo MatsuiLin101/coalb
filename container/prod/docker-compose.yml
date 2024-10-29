@@ -35,14 +35,14 @@ services:
         networks:
             - frontend
             - backend
-            - backend_app
+            - backend_selenium_chromium
 
-    selenium:
-        container_name: coalb_selenium
-        image: seleniarm/standalone-chromium:123.0
-        restart: always
-        networks:
-            - backend_app
+    # selenium:
+    #     container_name: coalb_selenium
+    #     image: seleniarm/standalone-chromium:123.0
+    #     restart: always
+    #     networks:
+    #         - backend_app
 
     nginx:
         container_name: coalb_nginx
@@ -70,6 +70,6 @@ networks:
         name: coalb-backend-app-network
     frontend:
         name: coalb-frontend-network
-    # public_selenium:
-    #     name: public-selenium-network
-    #     external: true
+    backend_selenium_chromium:
+        name: backend-selenium-chromium-network
+        external: true
