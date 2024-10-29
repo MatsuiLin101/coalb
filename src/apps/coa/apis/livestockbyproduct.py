@@ -6,11 +6,11 @@ class LivestockByproductApiView(BasicApiView):
     畜禽副產品供應量api介面
     -byproduct(副產品產量)
     動態查詢 [農業生產統計]>>[畜禽產品生產量值統計]>> [畜禽副產品產量]、[蜂蠶飼養產量]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品生產量值統計"
         self.text_group1 = "畜禽副產品產量"
         self.text_group2 = "蜂蠶飼養產量"

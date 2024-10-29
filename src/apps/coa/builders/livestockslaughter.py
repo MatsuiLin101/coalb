@@ -8,7 +8,7 @@ class LivestockSlaughterBuilder(object):
     '''
     def __init__(self):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品生產量值統計"
         self.text_group1 = "家畜供應屠宰頭數"
         self.text_group2 = "家禽供應屠宰隻數"

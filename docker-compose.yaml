@@ -12,7 +12,7 @@ networks:
 
 services:
     db:
-        container_name: coalb_pg01
+        container_name: coalb_pg
         image: postgres:10-alpine
         volumes:
             - coalb_postgres_data:/var/lib/postgresql/data
@@ -22,7 +22,7 @@ services:
             - coalb_backend
 
     web:
-        container_name: coalb_dg01
+        container_name: coalb_dg
         image: coalb_web
         build:
             context: ./src

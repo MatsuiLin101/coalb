@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup as bs
 
 from .models import SD
 
-URL = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+URL = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36",
 }

@@ -6,7 +6,7 @@ class GrossApiView(AnnualReportBasicApiView):
     國內生產毛額api介面
     gross(國內生產毛額)
     年報一、(一)
-    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, params):
         super(GrossApiView, self).__init__(params)
