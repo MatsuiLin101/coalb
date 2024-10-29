@@ -6,7 +6,7 @@ class FarmerApiView(AnnualReportBasicApiView):
     農家(農牧戶)api介面
     farmer(農家(農牧戶))
     年報五、1
-    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, params):
         super(FarmerApiView, self).__init__(params)

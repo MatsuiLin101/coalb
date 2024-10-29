@@ -6,7 +6,7 @@ class FarmerAreaApiView(AnnualReportBasicApiView):
     耕地面積api介面
     farmerarea(耕地面積)
     年報八、(一)、2
-    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, params):
         super(FarmerAreaApiView, self).__init__(params)

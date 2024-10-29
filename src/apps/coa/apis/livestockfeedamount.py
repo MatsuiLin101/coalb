@@ -6,11 +6,11 @@ class LivestockFeedamountApiView(BasicApiView):
     畜禽在養數量api介面
     -feedamount(在養數量)
     動態查詢 [農業生產統計]>>[畜禽產品飼養數量統計]>>[家畜飼養頭數]、[家禽飼養隻數：縣市別×家禽別(104年度起)]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品飼養數量統計"
         self.text_group1 = "家畜飼養頭數"
         self.text_group2 = "家禽飼養隻數：縣市別×家禽別(104年度起)"

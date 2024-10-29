@@ -7,10 +7,10 @@ class ProduceValueApiView(BasicApiView):
     producevalue(產值)
     -TotalValue(總產值)
     動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     -Value(產值)
     年報一、(四)
-    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, params):
         self.params = params
@@ -28,11 +28,11 @@ class TotalValueApiView(BasicApiView):
     producevalue(產值)
     -TotalValue(總產值)
     動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "農業產值結構與指標"
         self.text_group = "農業產值：縣市別×農業別"
         self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
@@ -139,7 +139,7 @@ class ValueApiView(AnnualReportBasicApiView):
     '''
     -Value(產值)
     年報一、(四)
-    https://agrstat.coa.gov.tw/sdweb/public/book/Book.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     '''
     def __init__(self, params):
         super(ValueApiView, self).__init__(params)

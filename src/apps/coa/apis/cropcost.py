@@ -9,20 +9,20 @@ class CropCostApiView(BasicApiView):
     同時查詢生產費用、粗收益、淨收入率、工時
     —-生產費用
     動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>> [農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目]>>[生產費用總計]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     —-粗收益
     動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>  [農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目]>>[粗收益]
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     —-淨收入率
     動態查詢
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     —-工時
     動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃人工時數(小時)：人工時數×生產費用與收益_農產品項目]>>[男工＋女工]合計
-    https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     '''
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "農畜產品生產成本統計"
         self.text_group1 = "農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目"
         self.text_group2 = "農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目"

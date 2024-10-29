@@ -76,7 +76,7 @@ a = CropPriceWholesaleBuilder()
     '''
     def __init__(self):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "農產品價格統計"
         self.text_group1 = "蔬菜批發價格：蔬菜別"
         self.text_group2 = "果品批發價格：果品別"

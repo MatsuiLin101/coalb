@@ -1,0 +1,48 @@
+server {
+    server_name coalb.mlozo.com;
+
+    client_max_body_size 20m;
+    proxy_read_timeout 600;
+    # proxy_connect_timeout 5;
+    # proxy_send_timeout 5;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location /static/ {
+        alias /home/farmer/coalb/src/staticfiles/;
+    }
+    location /media/ {
+        alias /home/farmer/coalb/src/media/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn_coalb.sock;
+    }
+
+    if ($host != coalb.mlozo.com) {
+        return 403;
+    }
+
+    access_log /var/log/nginx/coalb_access.log;
+    error_log /var/log/nginx/coalb_error.log;
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/coalb.mlozo.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/coalb.mlozo.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server {
+    if ($host = coalb.mlozo.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    server_name coalb.mlozo.com;
+    listen 80;
+    return 404; # managed by Certbot
+
+
+}

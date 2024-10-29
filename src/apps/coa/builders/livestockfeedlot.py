@@ -8,7 +8,7 @@ class LivestockFeedlotBuilder(object):
     '''
     def __init__(self):
         self.driver = None
-        self.url = "https://agrstat.coa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
+        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
         self.text_title = "畜禽產品飼養數量統計"
         self.text_group1 = "家畜飼養場數"
         self.text_group2 = "家禽飼養場數：縣市別×家禽別(104年度起)"
