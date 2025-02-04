@@ -1,0 +1,46 @@
+version: "3.8"
+
+name: "coalb_dev"
+
+services:
+    db:
+        container_name: coalb_db
+        image: postgres:10-alpine
+        restart: always
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+            # - ./backup:/backup
+        env_file:
+            - ../../src/envs/dev.env
+        networks:
+            - backend_db
+
+    web:
+        container_name: coalb_web
+        image: coalb-img
+        restart: always
+        build:
+            context: ../../
+            dockerfile: container/dev/Dockerfile
+        ports:
+            - 8000:8000
+        command: bash -c "python manage.py runserver 0.0.0.0:8000"
+        volumes:
+            - ../../src:/code
+            - ../../src/logs:/code/logs
+        depends_on:
+            - db
+        networks:
+            - backend_db
+            - backend_selenium_chromium
+
+volumes:
+    pgdata:
+        name: coalb-pgdata-dev
+
+networks:
+    backend_db:
+        name: coalb-network-backend-db
+    backend_selenium_chromium:
+        name: backend-selenium-chromium-network
+        external: true

@@ -8,7 +8,7 @@ sh:
 	docker exec -it $(NGINX_CONTAINER_NAME) sh
 
 bash:
-	docker exec -it ${DJANGO_CONTAINER_NAME} bash
+	docker exec -it $(DJANGO_CONTAINER_NAME) bash
 
 build:
 	docker-compose build
