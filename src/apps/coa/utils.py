@@ -21,7 +21,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.ui import Select
 
-from config.settings import CHROME_PATH, REMOTE_BROWSER
+from core.settings import CHROME_PATH, REMOTE_BROWSER
 
 from apps.log.models import TracebackLog
 from apps.user.models import CustomSetting
