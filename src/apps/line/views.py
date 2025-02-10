@@ -93,17 +93,13 @@ handler = WebhookHandler(line_channel_secret)
 
 @csrf_exempt
 def home(request):
-    data = request.POST.dict()
-    # print(data)
-    for k, v in data.items():
-        print(f'{k} ### {v}\n\n')
     return HttpResponse('Hi!')
 
 
 @csrf_exempt
 def callback(request):
     try:
-        signature = request.headers['X-Line-Signature']
+        signature = request.headers.get('X-Line-Signature', '')
         body = request.body.decode('utf-8')
         build_line_user(line_bot_api, body)
         handler.handle(body, signature)
@@ -114,7 +110,7 @@ def callback(request):
     except Exception as e:
         message = traceback.format_exc()
         log = LineCallBackLog.objects.create(signature=signature, body=body, message=message)
-        return HttpResponse(status=400, content="未知錯誤，請至後台查詢詳細記錄。")
+        return HttpResponse(status=400, content='未知錯誤，請至後台查詢詳細記錄。')
 
     return HttpResponse(status=200, content='OK')
 
