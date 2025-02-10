@@ -59,7 +59,7 @@ from django.views.decorators.csrf import csrf_exempt
 from apps.log.models import TracebackLog
 
 from apps.coa.views import (
-    api_view,
+    get_reply_from_text,
     file_view_product_code,
     file_view_crop_produce,
     change_proxy,
@@ -174,19 +174,20 @@ def handle_message_text(event):
         # elif text.startswith('更換代理'):
         #     reply = change_proxy(text, user)
         else:
-            reply = api_view(text).strip()
+            reply = get_reply_from_text(text).strip()
+
         log.reply = reply
-        log.save()
+        log.save(update_fields=['reply'])
     except CustomError as ce:
         reply = str(ce)
         log.reply = reply
-        log.save()
+        log.save(update_fields=['reply'])
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app="handle_message_text", message=traceback.format_exc())
         reply = f"發生錯誤，訊息編號「{log.id}」，錯誤訊息編號「{traceback_log.id}」，請通知管理員處理。"
         log.reply = reply
         log.status = False
-        log.save()
+        log.save(update_fields=['reply', 'status'])
 
     try:
         end_at = datetime.datetime.now()
@@ -195,15 +196,15 @@ def handle_message_text(event):
         try:
             message = line_bot_api.push_message(user_id, TextSendMessage(text=reply))
             log.method = 'push'
-            log.save()
+            log.save(update_fields=['method'])
         except Exception as e:
             traceback_log = TracebackLog.objects.create(app="handle_message_text_push", message=traceback.format_exc())
             log.status = False
-            log.save()
+            log.save(update_fields=['status'])
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app="handle_message_text_reply", message=traceback.format_exc())
         log.status = False
-        log.save()
+        log.save(update_fields=['status'])
 
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -248,9 +249,9 @@ def handle_message_file(event):
                 for chunk in message_content.iter_content():
                     fd.write(chunk)
         else:
-            reply = f'上傳的檔案名稱「{file_name}」不符要求，上傳失敗！'
+            reply = f"上傳的檔案名稱「{file_name}」不符要求，上傳失敗！"
             log.reply = reply
-            log.save()
+            log.save(update_fields=['reply'])
             line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
             # ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__',
             # '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__',
@@ -265,11 +266,11 @@ def handle_message_file(event):
             reply = file_view_crop_produce(path)
         os.remove(path)
         log.reply = reply
-        log.save()
+        log.save(update_fields=['reply'])
         line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
     except Exception as e:
         reply = f"發生錯誤，錯誤訊息編號「{log.id}」，請通知工程師處理。"
         log.reply = traceback.format_exc()
         log.status = False
-        log.save()
+        log.save(update_fields=['reply', 'status'])
         line_bot_api.reply_message(reply_token, TextSendMessage(text=reply))
