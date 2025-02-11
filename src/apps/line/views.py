@@ -161,12 +161,12 @@ def handle_message_text(event):
         user_id = event.source.user_id
         user = LineUser.objects.get(user_id=user_id)
     except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="handle_message_text", message=traceback.format_exc())
+        traceback_log = TracebackLog.objects.create(app='handle_message_text', message=traceback.format_exc())
         reply = f"發生錯誤，錯誤訊息編號「{traceback_log.id}」，請通知管理員處理。"
         try:
             LINE_BOT_API.reply_message(reply_token, TextSendMessage(text=reply))
         except Exception:
-            TracebackLog.objects.create(app="handle_message_text", message=traceback.format_exc())
+            TracebackLog.objects.create(app='handle_message_text', message=traceback.format_exc())
 
     try:
         line_log = LineMessageLog.objects.create(**{
@@ -175,7 +175,8 @@ def handle_message_text(event):
             'reply_token': reply_token,
             'message': text,
             'timestamp': start_timestamp,
-            'method': 'reply'
+            'method': 'reply',
+            'status': False
         })
 
         if text.startswith('建立帳號'):
@@ -192,17 +193,17 @@ def handle_message_text(event):
             reply = get_reply_from_text(text).strip()
 
         line_log.reply = reply
-        update_fields = ['reply']
+        line_log.status = True
+        update_fields = ['reply', 'status']
     except CustomError as ce:
         reply = str(ce)
         line_log.reply = reply
         update_fields = ['reply']
     except Exception:
-        traceback_log = TracebackLog.objects.create(app="handle_message_text", message=traceback.format_exc())
+        traceback_log = TracebackLog.objects.create(app='handle_message_text', message=traceback.format_exc())
         reply = f"發生錯誤，訊息編號「{line_log.id}」，錯誤訊息編號「{traceback_log.id}」，請通知管理員處理。"
         line_log.reply = reply
-        line_log.status = False
-        update_fields = ['reply', 'status']
+        update_fields = ['reply']
     finally:
         line_log.save(update_fields=update_fields)
 
@@ -215,11 +216,11 @@ def handle_message_text(event):
             line_log.method = 'push'
             line_log.save(update_fields=['method'])
         except Exception:
-            TracebackLog.objects.create(app="handle_message_text_push", message=traceback.format_exc())
+            TracebackLog.objects.create(app='handle_message_text_push', message=traceback.format_exc())
             line_log.status = False
             line_log.save(update_fields=['status'])
     except Exception:
-        TracebackLog.objects.create(app="handle_message_text_reply", message=traceback.format_exc())
+        TracebackLog.objects.create(app='handle_message_text_reply', message=traceback.format_exc())
         line_log.status = False
         line_log.save(update_fields=['status'])
 
@@ -232,7 +233,7 @@ def handle_message_sticker(event):
     user_id = event.source.user_id
     user = LineUser.objects.get(user_id=user_id)
     name = user.display_name
-    reply_list = ["不想理你", f"{name}別鬧", f"{name}不要玩機器人", f"{name}你想跟我貼圖Battle？", "...", f"{name}快去調查！"]
+    reply_list = ['不想理你', f"{name}別鬧", f"{name}不要玩機器人", f"{name}你想跟我貼圖Battle？", "...", f"{name}快去調查！"]
     reply = f"{random.choice(reply_list)}"
     log = LineMessageLog.objects.create(
         user=user, message_id=message_id, reply_token=reply_token, message=f"貼圖：{sticker_id}", reply=reply
@@ -260,7 +261,7 @@ def handle_message_file(event):
             'message': f"上傳檔案，檔案名稱：{file_name}，檔案大小：{file_size}"
         })
 
-        if "主力" in file_name or "勞動力" in file_name or  "產值" in file_name or "產量" in file_name:
+        if '主力' in file_name or '勞動力' in file_name or  '產值' in file_name or '產量' in file_name:
             # 主力勞動力代碼對照_timestamp.xlsx
             # 產量產值總表_timestamp.xlxl
             path = f"{file_name.split('.')[0]}_{int(datetime.datetime.now().timestamp())}.{file_name.split('.')[-1]}"
@@ -280,7 +281,7 @@ def handle_message_file(event):
             # '__str__', '__subclasshook__', '__weakref__', 'content', 'content_type', 'iter_content', 'response']
             # message_content <linebot.models.responses.Content object at 0x107e460f0>
 
-        if "主力" in file_name or "勞動力" in file_name:
+        if '主力' in file_name or '勞動力' in file_name:
             reply = file_view_product_code(path)
         else:
             reply = file_view_crop_produce(path)

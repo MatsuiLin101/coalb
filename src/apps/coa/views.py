@@ -24,146 +24,144 @@ from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, Cr
 
 def get_reply_from_text(command_text):
     # 將輸入的文字依據空格分割
-    list_text = command_text.strip().split(' ')
     list_params = list()
-    for text in list_text:
+    for text in command_text.strip().split(' '):
         if len(text) > 0:
             list_params.append(text)
 
     command = list_params[0]
+    api_view = None
     # 判斷分割後的第一組文字是哪一個指令
-    if command in ["產值", "總產值"]:
+    if command in ['產值', '總產值']:
         api_view = ProduceValueApiView
-    elif command in ["毛額", "生產毛額"]:
+    elif command in ['毛額', '生產毛額']:
         api_view = GrossApiView
-    elif command in ["所得", "農家所得"]:
+    elif command in ['所得', '農家所得']:
         api_view = IncomeApiView
-    elif command  in ["農牧戶人口數", "農牧戶戶數", "人口數", "戶數", "農牧戶"]:
+    elif command  in ['農牧戶人口數', '農牧戶戶數', '人口數', '戶數', '農牧戶']:
         api_view = FarmerApiView
-    elif command in ["耕地面積"]:
+    elif command in ['耕地面積']:
         api_view = FarmerAreaApiView
-    elif command in ["勞動力", "就業人口"]:
+    elif command in ['勞動力', '就業人口']:
         api_view = LaborforceApiView
-    elif command in ["災害"]:
+    elif command in ['災害']:
         api_view = DisasterApiView
-    elif command in ["農保", "津貼", "老農津貼", "獎助學金"]:
+    elif command in ['農保', '津貼', '老農津貼', '獎助學金']:
         api_view = WelfareApiView
-    elif command in ["產地", "批發"]:
+    elif command in ['產地', '批發']:
         api_view = CropPriceApiView
-    elif command in ["種植面積", "單位產值", "單位產量"]:
+    elif command in ['種植面積', '單位產值', '單位產量']:
         api_view = CropProduceApiView
-    elif command in ["成本", "生產成本", "費用", "生產費用", "粗收益", "淨收入率", "工時"]:
+    elif command in ['成本', '生產成本', '費用', '生產費用', '粗收益', '淨收入率', '工時']:
         api_view = CropCostApiView
-    elif command in ["毛豬", "交易量", "價格", "重量"]:
+    elif command in ['毛豬', '交易量', '價格', '重量']:
         api_view = LivestockHogApiView
-    elif command in ["拍賣價", "產地價", "零售價"]:
+    elif command in ['拍賣價', '產地價', '零售價']:
         api_view = LivestockPriceApiView
-    elif command in ["場數", "飼養場數"]:
+    elif command in ['場數', '飼養場數']:
         api_view = LivestockFeedlotApiView
-    elif command in ["在養", "在養量"]:
+    elif command in ['在養', '在養量']:
         api_view = LivestockFeedamountApiView
-    elif command in ["屠宰", "屠宰量"]:
+    elif command in ['屠宰', '屠宰量']:
         api_view = LivestockSlaughterApiView
-    elif command in ["副產", "副產品", "副產物"]:
+    elif command in ['副產', '副產品', '副產物']:
         api_view = LivestockByproductApiView
-    elif command in ["代碼", "作物代碼"]:
+    elif command in ['代碼', '作物代碼']:
         api_view = ProductCodeApiView
-    elif command in ["產量"]:
-        reply = f"無法搜尋「{command_text}」\n\n"
-        reply += f"產量（作物產量）的指令為「產量 縣市 品項 年份」可加上鄉鎮「產量 縣市鄉鎮 品項 年份」，例如：\n"
-        reply += f"「產量 雲林 落花生 108」\n「產量 雲林土庫 落花生 108」\n\n"
-        reply += f"產量（副產物產量）的指令為「產量 品項 年份」或「產量 品項 年份 縣市」，也可使用替代指令「副產物」或「副產品」，例如：\n"
-        reply += f"「產量 雞蛋 108」\n「產量 牛乳 109 雲林」\n"
-        reply += f"「副產物 蜂蜜 108」\n「副產品 蜂蜜 105 彰化」"
-
-        if len(list_params) < 3 or len(list_params) > 4:
-            return reply
-
-        api_view = None
+    elif command in ['產量']:
 
         if len(list_params) == 3:
-            command_text = command_text.replace("產量", "產量（副產物產量）")
+            command_text = command_text.replace('產量', '產量（副產物產量）')
             api_view = LivestockByproductApiView
 
-        if len(list_params) == 4:
+        elif len(list_params) == 4:
             product = list_params[1]
-            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class="product")
+            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
             if query_set.count() > 0:
-                command_text = command_text.replace("產量", "產量（副產物產量）")
+                command_text = command_text.replace('產量', '產量（副產物產量）')
                 api_view = LivestockByproductApiView
 
             query_set = CropProduceTotal.objects.filter(name__icontains=product)
             if query_set.count() > 0:
-                command_text = command_text.replace("產量", "產量（作物產量）")
+                command_text = command_text.replace('產量', '產量（作物產量）')
                 api_view = CropProduceApiView
 
             product = list_params[2]
-            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class="product")
+            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
             if query_set.count() > 0:
-                command_text = command_text.replace("產量", "產量（副產物產量）")
+                command_text = command_text.replace('產量', '產量（副產物產量）')
                 api_view = LivestockByproductApiView
 
             query_set = CropProduceTotal.objects.filter(name__icontains=product)
             if query_set.count() > 0:
-                command_text = command_text.replace("產量", "產量（作物產量）")
+                command_text = command_text.replace('產量', '產量（作物產量）')
                 api_view = CropProduceApiView
+        else:
+            reply = f"無法搜尋「{command_text}」\n\n"
+            reply += '產量（作物產量）的指令為「產量 縣市 品項 年份」可加上鄉鎮「產量 縣市鄉鎮 品項 年份」，例如：\n'
+            reply += '「產量 雲林 落花生 108」\n「產量 雲林土庫 落花生 108」\n\n'
+            reply += '產量（副產物產量）的指令為「產量 品項 年份」或「產量 品項 年份 縣市」，也可使用替代指令「副產物」或「副產品」，例如：\n'
+            reply += '「產量 雞蛋 108」\n「產量 牛乳 109 雲林」\n'
+            reply += '「副產物 蜂蜜 108」\n「副產品 蜂蜜 105 彰化」'
+            return reply
 
         if not api_view:
-            return f"無法搜尋「{command_text}」\n" + f"查無品項，請修改品項關鍵字後重新查詢。"
+            return f"無法搜尋「{command_text}」\n" + '查無品項，請修改品項關鍵字後重新查詢。'
 
-    elif "指令" in command_text:
-        reply = f"直接輸入指令可以查詢使用方式(括號內為備註不需輸入)，目前提供的指令如下\n\n"
-        reply += "經濟指標及其他類：\n"
-        reply += "產值\n"
-        reply += "總產值\n"
-        reply += "生產毛額\n"
-        reply += "農家所得\n"
-        reply += "農牧戶(包含戶數及人口數)\n"
-        reply += "耕地面積\n"
-        reply += "就業人口\n"
-        reply += "災害\n"
-        reply += "農保\n"
-        reply += "老農津貼\n"
-        reply += "獎助學金\n\n"
+    elif '指令' in command_text:
+        reply = '直接輸入指令可以查詢使用方式(括號內為備註不需輸入)，目前提供的指令如下\n\n'
+        reply += '經濟指標及其他類：\n'
+        reply += '產值\n'
+        reply += '總產值\n'
+        reply += '生產毛額\n'
+        reply += '農家所得\n'
+        reply += '農牧戶(包含戶數及人口數)\n'
+        reply += '耕地面積\n'
+        reply += '就業人口\n'
+        reply += '災害\n'
+        reply += '農保\n'
+        reply += '老農津貼\n'
+        reply += '獎助學金\n\n'
 
-        reply += "農耕類：\n"
-        reply += "產地\n"
-        reply += "批發\n"
-        reply += "產量(作物產量)\n"
-        reply += "種植面積\n"
-        reply += "單位產值\n"
-        reply += "單位產量\n"
-        reply += "生產成本(包含生產費用、粗收益、淨收入率、工時)\n\n"
+        reply += '農耕類：\n'
+        reply += '產地\n'
+        reply += '批發\n'
+        reply += '產量(作物產量)\n'
+        reply += '種植面積\n'
+        reply += '單位產值\n'
+        reply += '單位產量\n'
+        reply += '生產成本(包含生產費用、粗收益、淨收入率、工時)\n\n'
 
-        reply += "畜禽類：\n"
-        reply += "毛豬(包含交易量、拍賣價、平均重量)\n"
-        reply += "拍賣價\n"
-        reply += "產地價\n"
-        reply += "零售價\n"
-        reply += "飼養場數\n"
-        reply += "在養量\n"
-        reply += "屠宰量\n"
-        reply += "產量(副產物產量，替代指令：副產物、副產品)\n\n"
+        reply += '畜禽類：\n'
+        reply += '毛豬(包含交易量、拍賣價、平均重量)\n'
+        reply += '拍賣價\n'
+        reply += '產地價\n'
+        reply += '零售價\n'
+        reply += '飼養場數\n'
+        reply += '在養量\n'
+        reply += '屠宰量\n'
+        reply += '產量(副產物產量，替代指令：副產物、副產品)\n\n'
 
-        reply += "其他類：\n"
-        reply += "作物代碼"
+        reply += '其他類：\n'
+        reply += '作物代碼'
         return reply
     else:
         return f"很抱歉，本系統不支援您輸入的指令「{command_text}」，無法為您查詢，請輸入「指令」查詢目前可用的指令。"
 
     try:
-        obj = api_view(list_params)
-        if hasattr(obj, 'choose_api'):
-            obj = obj.choose_api()
-        reply = f"搜尋「{command_text}」結果如下\n" + obj.execute_api()
+        # 將參數傳入api_view將api_view實例化
+        api_view = api_view(list_params)
+        if hasattr(api_view, 'choose_api'):
+            api_view = api_view.choose_api()
+        reply = f"搜尋「{command_text}」結果如下\n" + api_view.execute_api()
+        return reply
     except CustomError as ce:
         reply = f"無法搜尋「{command_text}」\n" + str(ce)
-    except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="get_reply_from_text", message=traceback.format_exc())
+        raise CustomError(reply)
+    except Exception:
+        traceback_log = TracebackLog.objects.create(app='get_reply_from_text', message=traceback.format_exc())
         reply = f"搜尋「{command_text}」發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
         raise CustomError(reply)
-
-    return reply
 
 
 def file_view_product_code(file_name):
@@ -208,12 +206,12 @@ def file_view_crop_produce(file_name):
     CropProduceUnit.objects.all().delete()
     wb = load_workbook(file_name)
     for sheet in wb.sheetnames:
-        if "稻" in sheet:
-            col_period = "C"
+        if '稻' in sheet:
+            col_period = 'C'
             col_city_district = None
         else:
             col_period = None
-            col_city_district = "E"
+            col_city_district = 'E'
         col_name = col_city = col_district = col_city_code = col_district_code = None
         col_amount_max = col_amount_min = col_amount_average = col_value_min = col_value_average = None
         amount_unit = value_unit = None
@@ -222,39 +220,39 @@ def file_view_crop_produce(file_name):
         for cell in ws[1]:
             if cell.value is None:
                 continue
-            elif "產量" in cell.value and "(公斤)" not in cell.value:
-                amount_unit = "(" + cell.value.split("(")[-1]
-            elif "產值" in cell.value and "(元)" not in cell.value:
-                value_unit = "(" + cell.value.split("(")[-1]
+            elif '產量' in cell.value and '(公斤)' not in cell.value:
+                amount_unit = '(' + cell.value.split('(')[-1]
+            elif '產值' in cell.value and '(元)' not in cell.value:
+                value_unit = '(' + cell.value.split('(')[-1]
 
         for cell in ws[2]:
             value = cell.value
             letter = cell.column_letter
             if value is None:
                 continue
-            elif "農產別" in value or "稻種別" in value:
+            elif '農產別' in value or '稻種別' in value:
                 col_name = letter
-            elif "縣市別" in value:
+            elif '縣市別' in value:
                 col_city = letter
-            elif "鄉鎮別" in value and col_period:
+            elif '鄉鎮別' in value and col_period:
                 col_city = letter
-            elif "鄉鎮別" in value:
+            elif '鄉鎮別' in value:
                 col_district = letter
-            elif "縣市代碼" in value:
+            elif '縣市代碼' in value:
                 col_city_code = letter
-            elif "鄉鎮代碼" in value:
+            elif '鄉鎮代碼' in value:
                 col_district_code = letter
-            elif "MAX" in value:
+            elif 'MAX' in value:
                 if col_amount_max is None:
                     col_amount_max = letter
                 else:
                     col_value_max = letter
-            elif "MIN" in value:
+            elif 'MIN' in value:
                 if col_amount_min is None:
                     col_amount_min = letter
                 else:
                     col_value_min = letter
-            elif "age" in value:
+            elif 'age' in value:
                 if col_amount_average is None:
                     col_amount_average = letter
                 else:
@@ -305,7 +303,7 @@ def file_view_crop_produce(file_name):
                 update = True
             if update:
                 obj.save()
-    return f"上傳成功！"
+    return '上傳成功！'
 
 
 def check_database_locked(model_name):
@@ -339,11 +337,11 @@ def upload(request):
         else:
             response = '請向機器人取得上傳網址。'
     except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())
+        traceback_log = TracebackLog.objects.create(app='upload', message=traceback.format_exc())
         response = f"取得上傳網址時發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
 
     # 處理post上傳的檔案
-    if request.method == "POST":
+    if request.method == 'POST':
         try:
             if not user.is_authenticated:
                 response = '網址已過期，請重新取得上傳網址。'
@@ -360,7 +358,7 @@ def upload(request):
             file = request.FILES.get('file')
             data = file.read()
             filename = file.name
-            if "產量" not in filename and "產值" not in filename and "主力" not in filename and "勞動力" not in filename:
+            if '產量' not in filename and '產值' not in filename and '主力' not in filename and '勞動力' not in filename:
                 response = f"上傳的檔案名稱「{filename}」不符要求，上傳失敗！"
                 data = {
                     'status': 500,
@@ -370,10 +368,10 @@ def upload(request):
             else:
                 new_filename = filename.split('.')[0] + f"_{datetime.datetime.now().timestamp()}." + filename.split('.')[-1]
 
-                with open(f"{new_filename}", "wb") as f:
+                with open(f"{new_filename}", 'wb') as f:
                     f.write(data)
 
-                if "產量" in filename:
+                if '產量' in filename:
                     check_database_locked('CropProduceUnit')
                     lock_obj = DatabaseControl.objects.create(user=user, name='CropProduceUnit', expire_time=(timezone.now() + datetime.timedelta(0, 600)))
                     response = f"{filename}" + file_view_crop_produce(new_filename)
@@ -402,7 +400,7 @@ def upload(request):
                 'content': response,
             }
         except Exception as e:
-            traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())
+            traceback_log = TracebackLog.objects.create(app='upload', message=traceback.format_exc())
             response = f"{filename} 上傳時發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
             data = {
                 'status': 500,
@@ -429,7 +427,7 @@ def change_proxy(command_text, line_user):
 
     list_params = command_text.strip().split(' ')
     if len(list_params) == 1:
-        return f"請輸入要更換的代理內容"
+        return '請輸入要更換的代理內容'
     else:
         proxy = list_params[1]
 
@@ -439,7 +437,7 @@ def change_proxy(command_text, line_user):
     try:
         driver.get('https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105')
         source = driver.page_source
-        if "這個網頁無法正常運作" in source or "重新載入" in source or "詳細資訊" in source:
+        if '這個網頁無法正常運作' in source or '重新載入' in source or '詳細資訊' in source:
             return f"{proxy} 無法使用"
         else:
             try:
@@ -449,14 +447,14 @@ def change_proxy(command_text, line_user):
             except Exception as e:
                 CustomSetting.objects.create(name='proxy', value=proxy)
 
-        driver.close()
+        driver.quit()
         return f"{proxy} 可以使用，已更新"
     except TimeoutException:
-        driver.close()
+        driver.quit()
         return f"{proxy} 無法使用"
     except Exception as e:
-        driver.close()
-        return f"更換代理發生錯誤"
+        driver.quit()
+        return '更換代理發生錯誤'
 
 
 def proxy_parser(request):
@@ -475,12 +473,12 @@ def proxy_parser(request):
             params = data.split('__paramlink__')
             # body = request.body.decode()
             # params = urllib.parse.unquote(body.replace('params=', '')).split('&')
-            # return HttpResponse(f"data is {data}\nparams is {params}")
+            # return HttpResponse(f'data is {data}\nparams is {params}')
             try:
                 obj = CropPriceOriginApiView(params)
                 response = obj.execute_api()
             except Exception as e:
-                traceback_log = TracebackLog.objects.create(app="proxy_parser_CropPriceOriginApiView", message=traceback.format_exc())
+                traceback_log = TracebackLog.objects.create(app='proxy_parser_CropPriceOriginApiView', message=traceback.format_exc())
                 response = f"發生錯誤「{str(e)}」，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
             finally:
                 return HttpResponse(response)
@@ -494,14 +492,14 @@ def proxy_parser(request):
                 obj = CropProduceTotalApiView(params)
                 response = obj.execute_api()
             except Exception as e:
-                traceback_log = TracebackLog.objects.create(app="proxy_parser_CropProduceTotalApiView", message=traceback.format_exc())
+                traceback_log = TracebackLog.objects.create(app='proxy_parser_CropProduceTotalApiView', message=traceback.format_exc())
                 response = f"發生錯誤「{str(e)}」，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
             finally:
                 return HttpResponse(response)
         else:
             return HttpResponse('無法使用此功能')
     except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="proxy_parser", message=traceback.format_exc())
+        traceback_log = TracebackLog.objects.create(app='proxy_parser', message=traceback.format_exc())
         response = f"發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
         return HttpResponse(response)
 
@@ -522,6 +520,6 @@ def proxy_build(request):
             return HttpResponse('無法使用此功能')
         return JsonResponse(data, safe=False)
     except Exception as e:
-        traceback_log = TracebackLog.objects.create(app="proxy_build", message=traceback.format_exc())
+        traceback_log = TracebackLog.objects.create(app='proxy_build', message=traceback.format_exc())
         response = f"發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
         return HttpResponse(response)
