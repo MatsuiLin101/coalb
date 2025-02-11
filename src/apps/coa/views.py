@@ -323,70 +323,56 @@ def check_database_locked(model_name):
 
 def upload(request):
     user = request.user
-    token = request.GET.get('token') or None
+    token = request.GET.get('token', None)
+    response = None
 
-    if request.method == "GET":
-        if token is not None:
+    # 檢查token是否有效
+    try:
+        if token:
             query_set = AnyToken.objects.filter(token=token)
-            if query_set.count() == 0:
-                return render(request, 'coa/upload-unauth.html', {'message': '網址無效，請向機器人取得正確的上傳網址'})
+            if not query_set:
+                response = '網址無效，請向機器人取得正確的上傳網址。'
 
             obj_token = query_set.first()
-            if obj_token.expire_time < timezone.now():
-                return render(request, 'coa/upload-unauth.html', {'message': '網址過期，請重新取得上傳網址'})
+            if not response and obj_token.expire_time < timezone.now():
+                response = '網址已過期，請重新取得上傳網址。'
         else:
-            return render(request, 'coa/upload-unauth.html', {'message': '請向機器人取得上傳網址'})
-        user = obj_token.user
-        login(request, user)
-        return render(request, 'coa/upload.html', locals())
+            response = '請向機器人取得上傳網址。'
+    except Exception as e:
+        traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())
+        response = f"取得上傳網址時發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
 
+    # 處理post上傳的檔案
     if request.method == "POST":
-        response = ''
-        if not isinstance(user, CustomUser):
-            response = '網址已過期，請重新取得上傳網址'
-            data = {
-                'status': 403,
-                'error': response,
-                'content': response,
-            }
-            return JsonResponse(data)
+        try:
+            if not user.is_authenticated:
+                response = '網址已過期，請重新取得上傳網址。'
 
-        if token is None:
-            response = '請向機器人取得上傳網址'
-        else:
-            query_set = AnyToken.objects.filter(token=token)
-            if query_set.count() == 0:
-                response = '網址無效，請向機器人取得正確的上傳網址'
+            # 前面檢查有response就回傳403
+            if response:
+                data = {
+                    'status': 403,
+                    'error': response,
+                    'content': response,
+                }
+                return JsonResponse(data)
 
-            obj_token = query_set.first()
-            if obj_token.expire_time < timezone.now():
-                response = '網址過期，請重新取得上傳網址'
+            file = request.FILES.get('file')
+            data = file.read()
+            filename = file.name
+            if "產量" not in filename and "產值" not in filename and "主力" not in filename and "勞動力" not in filename:
+                response = f"上傳的檔案名稱「{filename}」不符要求，上傳失敗！"
+                data = {
+                    'status': 500,
+                    'error': response,
+                    'content': response,
+                }
+            else:
+                new_filename = filename.split('.')[0] + f"_{datetime.datetime.now().timestamp()}." + filename.split('.')[-1]
 
-        if response:
-            data = {
-                'status': 403,
-                'error': response,
-                'content': response,
-            }
-            return JsonResponse(data)
+                with open(f"{new_filename}", "wb") as f:
+                    f.write(data)
 
-        file = request.FILES.get('file')
-        data = file.read()
-        filename = file.name
-        if "產量" not in filename and "產值" not in filename and "主力" not in filename and "勞動力" not in filename:
-            response = f"上傳的檔案名稱「{filename}」不符要求，上傳失敗！"
-            data = {
-                'status': 500,
-                'error': response,
-                'content': response,
-            }
-        else:
-            new_filename = filename.split('.')[0] + f"_{datetime.datetime.now().timestamp()}." + filename.split('.')[-1]
-
-            with open(f"{new_filename}", "wb") as f:
-                f.write(data)
-
-            try:
                 if "產量" in filename:
                     check_database_locked('CropProduceUnit')
                     lock_obj = DatabaseControl.objects.create(user=user, name='CropProduceUnit', expire_time=(timezone.now() + datetime.timedelta(0, 600)))
@@ -395,33 +381,45 @@ def upload(request):
                     check_database_locked('ProductCode')
                     lock_obj = DatabaseControl.objects.create(user=user, name='ProductCode', expire_time=(timezone.now() + datetime.timedelta(0, 600)))
                     response = file_view_product_code(new_filename)
+
+                lock_obj.status = True
+                lock_obj.finish_time = timezone.now()
+                lock_obj.save()
+
+                if os.path.exists(new_filename):
+                    os.remove(new_filename)
+
                 data = {
                     'status': 200,
                     'success': response,
                     'content': response
                 }
-                lock_obj.status = True
-                lock_obj.finish_time = timezone.now()
-                lock_obj.save()
-            except CustomError as ce:
-                response = str(ce)
-                data = {
-                    'status': 500,
-                    'error': response,
-                    'content': response,
-                }
-            except Exception as e:
-                traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())
-                response = f"{filename} 上傳時發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理"
-                data = {
-                    'status': 500,
-                    'error': response,
-                    'content': response,
-                }
-            if os.path.exists(new_filename):
-                os.remove(new_filename)
-        return JsonResponse(data)
+        except CustomError as ce:
+            response = str(ce)
+            data = {
+                'status': 500,
+                'error': response,
+                'content': response,
+            }
+        except Exception as e:
+            traceback_log = TracebackLog.objects.create(app="upload", message=traceback.format_exc())
+            response = f"{filename} 上傳時發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
+            data = {
+                'status': 500,
+                'error': response,
+                'content': response,
+            }
+        finally:
+            return JsonResponse(data)
 
+    # 處理post以外的method
+    # 前面檢查有response就回傳錯誤
+    if response:
+        return render(request, 'coa/upload-unauth.html', {'message': response})
+
+    # 根據token登入user
+    user = obj_token.user
+    login(request, user)
     return render(request, 'coa/upload.html', locals())
 
 
