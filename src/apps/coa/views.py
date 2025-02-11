@@ -513,10 +513,15 @@ def proxy_build(request):
     if token != settings.PROXY_TOKEN:
         return HttpResponse('無法使用此功能')
 
-    if api == 'CropPriceOriginBuilder':
-        data = CropPriceOriginBuilder().build(use_proxy=True)
-    elif api == 'CropProduceTotalBuilder':
-        data = CropProduceTotalBuilder().build(use_proxy=True)
-    else:
-        return HttpResponse('無法使用此功能')
-    return JsonResponse(data, safe=False)
+    try:
+        if api == 'CropPriceOriginBuilder':
+            data = CropPriceOriginBuilder().build(use_proxy=True)
+        elif api == 'CropProduceTotalBuilder':
+            data = CropProduceTotalBuilder().build(use_proxy=True)
+        else:
+            return HttpResponse('無法使用此功能')
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        traceback_log = TracebackLog.objects.create(app="proxy_build", message=traceback.format_exc())
+        response = f"發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
+        return HttpResponse(response)
