@@ -103,16 +103,14 @@ def callback(request):
         body = request.body.decode('utf-8')
         build_line_user(line_bot_api, body)
         handler.handle(body, signature)
+        return HttpResponse(status=200, content='OK')
     except InvalidSignatureError:
+        LineCallBackLog.objects.create(signature=signature, body=body, message=response)
         response = 'Invalid signature. Please check your channel access token/channel secret.'
-        log = LineCallBackLog.objects.create(signature=signature, body=body, message=response)
         return HttpResponse(status=400, content=response)
     except Exception as e:
-        message = traceback.format_exc()
-        log = LineCallBackLog.objects.create(signature=signature, body=body, message=message)
-        return HttpResponse(status=400, content='未知錯誤，請至後台查詢詳細記錄。')
-
-    return HttpResponse(status=200, content='OK')
+        log = LineCallBackLog.objects.create(signature=signature, body=body, message=traceback.format_exc())
+        return HttpResponse(status=400, content=f"未知錯誤，錯誤編號「{log.id}」，請至後台查詢詳細記錄。")
 
 
 @handler.add(FollowEvent)
