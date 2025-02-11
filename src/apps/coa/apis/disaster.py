@@ -2,18 +2,21 @@ from .configs import *
 
 
 class DisasterApiView(AnnualReportBasicApiView):
-    '''
+    """
+    之後再修 需要先處理 LIBREOFFICE
+
     災害api介面
-    disaster(災害)
-    年報十、1
-    https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
-    '''
+
+    - Disaster(災害)
+        年報十、1
+        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+    """
     def __init__(self, params):
         super(DisasterApiView, self).__init__(params)
-        self.id_ods = "ctl00_cphMain_uctlBook_repChapter_ctl77_dtlFile_ctl00_lnkFile"
+        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl77_dtlFile_ctl00_lnkFile'
 
         if not len(params) == 2:
-            raise CustomError(f"災害的指令為「災害 年份」，例如：\n「災害 107」")
+            raise CustomError('災害的指令為「災害 年份」，例如：\n「災害 107」')
         self.command = params[0]
         self.query_date = params[1]
 
