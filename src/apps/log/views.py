@@ -1,7 +1,10 @@
-from django.shortcuts import render
 from django.conf import settings
 from django.core.mail import mail_admins
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import (
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseNotFound
+)
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -17,5 +20,8 @@ def proxy_send_email(request):
     if token != settings.PROXY_TOKEN:
         return HttpResponseNotFound('<h1>Page not found</h1>')
 
-    mail_admins(subject, message, fail_silently=True)
-    return HttpResponse('<h1>Success</h1>')
+    try:
+        mail_admins(subject, message, fail_silently=True)
+        return HttpResponse('<h1>Success</h1>')
+    except Exception as e:
+        return HttpResponseBadRequest('<h1>Fail</h1>')
