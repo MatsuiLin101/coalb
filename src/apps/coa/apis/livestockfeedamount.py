@@ -1,32 +1,35 @@
 from .configs import *
 
 
-class LivestockFeedamountApiView(BasicApiView):
-    '''
+class LivestockFeedAmountApiView(BasicApiView):
+    """
     畜禽在養數量api介面
-    -feedamount(在養數量)
-    動態查詢 [農業生產統計]>>[畜禽產品飼養數量統計]>>[家畜飼養頭數]、[家禽飼養隻數：縣市別×家禽別(104年度起)]
-    https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
-    '''
+
+    - LivestockFeedAmount(在養數量)
+        必需先執行 builder LivestockFeedAmountBuilder 建立選項資料
+        動態查詢 [農業生產統計]>>[畜禽產品飼養數量統計]>>[家畜飼養頭數]、[家禽飼養隻數：縣市別×家禽別]
+        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+    """
     def __init__(self, params):
         self.driver = None
-        self.url = "https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx"
-        self.text_title = "畜禽產品飼養數量統計"
-        self.text_group1 = "家畜飼養頭數"
-        self.text_group2 = "家禽飼養隻數：縣市別×家禽別(104年度起)"
-        self.id_group = "ctl00_cphMain_uctlInquireAdvance_lstFieldGroup"
-        self.id_city = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension"
-        self.id_product = "ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension"
-        self.id_search = "ctl00_cphMain_uctlInquireAdvance_btnQuery"
-        self.id_check_year = "ctl00_cphMain_uctlInquireAdvance_chkYear"
-        self.id_start_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearBegin"
-        self.id_end_year = "ctl00_cphMain_uctlInquireAdvance_ddlYearEnd"
-        self.id_query = "ctl00_cphMain_uctlInquireAdvance_btnQuery2"
-        self.id_table = "ctl00_cphMain_uctlInquireAdvance_tabResult"
-        self.message = ""
+        self.url = 'https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx'
+        self.text_title = '畜禽產品飼養數量統計'
+        self.text_group1 = '家畜飼養頭數'
+        self.text_group2 = '家禽飼養隻數：縣市別×家禽別'
+        self.id_group = 'ctl00_cphMain_uctlInquireAdvance_lstFieldGroup'
+        self.id_city = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension'
+        self.id_product = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension'
+        self.id_search = 'ctl00_cphMain_uctlInquireAdvance_btnQuery'
+        self.id_check_year = 'ctl00_cphMain_uctlInquireAdvance_chkYear'
+        self.id_start_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearBegin'
+        self.id_end_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearEnd'
+        self.id_query = 'ctl00_cphMain_uctlInquireAdvance_btnQuery2'
+        self.id_table = 'ctl00_cphMain_uctlInquireAdvance_tabResult'
+        self.message = ''
 
-        if not 3 <= len(params) <= 4:
+        if len(params) not in [3, 4]:
             raise CustomError(f"在養數量的指令為「在養量 畜禽 年份」或「在養量 畜禽 年份 縣市」，例如：\n「在養量 豬 108」\n「在養量 鴨 105 彰化」")
+
         self.command = params[0]
         self.product = params[1]
         self.query_date = params[2]
@@ -34,10 +37,10 @@ class LivestockFeedamountApiView(BasicApiView):
             self.city = params[3].replace('台', '臺')
         else:
             self.city = None
-        self.command_text = " ".join(text for text in params)
+        self.command_text = ' '.join(text for text in params)
 
     def parser(self):
-        super(LivestockFeedamountApiView, self).parser()
+        super(LivestockFeedAmountApiView, self).parser()
         # 進入畜禽產品飼養數量統計頁面
         self.driver.find_element(By.LINK_TEXT, self.text_title).click()
 
@@ -45,29 +48,29 @@ class LivestockFeedamountApiView(BasicApiView):
         # 根據使用者輸入的product選擇對應的group
         # 是否有完全符合name的物件
         try:
-            self.obj_product = LivestockFeedamount.objects.get(name=self.product, sub_class="product")
+            self.obj_product = LivestockFeedAmount.objects.get(name=self.product, sub_class='product')
             return
         except Exception as e:
             pass
 
         # 是否有部分符合name的物件
         try:
-            self.obj_product = LivestockFeedamount.objects.get(name__icontains=self.product, sub_class="product")
+            self.obj_product = LivestockFeedAmount.objects.get(name__icontains=self.product, sub_class='product')
             return
         except Exception as e:
             pass
 
         # 是否有完全符合search_name的物件
         try:
-            self.obj_product = LivestockFeedamount.objects.get(search_name=self.product, sub_class="product")
+            self.obj_product = LivestockFeedAmount.objects.get(search_name=self.product, sub_class='product')
             return
         except Exception as e:
             pass
 
         # 可能有多種結果，請使用者改用詳細關鍵字
-        qs = LivestockFeedamount.objects.filter(name__icontains=self.product, sub_class="product")
+        qs = LivestockFeedAmount.objects.filter(name__icontains=self.product, sub_class='product')
         if qs.count() > 0:
-            list_product = list(qs.values_list("name", flat=True))
+            list_product = list(qs.values_list('name', flat=True))
             message = '\n'.join([product for product in list_product])
             self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
@@ -77,29 +80,29 @@ class LivestockFeedamountApiView(BasicApiView):
     def get_city(self):
         # 是否有完全符合name的物件
         try:
-            self.obj_city = LivestockFeedamount.objects.get(name=self.city, main_class=self.obj_product.main_class, sub_class="city")
+            self.obj_city = LivestockFeedAmount.objects.get(name=self.city, main_class=self.obj_product.main_class, sub_class='city')
             return
         except Exception as e:
             pass
 
         # 是否有部分符合name的物件
         try:
-            self.obj_city = LivestockFeedamount.objects.get(name__icontains=self.city, main_class=self.obj_product.main_class, sub_class="city")
+            self.obj_city = LivestockFeedAmount.objects.get(name__icontains=self.city, main_class=self.obj_product.main_class, sub_class='city')
             return
         except Exception as e:
             pass
 
         # 是否有完全符合search_name的物件
         try:
-            self.obj_city = LivestockFeedamount.objects.get(search_name=self.city, main_class=self.obj_product.main_class, sub_class="city")
+            self.obj_city = LivestockFeedAmount.objects.get(search_name=self.city, main_class=self.obj_product.main_class, sub_class='city')
             return
         except Exception as e:
             pass
 
         # 可能有多種結果，請使用者改用詳細關鍵字
-        qs = LivestockFeedamount.objects.filter(name__icontains=self.city, main_class=self.obj_product.main_class, sub_class="city")
+        qs = LivestockFeedAmount.objects.filter(name__icontains=self.city, main_class=self.obj_product.main_class, sub_class='city')
         if qs.count() > 0:
-            list_city = list(qs.values_list("search_name", flat=True))
+            list_city = list(qs.values_list('search_name', flat=True))
             message = '\n'.join([city for city in list_city])
             self.message = f"城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
         else:
@@ -112,14 +115,14 @@ class LivestockFeedamountApiView(BasicApiView):
             group = self.text_group1
         else:
             group = self.text_group2
-        driver_select(self.driver, self.id_group, "text", group)
+        driver_select(self.driver, self.id_group, 'text', group)
         # 選擇城市
         if self.city is not None:
             time.sleep(1)
-            driver_select(self.driver, self.id_city, "value", self.obj_city.value, True)
+            driver_select(self.driver, self.id_city, 'value', self.obj_city.value, True)
         # 選擇產品
         time.sleep(1)
-        driver_select(self.driver, self.id_product, "value", self.obj_product.value, True)
+        driver_select(self.driver, self.id_product, 'value', self.obj_product.value, True)
         # 送出查詢
         btn_search = self.driver.find_element(By.ID, self.id_search)
         btn_search.click()
@@ -127,7 +130,7 @@ class LivestockFeedamountApiView(BasicApiView):
     def get_result(self):
         WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
         table = self.driver.find_element(By.ID, self.id_table)
-        self.result = self.driver.find_element(By.CSS_SELECTOR, ".VerDim").parent.find_element(By.CSS_SELECTOR, ".ValueLeftTop").text
+        self.result = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_element(By.CSS_SELECTOR, '.ValueLeftTop').text
 
     def get_data(self):
         self.parser()
