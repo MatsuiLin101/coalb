@@ -3,7 +3,7 @@ from .configs import *
 
 class LivestockByproductBuilder(object):
     """
-    建立 畜禽飼養場數api介面 LivestockFeedlotApiView 使用的選項
+    建立 畜禽副產品供應量api介面 LivestockByproductApiView 使用的選項
 
 from apps.coa.builders.livestockbyproduct import *
 builder = LivestockByproductBuilder()
