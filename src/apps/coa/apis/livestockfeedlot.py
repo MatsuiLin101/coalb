@@ -72,9 +72,9 @@ class LivestockFeedlotApiView(BasicApiView):
         if qs.count() > 0:
             list_product = list(qs.values_list('name', flat=True))
             message = '\n'.join([product for product in list_product])
-            self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+            self.message = f'品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
         else:
-            self.message = f"查無品項「{self.product}」"
+            self.message = f'查無品項「{self.product}」'
         raise CustomError(self.message)
 
     def get_city(self):
@@ -104,9 +104,9 @@ class LivestockFeedlotApiView(BasicApiView):
         if qs.count() > 0:
             list_city = list(qs.values_list('search_name', flat=True))
             message = '\n'.join([city for city in list_city])
-            self.message = f"城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+            self.message = f'城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
         else:
-            self.message = f"查無城市「{self.city}」"
+            self.message = f'查無城市「{self.city}」'
         raise CustomError(self.message)
 
     def get_query(self):
@@ -141,7 +141,7 @@ class LivestockFeedlotApiView(BasicApiView):
         self.get_table()
         self.get_result()
 
-        self.message = f"{self.year}年 {self.obj_product.name}_city_2 飼養場數：{self.result}(場)"
+        self.message = f'{self.year}年 {self.obj_product.name}_city_2 飼養場數：{self.result}(場)'
         if self.city is not None:
             self.message = self.message.replace('_city_2', f' {self.obj_city}')
         else:

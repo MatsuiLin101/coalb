@@ -48,7 +48,7 @@ class CropCostApiView(BasicApiView):
         self.params = params
 
         if len(params) != 3:
-            raise CustomError(f"生產成本(生產費用、粗收益、淨收入率、工時)的指令為「成本 作物 年份」，例如：\n「成本 香蕉 107」\n\n也可單獨查詢，例如：\n「生產費用 香蕉 107」\n「粗收益 香蕉 107」\n「淨收入率 香蕉 107」\n「工時 香蕉 107」")
+            raise CustomError('生產成本(生產費用、粗收益、淨收入率、工時)的指令為「成本 作物 年份」，例如：\n「成本 香蕉 107」\n\n也可單獨查詢，例如：\n「生產費用 香蕉 107」\n「粗收益 香蕉 107」\n「淨收入率 香蕉 107」\n「工時 香蕉 107」')
         self.command = params[0]
         self.product = params[1]
         self.query_date = params[2]
@@ -74,7 +74,7 @@ class CropCostApiView(BasicApiView):
         self.get_table()
         self.get_result()
 
-        self.message = f"{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}"
+        self.message = f'{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}'
 
     def parser(self):
         super(CropCostApiView, self).parser()
@@ -109,9 +109,9 @@ class CropCostApiView(BasicApiView):
         if qs.count() > 0:
             list_product = list(qs.values('name', 'start_year', 'end_year'))
             message = '\n'.join([f"{product['name']}　年份({product['start_year']}～{product['end_year']})" for product in list_product])
-            self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+            self.message = f'品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
         else:
-            self.message = f"查無品項「{self.product}」"
+            self.message = f'查無品項「{self.product}」'
         raise CustomError(self.message)
 
     def get_query(self):
@@ -135,7 +135,7 @@ class CropCostApiView(BasicApiView):
             if qs.count() > 1:
                 list_product = list(qs.values('name', 'start_year', 'end_year'))
                 message = '\n'.join([f"{product['name']}　年份({product['start_year']}～{product['end_year']})" for product in list_product])
-                self.message += f"\n\n有其他相似的品項如下：\n" + message
+                self.message += '\n\n有其他相似的品項如下：\n' + message
             raise CustomError(self.message)
 
 
@@ -216,9 +216,9 @@ class TotalCost(CropCostApiView):
         self.result_male = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_element(By.CSS_SELECTOR, '.ValueLeftTop').text.replace(',', '')
         self.result_female = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_element(By.CSS_SELECTOR, '.ValueTop').text.replace(',', '')
         try:
-            self.result_d = f"{round(float(self.result_male) + float(self.result_female))}{self.unit4}"
+            self.result_d = f'{round(float(self.result_male) + float(self.result_female))}{self.unit4}'
         except Exception as e:
-            self.result_d = f"無法計算，男工：{self.result_male}、女工：{self.result_female}"
+            self.result_d = f'無法計算，男工：{self.result_male}、女工：{self.result_female}'
 
 
     def calc_income_rate(self):
@@ -232,11 +232,11 @@ class TotalCost(CropCostApiView):
         self.get_work_hour()
 
         self.calc_income_rate()
-        self.message = f"{self.year}年 {self.obj_product.name} {self.command}：\n"
-        self.message += f"生產費用：{self.result_a:,d}{self.unit1}\n"
-        self.message += f"粗收益：{self.result_b:,d}{self.unit2}\n"
-        self.message += f"淨收入率：{self.result_c:,d}{self.unit3}\n"
-        self.message += f"工時：{self.result_d}\n"
+        self.message = f'{self.year}年 {self.obj_product.name} {self.command}：\n'
+        self.message += f'生產費用：{self.result_a:,d}{self.unit1}\n'
+        self.message += f'粗收益：{self.result_b:,d}{self.unit2}\n'
+        self.message += f'淨收入率：{self.result_c:,d}{self.unit3}\n'
+        self.message += f'工時：{self.result_d}\n'
 
 
 class ProduceCost(CropCostApiView):
@@ -302,7 +302,7 @@ class PureIncomeRate(CropCostApiView):
         self.get_result()
         self.result_b = self.result
         self.calc_result()
-        self.message = f"{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}"
+        self.message = f'{self.year}年 {self.obj_product.name} {self.command}：{self.result}{self.unit}'
 
 
 class WorkHour(CropCostApiView):
@@ -339,4 +339,4 @@ class WorkHour(CropCostApiView):
         try:
             self.result = round(float(self.result_male) + float(self.result_female))
         except Exception as e:
-            self.message = f"{self.year}年 {self.obj_product.name} {self.command}：\n男工：{self.result_male}{self.unit}\n女工：{self.result_female}{self.unit}"
+            self.message = f'{self.year}年 {self.obj_product.name} {self.command}：\n男工：{self.result_male}{self.unit}\n女工：{self.result_female}{self.unit}'

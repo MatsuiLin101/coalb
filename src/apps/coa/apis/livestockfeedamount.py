@@ -28,7 +28,7 @@ class LivestockFeedAmountApiView(BasicApiView):
         self.message = ''
 
         if len(params) not in [3, 4]:
-            raise CustomError(f"在養數量的指令為「在養量 畜禽 年份」或「在養量 畜禽 年份 縣市」，例如：\n「在養量 豬 108」\n「在養量 鴨 105 彰化」")
+            raise CustomError('在養數量的指令為「在養量 畜禽 年份」或「在養量 畜禽 年份 縣市」，例如：\n「在養量 豬 108」\n「在養量 鴨 105 彰化」')
 
         self.command = params[0]
         self.product = params[1]
@@ -72,9 +72,9 @@ class LivestockFeedAmountApiView(BasicApiView):
         if qs.count() > 0:
             list_product = list(qs.values_list('name', flat=True))
             message = '\n'.join([product for product in list_product])
-            self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+            self.message = f'品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
         else:
-            self.message = f"查無品項「{self.product}」"
+            self.message = f'查無品項「{self.product}」'
         raise CustomError(self.message)
 
     def get_city(self):
@@ -104,9 +104,9 @@ class LivestockFeedAmountApiView(BasicApiView):
         if qs.count() > 0:
             list_city = list(qs.values_list('search_name', flat=True))
             message = '\n'.join([city for city in list_city])
-            self.message = f"城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+            self.message = f'城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
         else:
-            self.message = f"查無城市「{self.city}」"
+            self.message = f'查無城市「{self.city}」'
         raise CustomError(self.message)
 
     def get_query(self):
@@ -141,7 +141,7 @@ class LivestockFeedAmountApiView(BasicApiView):
         self.get_table()
         self.get_result()
 
-        self.message = f"{self.year}年 {self.obj_product.name}_city_2 在養量：{self.result}(頭)"
+        self.message = f'{self.year}年 {self.obj_product.name}_city_2 在養量：{self.result}(頭)'
         if self.city is not None:
             self.message = self.message.replace('_city_2', f' {self.obj_city}')
         else:

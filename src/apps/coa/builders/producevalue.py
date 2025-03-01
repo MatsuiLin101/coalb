@@ -57,7 +57,7 @@ builder.build()
                     parent = parent.parent
                 parent = origin_parent
 
-            print(f"Create {parent} {text_group} city {level} {name} {value} {search_name}")
+            print(f'Create {parent} {text_group} city {level} {name} {value} {search_name}')
             obj = TotalValue.objects.create(
                 parent = parent,
                 main_class = text_group,
@@ -99,7 +99,7 @@ builder.build()
                         parent = parent.parent
                 parent = origin_parent
 
-            print(f"Create {parent} {text_group} category {level} {name} {value} {search_name}")
+            print(f'Create {parent} {text_group} category {level} {name} {value} {search_name}')
             obj = TotalValue.objects.create(
                 parent = parent,
                 main_class = text_group,

@@ -32,7 +32,7 @@ builder.build()
             CropPriceOrigin.objects.all().delete()
             for item in data:
                 obj = CropPriceOrigin.objects.create(**item)
-                print(f"create {obj.category} {obj}")
+                print(f'create {obj.category} {obj}')
 
     def _build(self):
         try:
@@ -50,7 +50,7 @@ builder.build()
                 count_option += 1
                 count_table += 1
                 category = option.text
-                id_table = self.id_table.replace('_X', f"{count_table}")
+                id_table = self.id_table.replace('_X', f'{count_table}')
                 driver_select(self.driver, self.id_category, 'text', category)
                 WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, id_table)))
 
@@ -139,7 +139,7 @@ builder.build()
             #         parent = parent.parent
             #     parent = origin_parent
 
-            print(f"Create {parent} {text_group} city {level} {name} {value} {search_name}")
+            print(f'Create {parent} {text_group} city {level} {name} {value} {search_name}')
             obj = CropPriceWholesale.objects.create(
                 parent = parent,
                 main_class = text_group,

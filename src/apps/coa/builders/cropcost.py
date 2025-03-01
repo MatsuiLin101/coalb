@@ -59,7 +59,7 @@ builder.build()
             level = int(value.split('\t')[-1])
             search_name = name
 
-            print(f"Create {parent} {text_group} category {level} {name} {value} {search_name}")
+            print(f'Create {parent} {text_group} category {level} {name} {value} {search_name}')
             obj = CropCost.objects.create(
                 parent = parent,
                 main_class = text_group,
@@ -127,7 +127,7 @@ builder.build()
             # time.sleep(1)
             index += 1
 
-            print(f"Create {parent} {text_group} product {level} {name} {value} {search_name} {start_year} {end_year}")
+            print(f'Create {parent} {text_group} product {level} {name} {value} {search_name} {start_year} {end_year}')
             obj = CropCost.objects.create(
                 parent = parent,
                 main_class = text_group,

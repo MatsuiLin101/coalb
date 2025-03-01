@@ -46,21 +46,21 @@ class CropPriceApiView(BasicApiView):
             self.month = None
         try:
             self.year = int(self.year)
-            self.query_date = f"{self.year}年"
+            self.query_date = f'{self.year}年'
             self.select_date = str(self.year).zfill(3)
         except Exception as e:
-            self.message = f"年份「{self.year}」無效，請輸入民國年"
+            self.message = f'年份「{self.year}」無效，請輸入民國年'
             raise CustomError(self.message)
         if self.month:
             try:
                 self.month = int(self.month)
                 self.select_date += str(self.month).zfill(2)
                 if not 1 <= self.month <= 12:
-                    self.message = f"月份「{self.month}」請輸入1~12"
+                    self.message = f'月份「{self.month}」請輸入1~12'
                     raise CustomError(self.message)
-                self.query_date += f"{self.month}月"
+                self.query_date += f'{self.month}月'
             except Exception as e:
-                self.message = f"月份「{self.month}」無效，請輸入1~12"
+                self.message = f'月份「{self.month}」無效，請輸入1~12'
                 raise CustomError(self.message)
 
 
@@ -117,10 +117,10 @@ class CropPriceOriginApiView(CropPriceApiView):
     def get_product(self):
         qs = CropPriceOrigin.objects.filter(name__icontains=self.product)
         if qs.count() == 0:
-            self.message = f"查無品項「{self.product}」"
+            self.message = f'查無品項「{self.product}」'
             raise CustomError(self.message)
         elif qs.count() > 5:
-            self.message = f"搜尋品項「{self.product}」結果過多，請修改關鍵字後重新查詢：\n" + '\n'.join(obj.name for obj in qs)
+            self.message = f'搜尋品項「{self.product}」結果過多，請修改關鍵字後重新查詢：\n' + '\n'.join(obj.name for obj in qs)
             raise CustomError(self.message)
         else:
             self.query_set = qs
@@ -145,7 +145,7 @@ class CropPriceOriginApiView(CropPriceApiView):
             options_year = select_year_start.find_elements(By.TAG_NAME, 'option')
             option_year_start = int(options_year[0].text) - 1911
             option_year_end = int(options_year[-1].text) - 1911
-            self.message = f"年份「{self.year}」超過範圍，請輸入{option_year_start}～{option_year_end}"
+            self.message = f'年份「{self.year}」超過範圍，請輸入{option_year_start}～{option_year_end}'
             raise CustomError(self.message)
 
     def get_query(self, obj):
@@ -183,19 +183,19 @@ class CropPriceOriginApiView(CropPriceApiView):
             data = result[1]
             rows = data.split('\n')[1:]
             if len(rows) == 0:
-                self.list_result.append(f"{obj.name}：查無結果。")
+                self.list_result.append(f'{obj.name}：查無結果。')
             elif self.city:
                 # 有指定縣市
                 for row in rows:
                     if self.city in row:
                         cell = row.split(' ')
-                        self.list_result.append((obj, f"{cell[0]} {cell[1]}：{round(float(cell[2]), 2)}(元/公斤)"))
+                        self.list_result.append((obj, f'{cell[0]} {cell[1]}：{round(float(cell[2]), 2)}(元/公斤)'))
             else:
                 # 沒有指定縣市
                 for row in rows:
                     total += float(row.split(' ')[-1])
                 avg_total = round(total / len(rows), 2)
-                self.list_result.append(f"{obj.name}：{avg_total}(元/公斤)")
+                self.list_result.append(f'{obj.name}：{avg_total}(元/公斤)')
 
     def get_data(self):
         self.parser()
@@ -207,21 +207,21 @@ class CropPriceOriginApiView(CropPriceApiView):
             self.result.append((obj, result))
         self.calc_result()
         if self.city:
-            self.message = f"{self.year}年_month_ {self.city} {self.product} 產地價：\n"
+            self.message = f'{self.year}年_month_ {self.city} {self.product} 產地價：\n'
             product = None
             for result in self.list_result:
                 if type(result) == str:
-                    self.message += f"{result}\n"
+                    self.message += f'{result}\n'
                     continue
                 if product != result[0]:
                     product = result[0]
-                    self.message += f"{product}\n"
-                self.message += f"{result[1]}\n"
+                    self.message += f'{product}\n'
+                self.message += f'{result[1]}\n'
             self.message = self.message[:-1]
         else:
-            self.message = f"{self.year}年_month_ {self.product} 產地價：\n" + '\n'.join(result for result in self.list_result)
+            self.message = f'{self.year}年_month_ {self.product} 產地價：\n' + '\n'.join(result for result in self.list_result)
         if self.month:
-            self.message = self.message.replace('_month_', f"{self.month}月")
+            self.message = self.message.replace('_month_', f'{self.month}月')
         else:
             self.message = self.message.replace('_month_', '')
 
@@ -280,10 +280,10 @@ class CropPriceWholesaleApiView(CropPriceApiView):
         if qs.count() > 5:
             list_product = list(qs.values_list('name', flat=True))
             message = '\n'.join([product for product in list_product])
-            self.message = f"品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n" + message
+            self.message = f'品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
             raise CustomError(self.message)
         elif qs.count() == 0:
-            self.message = f"查無品項「{self.product}」"
+            self.message = f'查無品項「{self.product}」'
             raise CustomError(self.message)
         else:
             self.query_set = qs
@@ -321,21 +321,21 @@ class CropPriceWholesaleApiView(CropPriceApiView):
                 options = options.split('\n')
                 date_start = options[0]
                 date_end = options[-1]
-                self.result.append(f"{obj.name}：日期超過範圍，請選擇日期於「{date_start}」～「{date_end}」之間")
+                self.result.append(f'{obj.name}：日期超過範圍，請選擇日期於「{date_start}」～「{date_end}」之間')
                 raise CustomError()
         elif self.month and check_month is None:
             options = self.driver.find_element(By.ID, self.id_start_year).text.replace(' ', '').replace('年', '')
             options = options.split('\n')
             date_start = options[0]
             date_end = options[-1]
-            self.result.append(f"{obj.name}：只有年資料沒有月份資料，請選擇年份「{date_start}」～「{date_end}」之間")
+            self.result.append(f'{obj.name}：只有年資料沒有月份資料，請選擇年份「{date_start}」～「{date_end}」之間')
             raise CustomError()
         elif self.month is None and check_year is None:
             options = self.driver.find_element(By.ID, self.id_start_month).text.replace(' ', '').replace('年', '/').replace('月', '')
             options = options.split('\n')
             date_start = options[0]
             date_end = options[-1]
-            self.result.append(f"{obj.name}：只有月份資料沒有年資料，請選擇日期於「{date_start}」～「{date_end}」之間")
+            self.result.append(f'{obj.name}：只有月份資料沒有年資料，請選擇日期於「{date_start}」～「{date_end}」之間')
             raise CustomError()
         else:
             if check_month:
@@ -348,7 +348,7 @@ class CropPriceWholesaleApiView(CropPriceApiView):
                 options = options.split('\n')
                 date_start = options[0]
                 date_end = options[-1]
-                self.result.append(f"{obj.name}：年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間")
+                self.result.append(f'{obj.name}：年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間')
                 raise CustomError()
 
         btn_query = self.driver.find_element(By.ID, self.id_query)
@@ -361,9 +361,9 @@ class CropPriceWholesaleApiView(CropPriceApiView):
         unit = self.driver.find_element(By.ID, self.id_table).find_elements(By.TAG_NAME, 'tr')[0].text
         unit = '(' + unit.split('（')[-1].replace('）', '') + ')'
         if '...' in result:
-            self.result.append(f"{obj.name}：查無結果")
+            self.result.append(f'{obj.name}：查無結果')
         else:
-            self.result.append(f"{obj.name}：{result}{unit}")
+            self.result.append(f'{obj.name}：{result}{unit}')
 
     def get_back(self):
         btn_back = self.driver.find_element(By.ID, self.id_back)
@@ -381,6 +381,6 @@ class CropPriceWholesaleApiView(CropPriceApiView):
                 pass
             self.get_back()
         if self.month:
-            self.message = f"{self.year}年{self.month}月 {self.product} 批發：\n" + '\n'.join(result for result in self.result)
+            self.message = f'{self.year}年{self.month}月 {self.product} 批發：\n' + '\n'.join(result for result in self.result)
         else:
-            self.message = f"{self.year}年 {self.product} 批發：\n" + '\n'.join(result for result in self.result)
+            self.message = f'{self.year}年 {self.product} 批發：\n' + '\n'.join(result for result in self.result)

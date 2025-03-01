@@ -44,16 +44,16 @@ class LaborforceApiView(BasicApiView):
         try:
             self.year = int(self.year)
         except Exception as e:
-            self.message = f"年份「{self.year}」無效，請輸入民國年"
+            self.message = f'年份「{self.year}」無效，請輸入民國年'
             raise CustomError(self.message)
         # 檢查月份是否為數字
         if self.month:
             try:
                 self.month = int(self.month)
             except Exception as e:
-                self.message = f"月份「{self.month}」無效，請輸入1～12"
+                self.message = f'月份「{self.month}」無效，請輸入1～12'
                 raise CustomError(self.message)
-        self.select_value = f"{str(self.year).zfill(3)}{str(self.month).zfill(2)}" if self.month else f"{str(self.year).zfill(3)}"
+        self.select_value = f'{str(self.year).zfill(3)}{str(self.month).zfill(2)}' if self.month else f'{str(self.year).zfill(3)}'
 
     def parser(self):
         super(LaborforceApiView, self).parser()
@@ -86,7 +86,7 @@ class LaborforceApiView(BasicApiView):
             options = options.split('\n')
             date_start = options[0]
             date_end = options[-1]
-            self.message = f"日期「{self.query_date}」無效，日期需介於「{date_start}」～「{date_end}」之間"
+            self.message = f'日期「{self.query_date}」無效，日期需介於「{date_start}」～「{date_end}」之間'
             raise CustomError(self.message)
         btn_query = self.driver.find_element(By.ID, self.id_query)
         btn_query.click()
@@ -102,6 +102,6 @@ class LaborforceApiView(BasicApiView):
         self.get_table()
         self.get_result()
         if self.month:
-            self.message = f"{self.year}年{self.month}月 就業人口：{self.result}{self.unit}"
+            self.message = f'{self.year}年{self.month}月 就業人口：{self.result}{self.unit}'
         else:
-            self.message = f"{self.year}年 就業人口：{self.result}{self.unit}"
+            self.message = f'{self.year}年 就業人口：{self.result}{self.unit}'
