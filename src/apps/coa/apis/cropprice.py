@@ -103,9 +103,6 @@ class CropPriceOriginApiView(CropPriceApiView):
 
     def execute_api(self):
         if self.use_proxy:
-            # data = {
-            #     'params': self.params
-            # }
             data = '__paramlink__'.join(params for params in self.params)
             res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={PROXY_TOKEN}&api=CropPriceOriginApiView&data={data}")
             if res.status_code != 200:
