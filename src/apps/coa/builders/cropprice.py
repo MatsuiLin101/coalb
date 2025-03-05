@@ -38,6 +38,7 @@ builder.build()
         try:
             self.driver = get_driver()
             self.driver.get(self.url)
+
             # 進入農糧署農產品產地價格查報系統
             select_category = self.driver.find_element(By.ID, self.id_category)
             options = select_category.find_elements(By.TAG_NAME, 'option')
@@ -73,6 +74,7 @@ builder.build()
                         'code': code,
                         'name': name
                     })
+
             return data
         except Exception:
             print(traceback.format_exc())

@@ -27,7 +27,7 @@ builder.build()
             self.driver.find_element(By.LINK_TEXT, self.text_title).click()
             self.build_city(self.text_group)
             self.build_category(self.text_group)
-        except Exception as e:
+        except Exception:
             print(traceback.format_exc())
         finally:
             if self.driver:
