@@ -33,41 +33,41 @@ def get_reply_from_text(command_text):
     api_view = None
     # 判斷分割後的第一組文字是哪一個指令
     if command in ['產值', '總產值']:
-        api_view = ProduceValueApiView
+        api_view = ProduceValueApiView  # refactor
     elif command in ['毛額', '生產毛額']:
-        api_view = GrossApiView
+        api_view = GrossApiView  # refactor
     elif command in ['所得', '農家所得']:
-        api_view = IncomeApiView
+        api_view = IncomeApiView  # refactor
     elif command  in ['農牧戶人口數', '農牧戶戶數', '人口數', '戶數', '農牧戶']:
-        api_view = FarmerApiView
+        api_view = FarmerApiView  # refactor
     elif command in ['耕地面積']:
-        api_view = FarmerAreaApiView
+        api_view = FarmerAreaApiView  # refactor
     elif command in ['勞動力', '就業人口']:
-        api_view = LaborforceApiView
+        api_view = LaborforceApiView  # refactor
     elif command in ['災害']:
-        api_view = DisasterApiView
-    elif command in ['農保', '津貼', '老農津貼', '獎助學金']:
-        api_view = WelfareApiView
+        api_view = DisasterApiView  # refactor
+    elif command in ['農保', '津貼', '老農津貼', '獎學金', '助學金', '獎助學金']:
+        api_view = WelfareApiView  # refactor
     elif command in ['產地', '批發']:
-        api_view = CropPriceApiView
+        api_view = CropPriceApiView  # refactor
     elif command in ['種植面積', '單位產值', '單位產量']:
-        api_view = CropProduceApiView
-    elif command in ['成本', '生產成本', '費用', '生產費用', '粗收益', '淨收入率', '工時']:
-        api_view = CropCostApiView
+        api_view = CropProduceApiView  # refactor
+    elif command in ['成本', '生產成本', '費用', '生產費用', '粗收益', '收入', '淨收入', '淨收入率', '工時']:
+        api_view = CropCostApiView  # refactor
     elif command in ['毛豬', '交易量', '價格', '重量']:
-        api_view = LivestockHogApiView
+        api_view = LivestockHogApiView  # refactor
     elif command in ['拍賣價', '產地價', '零售價']:
-        api_view = LivestockPriceApiView
+        api_view = LivestockPriceApiView  # refactor
     elif command in ['場數', '飼養場數']:
-        api_view = LivestockFeedlotApiView
+        api_view = LivestockFeedlotApiView  # refactor
     elif command in ['在養', '在養量']:
-        api_view = LivestockFeedamountApiView
+        api_view = LivestockFeedAmountApiView  # refactor
     elif command in ['屠宰', '屠宰量']:
-        api_view = LivestockSlaughterApiView
-    elif command in ['副產', '副產品', '副產物']:
-        api_view = LivestockByproductApiView
+        api_view = LivestockSlaughterApiView  # refactor
+    elif command in ['副產', '產品', '產物', '副產品', '副產物']:
+        api_view = LivestockByproductApiView  # refactor
     elif command in ['代碼', '作物代碼']:
-        api_view = ProductCodeApiView
+        api_view = ProductCodeApiView  # refactor
     elif command in ['產量']:
 
         if len(list_params) == 3:
@@ -165,9 +165,9 @@ def get_reply_from_text(command_text):
 
 
 def file_view_product_code(file_name):
-    '''
-    處理上傳的代碼excel
-    '''
+    """
+    處理上傳的「主力勞動力代碼對照表」
+    """
     try:
         ProductCode.objects.all().delete()
         main_count = 0
@@ -200,9 +200,9 @@ def file_view_product_code(file_name):
 
 
 def file_view_crop_produce(file_name):
-    '''
-    處理上傳的產量產值表
-    '''
+    """
+    處理上傳的「產量產值總表」
+    """
     CropProduceUnit.objects.all().delete()
     wb = load_workbook(file_name)
     for sheet in wb.sheetnames:
@@ -320,6 +320,9 @@ def check_database_locked(model_name):
 
 
 def upload(request):
+    """
+    上傳檔案
+    """
     user = request.user
     token = request.GET.get('token', None)
     response = None
