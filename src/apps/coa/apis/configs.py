@@ -3,6 +3,8 @@ from abc import (
     abstractmethod
 )
 
+import pandas as pd
+
 from apps.coa.utils import *
 
 
@@ -41,6 +43,10 @@ class BasicApiView(ABC):
             if hasattr(self, 'driver') and self.driver:
                 self.driver.quit()
 
+    def parser(self):
+        self.driver = get_driver()
+        self.driver.get(self.url)
+
     def verify_date(self):
         """檢查年份是否為數字"""
         try:
@@ -48,10 +54,6 @@ class BasicApiView(ABC):
         except Exception as e:
             self.message = f"年份「{self.query_date}」無效，請輸入民國年"
             raise CustomError(self.message)
-
-    def parser(self):
-        self.driver = get_driver()
-        self.driver.get(self.url)
 
     def get_table(self):
         # select_start_year = self.driver.find_element(By.ID, self.id_start_year)
@@ -73,10 +75,10 @@ class BasicApiView(ABC):
 
 
 class AnnualReportBasicApiView(BasicApiView):
-    '''
+    """
     年報用公版ApiView
     如果年報持續報錯，或是轉檔失敗，且時間在6~8月左右，可能是年報更新導致抓不到更新的年報
-    '''
+    """
     def __init__(self, params):
         self.driver = None
         self.url = 'https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx'
@@ -95,54 +97,29 @@ class AnnualReportBasicApiView(BasicApiView):
 
     def execute_api(self):
         try:
+            self.verify_date()
             self.download()
             self.open_wb()
-            self.verify_date()
+            self.verify_year_exist()
             self.get_data()
-        except CustomError:
-            self.driver.close() if self.driver else None
-            os.remove(self.xlsx_name) if self.xlsx_name else None
-            raise
-        except Exception as e:
+            return self.message
+        except CustomError as ce:
+            raise ce
+        except Exception:
             traceback_log = TracebackLog.objects.create(app=f"{self.classname}", message=traceback.format_exc())
             self.message = f"「{self.command_text}」發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理"
-        self.driver.close() if self.driver else None
-        os.remove(self.xlsx_name) if self.xlsx_name else None
-        return self.message
-
-    def verify_date(self):
-        # verify query year
-        try:
-            self.year = int(self.query_date)
-        except Exception as e:
-            self.message = f"年份「{self.query_date}」無效，請輸入民國年"
             raise CustomError(self.message)
+        finally:
+            if hasattr(self, 'driver') and self.driver:
+                self.driver.quit()
 
-        list_years = list()
-        for row in self.ws.rows:
-            year = row[1].value
-            if year is not None:
-                try:
-                    int(year)
-                    list_years.append(year)
-                except Exception as e:
-                    continue
-
-                if str(self.year) == str(year):
-                    self.row = row[0].row
-                    return
-        self.message = f"「{self.command_text}」年份必需在{list_years[0]}~{list_years[-1]}之間"
-        raise CustomError(self.message)
-
-    def open_wb(self):
-        # open value xslx
-        wb = load_workbook(filename=self.xlsx_name)
-        self.ws = wb[wb.sheetnames[0]]
+            if self.xlsx_name:
+                os.remove(self.xlsx_name)
 
     def download(self):
-        '''
+        """
         避免年報更新時的空窗期，抓取最新一期的年報及前一期的年報，並備註資料來源
-        '''
+        """
         # download ods and transfer to xlsx
         self.driver = get_driver()
         try:
@@ -186,13 +163,48 @@ class AnnualReportBasicApiView(BasicApiView):
                 except Exception as e:
                     raise
 
+            # 產生 ods 及 xlsx 臨時檔名
             ods_href = ods.get_attribute('href')
-            ods_name = f"ods_{int(datetime.datetime.now().timestamp())}.ods"
+            ods_name = f'ods_{int(datetime.datetime.now().timestamp())}.ods'
+            xlsx_name = ods_name.replace('.ods', '.xlsx')
+
+            # 抓取 ods 之後保存
             res = requests.get(ods_href)
             with open(ods_name, 'wb') as f:
                 f.write(res.content)
-            subprocess.Popen(f'{settings.LIBREOFFICE_PATH} --headless --invisible --convert-to xlsx {ods_name}', shell=True, stderr=subprocess.PIPE).communicate()
-            self.xlsx_name = ods_name.replace('.ods', '.xlsx')
+
+            # pandas 搭配 odf 將 ods 轉檔成 xlsx
+            df = pd.read_excel(ods_name, engine="odf")
+            df.to_excel(xlsx_name, index=False, engine="openpyxl")
+
+            self.xlsx_name = xlsx_name
             os.remove(ods_name)
         except Exception as e:
             raise
+
+    def open_wb(self):
+        """
+        讀取年報檔案
+        """
+        wb = load_workbook(filename=self.xlsx_name)
+        self.ws = wb[wb.sheetnames[0]]
+
+    def verify_year_exist(self):
+        """
+        檢查查詢年份是否在年報中
+        """
+        list_years = list()
+        for row in self.ws.rows:
+            year = row[1].value
+            if year is not None:
+                try:
+                    int(year)
+                    list_years.append(year)
+                except Exception as e:
+                    continue
+
+                if str(self.year) == str(year):
+                    self.row = row[0].row
+                    return
+        self.message = f"「{self.command_text}」年份必需在{list_years[0]}~{list_years[-1]}之間"
+        raise CustomError(self.message)
