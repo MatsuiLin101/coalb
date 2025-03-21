@@ -220,11 +220,11 @@ class CropProduceTotalApiView(BasicApiView):
 
 class CropProduceUnitApiView(BasicApiView):
     """
-    -- 單位產值
-        EXCEL匯入
+    -- CropProduceValue(單位產值)
+        必需先使用 LINE 上傳功能匯入「產量產值總表」
 
-    -- 單位產量
-        EXCEL匯入
+    -- CropProduceUnit(單位產量)
+        必需先使用 LINE 上傳功能匯入「產量產值總表」
     """
     def __init__(self, params):
         self.params = params
