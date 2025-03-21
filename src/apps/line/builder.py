@@ -12,10 +12,12 @@ def build_line_user(line_bot_api, body):
     events = json.loads(body)['events']
     if len(events) == 0:
         return None
+
     user_id = events[0]['source']['userId']
+    if LineUser.objects.filter(user_id=user_id):
+        return None
+
     try:
-        user = LineUser.objects.get(user_id=user_id)
-    except Exception as e:
         profile = line_bot_api.get_profile(user_id)
         display_name = profile.display_name
         picture_url = profile.picture_url
@@ -25,4 +27,6 @@ def build_line_user(line_bot_api, body):
             user_id=user_id, display_name=display_name, picture_url=picture_url,
             status_message=status_message, language=language, status=True
         )
-    log = LineBodyLog.objects.create(user=user, body=body)
+        LineBodyLog.objects.create(user=user, body=body)
+    except Exception as e:
+        raise e

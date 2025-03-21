@@ -180,7 +180,7 @@ from .livestockfeedlot import LivestockFeedlotApiView
 -飼養場數
 '''
 
-from .livestockfeedamount import LivestockFeedamountApiView
+from .livestockfeedamount import LivestockFeedAmountApiView
 '''
 資料來源：動態查詢
 

@@ -11,7 +11,7 @@ from .cropproduce import *
 def build():
     TotalValueBuilder().build()
     LivestockFeedlotBuilder().build()
-    LivestockFeedamountBuilder().build()
+    LivestockFeedAmountBuilder().build()
     LivestockSlaughterBuilder().build()
     LivestockByproductBuilder().build()
     CropCostBuilder().build()
