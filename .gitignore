@@ -26,3 +26,5 @@ dropzone.css
 dropzone.js
 
 ssl_*
+
+*.pub
