@@ -5,7 +5,7 @@ name: "coalb_prod"
 services:
     db:
         container_name: coalb_db
-        image: postgres:10-alpine
+        image: postgres:10
         restart: always
         volumes:
             - ../../pgdata/db:/var/lib/postgresql/data
@@ -13,58 +13,63 @@ services:
         env_file:
             - ../../src/envs/prod.env
         networks:
-            - backend
+            - backend_db
 
     web:
         container_name: coalb_web
         image: coalb-img
-        restart: always
         build:
             context: ../../
             dockerfile: container/prod/Dockerfile
+        restart: always
         expose:
             - 8000
         command: /code/scripts/start.sh
         entrypoint: /code/scripts/entrypoint.sh
         volumes:
-            - ../../src/logs:/code/logs
+            - ../../src/fixtures:/code/fixtures
+            - ../../src/envs:/code/envs
+            - ../../src/static:/code/static
+            - ../../src/staticfiles:/code/staticfiles
             - ../../src/media:/code/media
-            - staticfiles:/code/staticfiles
+            - ../../src/logs:/code/logs
         depends_on:
             - db
         networks:
             - frontend
-            - backend
+            - backend_db
             - backend_selenium_chromium
 
-    # selenium:
-    #     container_name: coalb_selenium
-    #     image: seleniarm/standalone-chromium:123.0
-    #     restart: always
-    #     networks:
-    #         - backend_app
+    selenium:
+        container_name: coalb_selenium
+        image: seleniarm/standalone-chromium:123.0
+        restart: always
+        networks:
+            - backend_selenium_chromium
 
     nginx:
         container_name: coalb_nginx
-        image: matsuilin101/nginx-cert-bot:1.27.0
+        image: nginx:latest
         restart: always
         ports:
-            - 8020:80
-            # - 4420:443
+            - 8000:80
+            # - 4400:443
         volumes:
             - ./nginx/ssl:/etc/letsencrypt
-            - ./nginx/log:/var/log/nginx
+            - ./nginx/logs:/var/log/nginx
             - ./nginx/conf.d:/etc/nginx/conf.d
-            - staticfiles:/code/staticfiles
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+            - ../../src/staticfiles:/code/staticfiles
+            - ../../src/media:/code/media
         networks:
             - frontend
 
-volumes:
-    staticfiles:
-        name: coalb-web-staticfiles
+# volumes:
+#     staticfiles:
+#         name: coalb-web-staticfiles
 
 networks:
-    backend:
+    backend_db:
         name: coalb-backend-network
     backend_app:
         name: coalb-backend-app-network
@@ -72,4 +77,3 @@ networks:
         name: coalb-frontend-network
     backend_selenium_chromium:
         name: backend-selenium-chromium-network
-        external: true

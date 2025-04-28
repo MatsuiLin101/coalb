@@ -1,2 +1,6 @@
-**/logs/
+**/fixtures/
+**/envs/
+**/static/
+**/staticfiles/
 **/media/
+**/logs/
