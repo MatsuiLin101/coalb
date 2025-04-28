@@ -30,3 +30,8 @@ urllib3==1.26.5
 # pkg-resources==0.0.0
 gunicorn==20.0.4
 psycopg2==2.8.4
+
+# numpy必須指定這個版本否則會出錯
+numpy==1.26.4
+pandas==1.3.5
+odfpy==1.4.1
