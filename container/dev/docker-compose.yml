@@ -18,16 +18,16 @@ services:
     web:
         container_name: coalb_web
         image: coalb-img
-        restart: always
         build:
             context: ../../
             dockerfile: container/dev/Dockerfile
+        restart: always
         ports:
             - 8000:8000
         command: bash -c "python manage.py runserver 0.0.0.0:8000"
         volumes:
             - ../../src:/code
-            - ../../src/logs:/code/logs
+            # - ../../src/logs:/code/logs
         depends_on:
             - db
         networks:

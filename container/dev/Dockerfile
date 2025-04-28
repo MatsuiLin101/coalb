@@ -19,4 +19,4 @@ RUN pip install -r requirements.txt
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=core.settings
 
-COPY src/ .
+# COPY src/ .
