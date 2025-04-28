@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from .configs import *
 
 
@@ -26,17 +28,18 @@ builder.build()
 
     def build(self):
         try:
-            CropCost.objects.all().delete()
-            self.driver = get_driver()
-            self.driver.get(self.url)
-            # 進入農畜產品生產成本統計頁面
-            self.driver.find_element(By.LINK_TEXT, self.text_title).click()
-            self.build_category(self.text_group1)
-            self.build_product(self.text_group1)
-            self.build_category(self.text_group2)
-            self.build_product(self.text_group2)
-            self.build_category(self.text_group3)
-            self.build_product(self.text_group3)
+            with transaction.atomic():
+                CropCost.objects.all().delete()
+                self.driver = get_driver()
+                self.driver.get(self.url)
+                # 進入農畜產品生產成本統計頁面
+                self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+                self.build_category(self.text_group1)
+                self.build_product(self.text_group1)
+                self.build_category(self.text_group2)
+                self.build_product(self.text_group2)
+                self.build_category(self.text_group3)
+                self.build_product(self.text_group3)
         except Exception:
             print(traceback.format_exc())
         finally:

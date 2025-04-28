@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.urls import reverse
 
 from core.settings import (
@@ -34,15 +35,16 @@ builder.build()
         self.table = '/html/body/div/form/div/table'
 
     def build(self, use_proxy=False):
-        if use_proxy:
-            return self._build()
-        else:
-            res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={PROXY_TOKEN}&api=CropProduceTotalBuilder")
-            data = json.loads(res.text)
-            CropProduceTotal.objects.all().delete()
-            for item in data:
-                obj = CropProduceTotal.objects.create(**item)
-                print(f'create {obj.name} {obj}')
+        with transaction.atomic():
+            if use_proxy:
+                return self._build()
+            else:
+                res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={PROXY_TOKEN}&api=CropProduceTotalBuilder")
+                data = json.loads(res.text)
+                CropProduceTotal.objects.all().delete()
+                for item in data:
+                    obj = CropProduceTotal.objects.create(**item)
+                    print(f'create {obj.name} {obj}')
 
     def _build(self):
         try:

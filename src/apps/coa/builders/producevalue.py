@@ -1,3 +1,5 @@
+from django.db import transaction
+
 from .configs import *
 
 
@@ -20,13 +22,14 @@ builder.build()
 
     def build(self):
         try:
-            TotalValue.objects.all().delete()
-            self.driver = get_driver()
-            self.driver.get(self.url)
-            # 進入農業產值結構與指標頁面
-            self.driver.find_element(By.LINK_TEXT, self.text_title).click()
-            self.build_city(self.text_group)
-            self.build_category(self.text_group)
+            with transaction.atomic():
+                TotalValue.objects.all().delete()
+                self.driver = get_driver()
+                self.driver.get(self.url)
+                # 進入農業產值結構與指標頁面
+                self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+                self.build_city(self.text_group)
+                self.build_category(self.text_group)
         except Exception:
             print(traceback.format_exc())
         finally:
