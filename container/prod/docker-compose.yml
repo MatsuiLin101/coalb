@@ -33,6 +33,7 @@ services:
             - ../../src/staticfiles:/code/staticfiles
             - ../../src/media:/code/media
             - ../../src/logs:/code/logs
+            - ../../src/backup:/code/backup
         depends_on:
             - db
         networks:
