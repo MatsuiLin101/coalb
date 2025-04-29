@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from .configs import *
+from apps.coa.builders.configs import *
 
 
 class LivestockFeedlotBuilder(object):
@@ -21,7 +21,7 @@ builder.build()
         self.id_city = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension'
         self.id_product = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension'
 
-    def build(self):
+    def build(self, *args, **kwargs):
         try:
             with transaction.atomic():
                 LivestockFeedlot.objects.all().delete()

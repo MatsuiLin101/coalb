@@ -1,6 +1,6 @@
 from django.db import transaction
 
-from .configs import *
+from apps.coa.builders.configs import *
 
 
 class CropCostBuilder(object):
@@ -26,7 +26,7 @@ builder.build()
         self.id_start_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearBegin'
         self.id_end_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearEnd'
 
-    def build(self):
+    def build(self, *args, **kwargs):
         try:
             with transaction.atomic():
                 CropCost.objects.all().delete()
