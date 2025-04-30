@@ -7,29 +7,25 @@ cmd="$@"
 function postgres_ready(){
 python << END
 
-import environ
-import psycopg2
 import sys
+import psycopg2
+import environ
 
-BASE_DIR = environ.Path(__file__) - 1
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 env = environ.Env()
-environ.Env.read_env(str(BASE_DIR.path('envs', 'base.env')))
-environ.Env.read_env(str(BASE_DIR.path('envs', env.str('ENV_NAME'))))
+# 將 PosixPath 物件轉換為字串
+environ.Env.read_env(str(BASE_DIR.joinpath('envs', 'base.env')))
+environ.Env.read_env(str(BASE_DIR.joinpath('envs', env('USE_ENV'))))
 
 try:
-	dbname = env.str('POSTGRES_DB')
-	user = env.str('POSTGRES_USER')
-	password = env.str('POSTGRES_PASSWORD')
-	host = env.str('POSTGRES_HOST')
-	port = env.int('POSTGRES_PORT')
-
-	print(f"dbname is {dbname}")
-	print(f"user is {user}")
-	print(f"password is {password}")
-	print(f"host is {host}")
-	print(f"port is {port}")
-
+	dbname = env('POSTGRES_DB')
+	user = env('POSTGRES_USER')
+	password = env('POSTGRES_PASSWORD')
+	host = env('POSTGRES_HOST')
+	port = env('POSTGRES_PORT')
 	conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
 except psycopg2.OperationalError as e:
 	sys.exit(-1)

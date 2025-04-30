@@ -21,7 +21,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support.ui import Select
 
-from config.settings import CHROME_PATH, REMOTE_BROWSER
+from core.settings import CHROME_PATH, REMOTE_BROWSER
 
 from apps.log.models import TracebackLog
 from apps.user.models import CustomSetting
@@ -47,7 +47,7 @@ def get_driver(headless=True, use_proxy=False, new_proxy=None):
     options = Options()
     options.add_argument('--aggressive-cache-discard')
     options.add_argument('--no-sandbox')
-    options.add_argument("--disable-setuid-sandbox")
+    options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-cache')
     options.add_argument('--disable-gpu')
     options.add_argument('--disable-dev-shm-usage')
@@ -64,14 +64,14 @@ def get_driver(headless=True, use_proxy=False, new_proxy=None):
     )
 
     # 測試網站
-    driver.get("http://www.example.com")
+    driver.get('http://www.example.com')
     print(driver.title)
     driver.quit()
     """
     options = Options()
     options.add_argument('--aggressive-cache-discard')
     options.add_argument('--no-sandbox')
-    options.add_argument("--disable-setuid-sandbox")
+    options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-cache')
     options.add_argument('--disable-gpu')
     options.add_argument('--disable-dev-shm-usage')
@@ -119,9 +119,9 @@ def driver_select(driver, id, method, target, cancel=False):
     select = Select(driver.find_element(By.ID, id))
     if cancel:
         select.deselect_all()
-    if method == "value":
+    if method == 'value':
         select.select_by_value(target)
-    elif method == "text":
+    elif method == 'text':
         select.select_by_visible_text(target)
 
 
@@ -139,7 +139,7 @@ def driver_select_xpath(driver, xpath, method, target, cancel=False):
     select = Select(driver.find_element(By.XPATH, xpath))
     if cancel:
         select.deselect_all()
-    if method == "value":
+    if method == 'value':
         select.select_by_value(target)
-    elif method == "text":
+    elif method == 'text':
         select.select_by_visible_text(target)

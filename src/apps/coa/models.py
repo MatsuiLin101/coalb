@@ -83,8 +83,8 @@ class LivestockFeedlot(models.Model):
         return f"{self.search_name}"
 
 
-class LivestockFeedamount(models.Model):
-    parent = models.ForeignKey("LivestockFeedamount", on_delete=models.CASCADE, null=True, blank=True, verbose_name="上層物件")
+class LivestockFeedAmount(models.Model):
+    parent = models.ForeignKey("LivestockFeedAmount", on_delete=models.CASCADE, null=True, blank=True, verbose_name="上層物件")
     main_class = models.CharField(max_length=50, verbose_name="主分類")
     sub_class = models.CharField(max_length=50, verbose_name="次分類")
     level = models.PositiveIntegerField(verbose_name="級別")

@@ -2,12 +2,15 @@ venv/
 __pycache__/
 ssl/
 log/
+logs/
 staticfiles/
 document/
 chrome/
 backup/
 systemd/
 pgdata/
+
+media/
 
 *.sqlite3
 #*.dev
@@ -23,3 +26,5 @@ dropzone.css
 dropzone.js
 
 ssl_*
+
+*.pub

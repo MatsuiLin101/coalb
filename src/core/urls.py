@@ -1,4 +1,4 @@
-"""configs URL Configuration
+"""core URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -20,8 +20,9 @@ from django.urls import path, include
 
 
 urlpatterns = [
-    path(f'{settings.ADMIN_URL}/', admin.site.urls),
-    path('user/', include('apps.user.urls')),
+    path(f'{settings.BACKEND_URL}/', admin.site.urls),
+
+    # path('user/', include('apps.user.urls')),
     path('line/', include('apps.line.urls')),
     path('coa/', include('apps.coa.urls', namespace="coa")),
     path('log/', include('apps.log.urls', namespace="log")),

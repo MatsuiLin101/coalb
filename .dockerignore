@@ -1,0 +1,7 @@
+**/fixtures/
+**/envs/
+**/static/
+**/staticfiles/
+**/media/
+**/logs/
+**/backup/

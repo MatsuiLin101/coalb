@@ -65,7 +65,7 @@ class CropProduceTotalAdmin(admin.ModelAdmin):
 
 admin.site.register(TotalValue, DynamicSearchAdmin)
 admin.site.register(LivestockFeedlot, DynamicSearchAdmin)
-admin.site.register(LivestockFeedamount, DynamicSearchAdmin)
+admin.site.register(LivestockFeedAmount, DynamicSearchAdmin)
 admin.site.register(LivestockSlaughter, DynamicSearchAdmin)
 admin.site.register(LivestockByproduct, DynamicSearchAdmin)
 admin.site.register(CropCost, CropCostAdmin)
