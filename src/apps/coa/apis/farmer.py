@@ -6,10 +6,13 @@ class FarmerApiView(AnnualReportBasicApiView):
     農家(農牧戶)api介面
 
     - Farmer(農家(農牧戶))
-        年報
-        五、農家與農家經濟
-        1臺灣地區總戶口與農牧戶
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            年報
+            五、農家與農家經濟
+            1臺灣地區總戶口與農牧戶
+            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     """
     def __init__(self, params):
         super(FarmerApiView, self).__init__(params)

@@ -6,7 +6,10 @@ class ProductCodeApiView(BasicApiView):
     作物代碼api介面
 
     - (NEW)ProductCode(作物代碼)
-        必需先使用 LINE 上傳功能匯入「主力勞動力代碼對照」
+        Builder: None
+        Proxy: False
+        Data:
+            必需先使用 LINE 上傳功能匯入「主力勞動力代碼對照」
     """
     def __init__(self, params):
         self.message = ''

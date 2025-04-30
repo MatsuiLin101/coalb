@@ -6,11 +6,14 @@ class FarmerAreaApiView(AnnualReportBasicApiView):
     耕地面積api介面
 
     - FarmerArea(耕地面積)
-        年報
-        八、農業土地及自然環境
-        (一)農業土地
-        2農耕土地面積
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            年報
+            八、農業土地及自然環境
+            (一)農業土地
+            2農耕土地面積
+            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     """
     def __init__(self, params):
         super(FarmerAreaApiView, self).__init__(params)

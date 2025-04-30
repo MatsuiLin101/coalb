@@ -4,11 +4,14 @@ from .configs import *
 class LivestockFeedAmountApiView(BasicApiView):
     """
     畜禽在養數量api介面
+    必需先執行 builder LivestockFeedAmountBuilder 建立選項資料
 
     - LivestockFeedAmount(在養數量)
-        必需先執行 builder LivestockFeedAmountBuilder 建立選項資料
-        動態查詢 [農業生產統計]>>[畜禽產品飼養數量統計]>>[家畜飼養頭數]、[家禽飼養隻數：縣市別×家禽別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: LivestockFeedAmountBuilder
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計]>>[畜禽產品飼養數量統計]>>[家畜飼養頭數]、[家禽飼養隻數：縣市別×家禽別]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     """
     def __init__(self, params):
         self.driver = None

@@ -8,7 +8,10 @@ class LivestockHogApiView(BasicApiView):
     - amount(交易量)
     - price(價格)
     - weight(重量)
-    畜產行情資訊網 http://ppg.naif.org.tw/naif/MarketInformation/Pig/twStatistics.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            畜產行情資訊網 http://ppg.naif.org.tw/naif/MarketInformation/Pig/twStatistics.aspx
     """
     def __init__(self, params):
         self.driver = None

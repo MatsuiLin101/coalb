@@ -7,8 +7,11 @@ class LaborforceApiView(BasicApiView):
     laborforce(勞動力)
 
     - Laborforce(勞動力)
-        動態查詢 [勞工統計]>>[勞動力統計]>>[農業就業人口]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            動態查詢 [勞工統計]>>[勞動力統計]>>[農業就業人口]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     """
     def __init__(self, params):
         self.driver = None

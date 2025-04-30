@@ -4,11 +4,14 @@ from .configs import *
 class LivestockSlaughterApiView(BasicApiView):
     """
     畜禽供應屠宰量api介面
+    必需先執行 builder LivestockSlaughterBuilder 建立選項資料
 
     - LivestockSlaughter(供應屠宰量)
-        必需先執行 builder LivestockSlaughterBuilder 建立選項資料
-        動態查詢 [農業生產統計] >> [畜禽產品生產量值統計] >> [家畜供應屠宰頭數]、[家禽供應屠宰隻數：縣市別×家禽別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: LivestockSlaughterBuilder
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計] >> [畜禽產品生產量值統計] >> [家畜供應屠宰頭數]、[家禽供應屠宰隻數：縣市別×家禽別]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     """
     def __init__(self, params):
         self.driver = None

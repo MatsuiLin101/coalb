@@ -6,10 +6,13 @@ class DisasterApiView(AnnualReportBasicApiView):
     災害api介面
 
     - Disaster(災害)
-        年報
-        十、農業災害
-        1農業災害產物及民間設施估計損失
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            年報
+            十、農業災害
+            1農業災害產物及民間設施估計損失
+            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     """
     def __init__(self, params):
         super(DisasterApiView, self).__init__(params)
