@@ -6,10 +6,13 @@ class IncomeApiView(AnnualReportBasicApiView):
     所得api介面
 
     - Income(所得)
-        年報
-        五、農家與農家經濟
-        3農家所得
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            年報
+            五、農家與農家經濟
+            3農家所得
+            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     """
     def __init__(self, params):
         super(IncomeApiView, self).__init__(params)

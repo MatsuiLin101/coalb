@@ -6,10 +6,13 @@ class GrossApiView(AnnualReportBasicApiView):
     國內生產毛額api介面
 
     - Gross(國內生產毛額)
-        年報
-        一、農業經濟指標
-        (一)國內生產毛額與經濟成長率
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            年報
+            一、農業經濟指標
+            (一)國內生產毛額與經濟成長率
+            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     """
     def __init__(self, params):
         super(GrossApiView, self).__init__(params)

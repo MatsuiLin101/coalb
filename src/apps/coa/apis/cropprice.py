@@ -16,12 +16,18 @@ class CropPriceApiView(BasicApiView):
         必需先執行 builder CropPriceOriginBuilder 及 CropPriceWholesaleBuilder 建立選項資料
 
     -- CropPriceOrigin(產地價)
-        農糧署農產品產地價格查報系統
-        https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105
+        Builder: CropPriceOriginBuilder
+        Proxy: True
+        Data:
+            農糧署農產品產地價格查報系統
+            https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105
 
     -— CropPriceWholesale(批發價)
-        動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: CropPriceWholesaleBuilder
+        Proxy: False
+        Data:
+            動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     """
     def __init__(self, params):
         self.params = params
@@ -32,9 +38,9 @@ class CropPriceApiView(BasicApiView):
         pass
 
     def choose_api(self):
-        if self.command in ['產地']:
+        if self.command in ['產地', '產地價']:
             return CropPriceOriginApiView(self.params, use_proxy=True)
-        elif self.command in ['批發']:
+        elif self.command in ['批發', '批發價']:
             return CropPriceWholesaleApiView(self.params)
 
     def verify_date(self):

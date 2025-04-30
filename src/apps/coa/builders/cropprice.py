@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.urls import reverse
 
 from core.settings import (
@@ -14,7 +15,7 @@ class CropPriceOriginBuilder(object):
 
 from apps.coa.builders.cropprice import *
 builder = CropPriceOriginBuilder()
-builder.build()
+builder.build(build_local=True)
     """
     def __init__(self):
         self.driver = None
@@ -23,12 +24,23 @@ builder.build()
         self.id_table = 'WR1_1_PRMG_0_X'
         self.css_query = 'div.CSS_ABS_Normal'
 
-    def build(self, use_proxy=False):
+    def build(self, use_proxy=False, build_local=False, *args, **kwargs):
+        """
+        use_proxy: 是否使用代理伺服器
+            True: 使用代理伺服器，代理伺服器抓取資料後回傳
+            False: 直接抓取資料，抓取後存入資料庫
+
+        build_local: 是否使用本地資料，
+        """
         if use_proxy:
             return self._build()
+        elif build_local:
+            data = self._build()
         else:
             res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={PROXY_TOKEN}&api=CropPriceOriginBuilder")
             data = json.loads(res.text)
+
+        with transaction.atomic():
             CropPriceOrigin.objects.all().delete()
             for item in data:
                 obj = CropPriceOrigin.objects.create(**item)

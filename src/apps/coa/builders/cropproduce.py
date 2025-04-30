@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.urls import reverse
 
 from core.settings import (
@@ -5,7 +6,7 @@ from core.settings import (
     PROXY_TOKEN
 )
 
-from .configs import *
+from apps.coa.builders.configs import *
 
 
 class CropProduceTotalBuilder(object):
@@ -14,7 +15,7 @@ class CropProduceTotalBuilder(object):
 
 from apps.coa.builders.cropproduce import *
 builder = CropProduceTotalBuilder()
-builder.build()
+builder.build(build_local=True)
     """
     def __init__(self):
         self.driver = None
@@ -33,12 +34,23 @@ builder.build()
         self.btn_query = '/html/body/div/form/div/table/tbody/tr[6]/td[2]/input[1]'
         self.table = '/html/body/div/form/div/table'
 
-    def build(self, use_proxy=False):
+    def build(self, use_proxy=False, build_local=False, *args, **kwargs):
+        """
+        use_proxy: 是否使用代理伺服器
+            True: 使用代理伺服器，代理伺服器抓取資料後回傳
+            False: 直接抓取資料，抓取後存入資料庫
+
+        build_local: 是否使用本地資料，
+        """
         if use_proxy:
             return self._build()
+        elif build_local:
+            data = self._build()
         else:
             res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_build')}?token={PROXY_TOKEN}&api=CropProduceTotalBuilder")
             data = json.loads(res.text)
+
+        with transaction.atomic():
             CropProduceTotal.objects.all().delete()
             for item in data:
                 obj = CropProduceTotal.objects.create(**item)

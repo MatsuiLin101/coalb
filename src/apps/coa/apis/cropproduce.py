@@ -16,16 +16,28 @@ class CropProduceApiView(BasicApiView):
         必需先執行 builder CropProduceTotalBuilder 建立選項資料
 
     -- (NEW)產量
-        農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
+        Builder: CropProduceTotalBuilder
+        Proxy: True
+        Data:
+            農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
 
     -- (NEW)種植面積
-        農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
+        Builder: CropProduceTotalBuilder
+        Proxy: True
+        Data:
+            農糧署農情報告資源網 https://agr.afa.gov.tw/afa/afa_frame.jsp
 
     —- 單位產值
-        EXCEL匯入
+        Builder: None
+        Proxy: False
+        Data:
+            EXCEL匯入
 
     —- 單位產量
-        EXCEL匯入
+        Builder: None
+        Proxy: False
+        Data:
+            EXCEL匯入
     """
     def __init__(self, params):
         self.params = params

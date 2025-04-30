@@ -1,4 +1,6 @@
-from .configs import *
+from django.db import transaction
+
+from apps.coa.builders.configs import *
 
 
 class TotalValueBuilder(object):
@@ -18,15 +20,16 @@ builder.build()
         self.id_city = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension'
         self.id_category = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension'
 
-    def build(self):
+    def build(self, *args, **kwargs):
         try:
-            TotalValue.objects.all().delete()
-            self.driver = get_driver()
-            self.driver.get(self.url)
-            # 進入農業產值結構與指標頁面
-            self.driver.find_element(By.LINK_TEXT, self.text_title).click()
-            self.build_city(self.text_group)
-            self.build_category(self.text_group)
+            with transaction.atomic():
+                TotalValue.objects.all().delete()
+                self.driver = get_driver()
+                self.driver.get(self.url)
+                # 進入農業產值結構與指標頁面
+                self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+                self.build_city(self.text_group)
+                self.build_category(self.text_group)
         except Exception:
             print(traceback.format_exc())
         finally:

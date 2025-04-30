@@ -1,4 +1,6 @@
-from .configs import *
+from django.db import transaction
+
+from apps.coa.builders.configs import *
 
 
 class LivestockFeedAmountBuilder(object):
@@ -19,17 +21,18 @@ builder.build()
         self.id_city = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension'
         self.id_product = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension'
 
-    def build(self):
+    def build(self, *args, **kwargs):
         try:
-            LivestockFeedAmount.objects.all().delete()
-            self.driver = get_driver()
-            self.driver.get(self.url)
-            # 進入畜禽產品飼養數量統計頁面
-            self.driver.find_element(By.LINK_TEXT, self.text_title).click()
-            self.build_city(self.text_group1)
-            self.build_product(self.text_group1)
-            self.build_city(self.text_group2)
-            self.build_product(self.text_group2)
+            with transaction.atomic():
+                LivestockFeedAmount.objects.all().delete()
+                self.driver = get_driver()
+                self.driver.get(self.url)
+                # 進入畜禽產品飼養數量統計頁面
+                self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+                self.build_city(self.text_group1)
+                self.build_product(self.text_group1)
+                self.build_city(self.text_group2)
+                self.build_product(self.text_group2)
         except Exception:
             print(traceback.format_exc())
         finally:

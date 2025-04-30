@@ -12,20 +12,32 @@ class CropCostApiView(BasicApiView):
         同時查詢生產費用、粗收益、淨收入率、工時
 
     -- ProduceCost(生產費用)
-        動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目]>>[生產費用總計]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃生產費用：每公頃生產費用×生產費用與收益_農產品項目]>>[生產費用總計]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
 
     -- CrudeIncome(粗收益)
-        動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目]>>[粗收益]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目]>>[粗收益]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
 
     -- PureIncomeRate(淨收入率)
-        動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目]>>[粗收益]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃生產量與收益：每公頃生產量與收益×生產費用與收益_農產品項目]>>[粗收益]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
 
     -- WorkHour(工時)
-        動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃人工時數(小時)：人工時數×生產費用與收益_農產品項目]>>[男工＋女工]合計
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計]>>[農畜產品生產成本統計]>>[農產品每公頃人工時數(小時)：人工時數×生產費用與收益_農產品項目]>>[男工＋女工]合計
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
     """
     def __init__(self, params):
         self.driver = None

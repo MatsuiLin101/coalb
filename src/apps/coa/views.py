@@ -48,7 +48,7 @@ def get_reply_from_text(command_text):
         api_view = DisasterApiView  # refactor
     elif command in ['農保', '津貼', '老農津貼', '獎學金', '助學金', '獎助學金']:
         api_view = WelfareApiView  # refactor
-    elif command in ['產地', '批發']:
+    elif command in ['產地', '產地價', '批發', '批發價']:
         api_view = CropPriceApiView  # refactor
     elif command in ['種植面積', '單位產值', '單位產量']:
         api_view = CropProduceApiView  # refactor

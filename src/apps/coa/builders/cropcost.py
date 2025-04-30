@@ -1,4 +1,6 @@
-from .configs import *
+from django.db import transaction
+
+from apps.coa.builders.configs import *
 
 
 class CropCostBuilder(object):
@@ -24,19 +26,20 @@ builder.build()
         self.id_start_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearBegin'
         self.id_end_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearEnd'
 
-    def build(self):
+    def build(self, *args, **kwargs):
         try:
-            CropCost.objects.all().delete()
-            self.driver = get_driver()
-            self.driver.get(self.url)
-            # 進入農畜產品生產成本統計頁面
-            self.driver.find_element(By.LINK_TEXT, self.text_title).click()
-            self.build_category(self.text_group1)
-            self.build_product(self.text_group1)
-            self.build_category(self.text_group2)
-            self.build_product(self.text_group2)
-            self.build_category(self.text_group3)
-            self.build_product(self.text_group3)
+            with transaction.atomic():
+                CropCost.objects.all().delete()
+                self.driver = get_driver()
+                self.driver.get(self.url)
+                # 進入農畜產品生產成本統計頁面
+                self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+                self.build_category(self.text_group1)
+                self.build_product(self.text_group1)
+                self.build_category(self.text_group2)
+                self.build_product(self.text_group2)
+                self.build_category(self.text_group3)
+                self.build_product(self.text_group3)
         except Exception:
             print(traceback.format_exc())
         finally:

@@ -9,14 +9,20 @@ class ProduceValueApiView(BasicApiView):
         必需先執行 builder TotalValueBuilder 建立選項資料
 
     -- TotalValue(總產值)
-        動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        Builder: TotalValueBuilder
+        Proxy: False
+        Data:
+            動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
+            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
 
     -- Value(產值)
-        年報
-        一、農業經濟指標
-        (四)農產品生產量值
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            年報
+            一、農業經濟指標
+            (四)農產品生產量值
+            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
     """
     def __init__(self, params):
         self.params = params

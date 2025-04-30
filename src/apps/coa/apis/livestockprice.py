@@ -8,8 +8,11 @@ class LivestockPriceApiView(BasicApiView):
     - Sale(拍賣價)
     - Origin(產地價)
     - Retail(零售價)
-    畜產品價格查詢系統(舊) http://price.naif.org.tw/Query/Query_now.aspx
-    畜產品價格查詢系統(新, 20221114) http://price.naif.org.tw/Query/QueryNow.aspx
+        Builder: None
+        Proxy: False
+        Data:
+            畜產品價格查詢系統(舊) http://price.naif.org.tw/Query/Query_now.aspx
+            畜產品價格查詢系統(新, 20221114) http://price.naif.org.tw/Query/QueryNow.aspx
     """
     def __init__(self, params):
         self.driver = None
