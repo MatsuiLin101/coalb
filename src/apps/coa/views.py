@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.contrib.auth import login
 from django.conf import settings
 
-from apps.log.models import TracebackLog
+from apps.log.models import TracebackLog, ProxyLog
 from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToken
 
 from apps.coa.apis import *
@@ -466,6 +466,10 @@ def proxy_parser(request):
 
     if token != settings.PROXY_TOKEN:
         return HttpResponse('無法使用此功能')
+    else:
+        # Save full request URL to ProxyLog model
+        full_url = request.get_raw_uri()
+        ProxyLog.objects.create(app=api, message=full_url)
 
     try:
         if api == 'CropPriceOriginApiView':
