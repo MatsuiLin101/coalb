@@ -469,7 +469,7 @@ def proxy_parser(request):
     else:
         # Save full request URL to ProxyLog model
         full_url = request.get_raw_uri()
-        ProxyLog.objects.create(app=api, message=full_url)
+        proxy_log = ProxyLog.objects.create(app=api, message=full_url)
 
     try:
         if api == 'CropPriceOriginApiView':
@@ -484,10 +484,14 @@ def proxy_parser(request):
             try:
                 obj = CropPriceOriginApiView(params)
                 response = obj.execute_api()
+                proxy_log.response = response
+                proxy_log.save()
+                return HttpResponse(response)
             except Exception as e:
                 traceback_log = TracebackLog.objects.create(app='proxy_parser_CropPriceOriginApiView', message=traceback.format_exc())
                 response = f"發生錯誤「{str(e)}」，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
-            finally:
+                proxy_log.response = response
+                proxy_log.save()
                 return HttpResponse(response)
         elif api == 'CropProduceTotalApiView':
             uri = request.get_raw_uri()
@@ -498,16 +502,24 @@ def proxy_parser(request):
             try:
                 obj = CropProduceTotalApiView(params)
                 response = obj.execute_api()
+                proxy_log.response = response
+                proxy_log.save()
+                return HttpResponse(response)
             except Exception as e:
                 traceback_log = TracebackLog.objects.create(app='proxy_parser_CropProduceTotalApiView', message=traceback.format_exc())
                 response = f"發生錯誤「{str(e)}」，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
-            finally:
+                proxy_log.response = response
+                proxy_log.save()
                 return HttpResponse(response)
         else:
+            proxy_log.response = '無法使用此功能'
+            proxy_log.save()
             return HttpResponse('無法使用此功能')
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app='proxy_parser', message=traceback.format_exc())
         response = f"發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
+        proxy_log.response = response
+        proxy_log.save()
         return HttpResponse(response)
 
 
