@@ -80,6 +80,7 @@ class TracebackLog(models.Model):
 class ProxyLog(models.Model):
     app = models.CharField(max_length=255, verbose_name="關聯app")
     message = models.TextField(verbose_name="內容")
+    response = models.TextField(default='', verbose_name="回應")
     created = models.DateTimeField(auto_now_add=True, verbose_name="建立時間")
 
     class Meta:
