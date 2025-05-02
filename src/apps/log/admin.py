@@ -36,7 +36,7 @@ class TracebackLogAdmin(admin.ModelAdmin):
 
 class ProxyLogAdmin(admin.ModelAdmin):
     list_display = [
-        'id', 'app', 'message', 'created'
+        'id', 'app', 'message', 'response', 'created'
     ]
 
 

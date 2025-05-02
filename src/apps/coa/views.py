@@ -525,7 +525,7 @@ def proxy_parser(request):
 
         # 如果 cache 中沒有資料，則執行 API 並將結果存入 cache
         # 如果 cache 中的資料 TTL 小於 1 小時，則重新執行 API
-        if not response or response.ttl() < 60 * 60:
+        if not response or cache.ttl(' '.join(params)) < 60 * 60:
             delay_proxy_parser.delay(api, params)
 
         # 如果 cache 中有資料，則直接回傳資料
