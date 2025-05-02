@@ -86,12 +86,12 @@ def get_reply_from_text(command_text):
                 command_text = command_text.replace('產量', '產量（副產物產量）')
                 api_view = LivestockByproductApiView
 
+            product = list_params[2]
+
             query_set = CropProduceTotal.objects.filter(name__icontains=product)
             if query_set.count() > 0:
                 command_text = command_text.replace('產量', '產量（作物產量）')
                 api_view = CropProduceApiView
-
-            product = list_params[2]
 
             query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
             if query_set.count() > 0:
