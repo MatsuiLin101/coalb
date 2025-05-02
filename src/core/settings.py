@@ -227,6 +227,21 @@ DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL', default='')
 ADMINS = [(admin.split('@')[0], admin) for admin in env.list('ADMINS', default=[])]
 
 
+# Redis Cache
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env.str("CACHE_URL"),
+        "KEY_PREFIX": "django",
+    },
+}
+
+# Celery
+BROKER_URL = env.str("CELERY_URL")
+CELERY_RESULT_BACKEND = env.str("CELERY_URL")
+CELERY_TIMEZONE = TIME_ZONE
+
+
 # INITIAL DATA
 # ------------------------------------------------------------------------------
 # See https://docs.djangoproject.com/en/2.1/howto/initial-data/

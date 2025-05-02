@@ -39,14 +39,14 @@ services:
         networks:
             - frontend
             - backend_db
-            - backend_selenium_chromium
+            - backend_app
 
     selenium:
         container_name: coalb_selenium
         image: seleniarm/standalone-chromium:123.0
         restart: always
         networks:
-            - backend_selenium_chromium
+            - backend_app
 
     nginx:
         container_name: coalb_nginx
@@ -65,16 +65,37 @@ services:
         networks:
             - frontend
 
+    redis:
+        container_name: coalb_rd
+        image: redis:5
+        restart: always
+        volumes:
+            - ./redis/data:/data
+        depends_on:
+            - web
+        networks:
+            - backend_app
+
+    celery_worker:
+        container_name: coalb_wk
+        image: coalb-img
+        restart: always
+        command: celery -A core worker --concurrency=2 -l info -n worker1@%h
+        volumes:
+            - ../../src/envs:/code/envs
+        depends_on:
+            - redis
+        networks:
+            - backend_app
+
 # volumes:
 #     staticfiles:
 #         name: coalb-web-staticfiles
 
 networks:
+    frontend:
+        name: coalb-frontend-network
     backend_db:
         name: coalb-backend-network
     backend_app:
         name: coalb-backend-app-network
-    frontend:
-        name: coalb-frontend-network
-    backend_selenium_chromium:
-        name: backend-selenium-chromium-network
