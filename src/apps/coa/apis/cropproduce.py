@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse
 
 from core.settings import (
@@ -105,7 +107,9 @@ class CropProduceTotalApiView(BasicApiView):
 
     def execute_api(self):
         if self.use_proxy:
-            data = '__paramlink__'.join(params for params in self.params)
+            data = json.dumps({
+                'params': self.params
+            })
             res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={PROXY_TOKEN}&api=CropProduceTotalApiView&data={data}")
             if res.status_code != 200:
                 return '該功能維護中...'

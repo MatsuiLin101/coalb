@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 import traceback
 import urllib
@@ -461,69 +462,97 @@ def change_proxy(command_text, line_user):
 
 
 def proxy_parser(request):
-    token = request.GET.get('token')
-    api = request.GET.get('api')
+    """
+    此函式作為處理 API 請求的代理解析器。它會驗證提供的 token，記錄請求詳細資訊，並根據 `api` 參數將請求委派給適當的 API 處理器。
+    此函式也會妥善處理錯誤並記錄以供除錯使用。
 
-    if token != settings.PROXY_TOKEN:
-        return HttpResponse('無法使用此功能')
-    else:
-        # Save full request URL to ProxyLog model
-        full_url = request.get_raw_uri()
-        proxy_log = ProxyLog.objects.create(app=api, message=full_url)
+    參數:
+        request (HttpRequest): 包含查詢參數及其他請求資料的 HTTP 請求物件。
+
+    回傳:
+        HttpResponse: 包含 API 呼叫結果或錯誤訊息的回應物件。
+
+    功能:
+        - 驗證 `token` 參數是否與設定的 `PROXY_TOKEN` 相符。
+        - 將完整請求 URL 記錄到 `ProxyLog` 模型。
+        - 根據 `api` 參數將請求路由到適當的 API 處理器：
+            - `CropPriceOriginApiView`: 處理作物價格來源資料的請求。
+            - `CropProduceTotalApiView`: 處理作物生產總量資料的請求。
+        - 解析並處理請求參數。
+        - 將回應與錯誤分別記錄到 `ProxyLog` 和 `TracebackLog` 模型。
+        - 根據 API 呼叫結果或錯誤處理的結果回傳適當的 HTTP 回應。
+    """
 
     try:
-        if api == 'CropPriceOriginApiView':
-            uri = request.get_raw_uri()
-            uri = urllib.parse.unquote(uri)
-            data_start = uri.find('data=')
-            data = uri[data_start + 5:]
-            params = data.split('__paramlink__')
-            # body = request.body.decode()
-            # params = urllib.parse.unquote(body.replace('params=', '')).split('&')
-            # return HttpResponse(f'data is {data}\nparams is {params}')
-            try:
-                obj = CropPriceOriginApiView(params)
-                response = obj.execute_api()
-                proxy_log.response = response
-                proxy_log.save()
-                return HttpResponse(response)
-            except Exception as e:
-                traceback_log = TracebackLog.objects.create(app='proxy_parser_CropPriceOriginApiView', message=traceback.format_exc())
-                response = f"發生錯誤「{str(e)}」，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
-                proxy_log.response = response
-                proxy_log.save()
-                return HttpResponse(response)
-        elif api == 'CropProduceTotalApiView':
-            uri = request.get_raw_uri()
-            uri = urllib.parse.unquote(uri)
-            data_start = uri.find('data=')
-            data = uri[data_start + 5:]
-            params = data.split('__paramlink__')
-            try:
-                obj = CropProduceTotalApiView(params)
-                response = obj.execute_api()
-                proxy_log.response = response
-                proxy_log.save()
-                return HttpResponse(response)
-            except Exception as e:
-                traceback_log = TracebackLog.objects.create(app='proxy_parser_CropProduceTotalApiView', message=traceback.format_exc())
-                response = f"發生錯誤「{str(e)}」，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
-                proxy_log.response = response
-                proxy_log.save()
-                return HttpResponse(response)
-        else:
-            proxy_log.response = '無法使用此功能'
-            proxy_log.save()
+        # 取得完整的請求 URL 並記錄到 ProxyLog
+        full_url = urllib.parse.unquote(request.get_raw_uri())
+        proxy_log = ProxyLog.objects.create(message=full_url)
+
+        # Check if token is valid
+        token = request.GET.get('token')
+        if token != settings.PROXY_TOKEN:
+            proxy_log.response = '無法使用此功能, token錯誤'
+            proxy_log.save(update_fields=['response'])
             return HttpResponse('無法使用此功能')
+
+        # Check if api is valid
+        api = request.GET.get('api')
+        if api == 'CropPriceOriginApiView':
+            api_class = CropPriceOriginApiView
+        elif api == 'CropProduceTotalApiView':
+            api_class = CropProduceTotalApiView
+        else:
+            proxy_log.response = '無法使用此功能, api錯誤'
+            proxy_log.save(update_fields=['response'])
+            return HttpResponse('無法使用此功能')
+
+        # Check if data is valid
+        data = request.GET.get('data')
+        data = json.loads(data)
+        params = data.get('params')
+        if not params:
+            proxy_log.app = str(api_class)
+            proxy_log.response = '無法使用此功能, data錯誤'
+            proxy_log.save(update_fields=['response'])
+            return HttpResponse('無法使用此功能')
+
+        obj = api_class(params)
+        response = obj.execute_api()
+
+        proxy_log.app = str(api_class)
+        proxy_log.response = response
+        proxy_log.save(update_fields=['app', 'response'])
+
+        return HttpResponse(response)
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app='proxy_parser', message=traceback.format_exc())
-        response = f"發生未知錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
-        proxy_log.response = response
-        proxy_log.save()
+        response = f"發生錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
         return HttpResponse(response)
 
 
 def proxy_build(request):
+    """
+    處理代理建構請求的視圖函式。
+    此函式根據請求中的參數執行特定的建構邏輯，並返回相應的 JSON 資料或錯誤訊息。
+
+    參數:
+        request (HttpRequest): 包含 HTTP 請求的物件，應包含 'token' 和 'api' 查詢參數。
+
+    回傳:
+        HttpResponse 或 JsonResponse:
+            - 如果 token 驗證失敗，返回錯誤訊息。
+            - 如果 api 參數無效，返回錯誤訊息。
+            - 如果建構成功，返回 JSON 格式的資料。
+            - 如果發生未知錯誤，返回錯誤訊息及錯誤編號。
+
+    例外處理:
+        - 捕捉所有例外，記錄詳細的錯誤追蹤日誌，並返回錯誤編號以供管理員調查。
+
+    注意:
+        - 此函式依賴於 settings.PROXY_TOKEN 進行 token 驗證。
+        - 使用 CropPriceOriginBuilder 和 CropProduceTotalBuilder 進行特定的建構邏輯。
+        - 錯誤日誌記錄於 TracebackLog 模型中。
+    """
     token = request.GET.get('token')
     api = request.GET.get('api')
 
