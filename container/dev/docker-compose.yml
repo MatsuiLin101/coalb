@@ -73,6 +73,7 @@ services:
         depends_on:
             - redis
         networks:
+            - backend_db
             - backend_app
 
 volumes:

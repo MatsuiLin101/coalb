@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 3rd apps
+    'django_celery_results',
 
     # local apps
     'apps.user',
@@ -238,7 +239,8 @@ CACHES = {
 
 # Celery
 BROKER_URL = env.str("CELERY_URL")
-CELERY_RESULT_BACKEND = env.str("CELERY_URL")
+# CELERY_RESULT_BACKEND = env.str("CELERY_URL")
+CELERY_RESULT_BACKEND = env.str("CELERY_RESULT_BACKEND")
 CELERY_TIMEZONE = TIME_ZONE
 
 
