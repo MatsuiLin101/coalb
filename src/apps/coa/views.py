@@ -74,13 +74,13 @@ def get_reply_from_text(command_text):
     elif command in ['代碼', '作物代碼']:
         api_view = ProductCodeApiView  # refactor
     elif command in ['產量']:
-
         if len(list_params) == 3:
             command_text = command_text.replace('產量', '產量（副產物產量）')
             api_view = LivestockByproductApiView
 
         elif len(list_params) == 4:
             product = list_params[1]
+
             query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
             if query_set.count() > 0:
                 command_text = command_text.replace('產量', '產量（副產物產量）')
@@ -92,15 +92,11 @@ def get_reply_from_text(command_text):
                 api_view = CropProduceApiView
 
             product = list_params[2]
+
             query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
             if query_set.count() > 0:
                 command_text = command_text.replace('產量', '產量（副產物產量）')
                 api_view = LivestockByproductApiView
-
-            query_set = CropProduceTotal.objects.filter(name__icontains=product)
-            if query_set.count() > 0:
-                command_text = command_text.replace('產量', '產量（作物產量）')
-                api_view = CropProduceApiView
         else:
             reply = f"無法搜尋「{command_text}」\n\n"
             reply += '產量（作物產量）的指令為「產量 縣市 品項 年份」可加上鄉鎮「產量 縣市鄉鎮 品項 年份」，例如：\n'
@@ -111,7 +107,7 @@ def get_reply_from_text(command_text):
             return reply
 
         if not api_view:
-            return f"無法搜尋「{command_text}」\n" + '查無品項，請修改品項關鍵字後重新查詢。'
+            return f"無法搜尋「{command_text}」\n" + '查無品項，請修改品項關鍵字或是加上縣市，再重新查詢。'
 
     elif '指令' in command_text:
         reply = '直接輸入指令可以查詢使用方式(括號內為備註不需輸入)，目前提供的指令如下\n\n'

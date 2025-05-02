@@ -59,4 +59,5 @@ def delay_proxy_parser(api: str, params: list):
         return response
     except Exception as e:
         TracebackLog.objects.create(app='delay_proxy_parser', message=traceback.format_exc())
+        cache.set(' '.join(params), str(e), timeout=60 * 5)
         return str(e)
