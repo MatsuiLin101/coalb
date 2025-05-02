@@ -1,9 +1,10 @@
 import os
+import traceback
 
 from celery import Celery
+from celery import shared_task
 
 from django.conf import settings
-from django.utils import timezone
 
 
 # 設置環境變量 DJANGO_SETTINGS_MODULE
@@ -22,6 +23,32 @@ app.conf.beat_schedule = {}
 
 
 # ================== MessageQueue任務[Start] ==================
-@app.task
+@shared_task(name='worker_test')
 def delay_worker_test():
     print('delay worker test')
+    return True
+
+
+@app.task
+def delay_proxy_parser(api: str, params: list):
+    from django.core.cache import cache
+    from apps.coa.apis.cropprice import CropPriceOriginApiView
+    from apps.coa.apis.cropproduce import CropProduceTotalApiView
+    from apps.log.models import TracebackLog
+
+    try:
+        if api == 'CropPriceOriginApiView':
+            api_class = CropPriceOriginApiView
+        elif api == 'CropProduceTotalApiView':
+            api_class = CropProduceTotalApiView
+        else:
+            return 'API not found'
+
+        obj = api_class(params)
+        response = obj.execute_api()
+
+        cache.set(' '.join(params), response, timeout=60 * 60 * 24)
+        return response
+    except Exception as e:
+        TracebackLog.objects.create(app='delay_proxy_parser', message=traceback.format_exc())
+        return str(e)

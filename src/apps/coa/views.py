@@ -13,6 +13,9 @@ from django.http import HttpResponse, JsonResponse
 from django.utils import timezone
 from django.contrib.auth import login
 from django.conf import settings
+from django.core.cache import cache
+
+from core.celery import delay_proxy_parser
 
 from apps.log.models import TracebackLog, ProxyLog
 from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToken
@@ -21,6 +24,7 @@ from apps.coa.apis import *
 from apps.coa.builders import CropPriceOriginBuilder, CropProduceTotalBuilder
 from apps.coa.utils import CustomError, get_driver
 from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, CropProduceTotal
+
 
 
 def get_reply_from_text(command_text):
@@ -482,7 +486,6 @@ def proxy_parser(request):
         - 將回應與錯誤分別記錄到 `ProxyLog` 和 `TracebackLog` 模型。
         - 根據 API 呼叫結果或錯誤處理的結果回傳適當的 HTTP 回應。
     """
-
     try:
         # 取得完整的請求 URL 並記錄到 ProxyLog
         full_url = urllib.parse.unquote(request.get_raw_uri())
@@ -505,25 +508,36 @@ def proxy_parser(request):
             proxy_log.response = '無法使用此功能, api錯誤'
             proxy_log.save(update_fields=['response'])
             return HttpResponse('無法使用此功能')
+        # 記錄請求的 API 類別
+        proxy_log.app = str(api_class)
 
         # Check if data is valid
         data = request.GET.get('data')
         data = json.loads(data)
         params = data.get('params')
         if not params:
-            proxy_log.app = str(api_class)
             proxy_log.response = '無法使用此功能, data錯誤'
-            proxy_log.save(update_fields=['response'])
+            proxy_log.save(update_fields=['app', 'response'])
             return HttpResponse('無法使用此功能')
 
-        obj = api_class(params)
-        response = obj.execute_api()
+        # 如果 cache 中有資料，則直接從 cache 取得資料
+        response = cache.get(' '.join(params))
 
-        proxy_log.app = str(api_class)
-        proxy_log.response = response
-        proxy_log.save(update_fields=['app', 'response'])
+        # 如果 cache 中沒有資料，則執行 API 並將結果存入 cache
+        # 如果 cache 中的資料 TTL 小於 1 小時，則重新執行 API
+        if not response or response.ttl() < 60 * 60:
+            delay_proxy_parser.delay(api, params)
 
-        return HttpResponse(response)
+        # 如果 cache 中有資料，則直接回傳資料
+        # 如果 cache 中沒有資料，則執行 API 並將結果存入 cache
+        if response:
+            proxy_log.response = f"從 cache 取得資料：「{response}」，請求參數：「{' '.join(params)}」"
+            proxy_log.save(update_fields=['app', 'response'])
+            return HttpResponse(response)
+        else:
+            proxy_log.response = f"執行異步任務抓取資料，請求參數：「{' '.join(params)}」"
+            proxy_log.save(update_fields=['app', 'response'])
+            return HttpResponse('抓取資料中，請稍後再試。')
     except Exception as e:
         traceback_log = TracebackLog.objects.create(app='proxy_parser', message=traceback.format_exc())
         response = f"發生錯誤，錯誤編號「{traceback_log.id}」，請通知管理員處理。"
