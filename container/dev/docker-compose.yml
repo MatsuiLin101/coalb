@@ -32,7 +32,7 @@ services:
             - db
         networks:
             - backend_db
-            - backend_selenium_chromium
+            - backend_app
 
     selenium:
         container_name: coalb_selenium
@@ -50,16 +50,40 @@ services:
             # SE_START_VNC: "false"
             # - SE_START_VNC=false
         networks:
-            - backend_selenium_chromium
+            - backend_app
 
+    redis:
+        container_name: coalb_rd
+        image: redis:5
+        restart: always
+        volumes:
+            - ./redis/data:/data
+        depends_on:
+            - web
+        networks:
+            - backend_app
+
+    celery_worker:
+        container_name: coalb_wk
+        image: coalb-img
+        restart: always
+        command: celery -A core worker --concurrency=2 -l info -n worker1@%h
+        volumes:
+            - ../../src:/code
+        depends_on:
+            - redis
+        networks:
+            - backend_db
+            - backend_app
 
 volumes:
     pgdata:
         name: coalb-pgdata-dev
 
 networks:
+    frontend:
+        name: coalb-frontend-network
     backend_db:
-        name: coalb-network-backend-db
-    backend_selenium_chromium:
-        name: backend-selenium-chromium-network
-        # external: true
+        name: coalb-backend-network
+    backend_app:
+        name: coalb-backend-app-network
