@@ -1,7 +1,6 @@
 venv/
 __pycache__/
 ssl/
-log/
 logs/
 staticfiles/
 document/
@@ -9,6 +8,7 @@ chrome/
 backup/
 systemd/
 pgdata/
+redis/
 
 media/
 

@@ -34,8 +34,15 @@ class TracebackLogAdmin(admin.ModelAdmin):
     ]
 
 
+class ProxyLogAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'app', 'message', 'response', 'created'
+    ]
+
+
 admin.site.register(models.LineBodyLog, LineBodyLogAdmin)
 admin.site.register(models.LineMessageLog, LineMessageLogAdmin)
 admin.site.register(models.LineFollowLog, LineFollowLogAdmin)
 admin.site.register(models.LineCallBackLog, LineCallBackLogAdmin)
 admin.site.register(models.TracebackLog, TracebackLogAdmin)
+admin.site.register(models.ProxyLog, ProxyLogAdmin)
