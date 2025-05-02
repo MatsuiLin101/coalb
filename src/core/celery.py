@@ -37,6 +37,14 @@ def delay_proxy_parser(api: str, params: list):
     from apps.log.models import TracebackLog
 
     try:
+        # 如果 cache 中有資料，則直接從 cache 取得資料
+        response = cache.get(' '.join(params))
+
+        # 如果 cache 中的資料存在且 TTL 大於 60 分鐘，則直接返回
+        # 否則，重新執行 API 並更新 cache
+        if response and cache.ttl(' '.join(params)) >= 60 * 60:
+            return response
+
         if api == 'CropPriceOriginApiView':
             api_class = CropPriceOriginApiView
         elif api == 'CropProduceTotalApiView':
