@@ -28,7 +28,8 @@ done
 
 r "grep -E \$'^(OK|EMPTY|PENDING|FAIL|ERROR|USAGE)\t' $REMOTE_OUT; \
    grep -iE 'Traceback|Error' $REMOTE_OUT | grep -vE \$'^(OK|EMPTY|PENDING|FAIL|ERROR|USAGE)\t' | head -5 >&2; \
-   sudo -n docker exec coalb_web rm -f $REMOTE_PY; rm -f $REMOTE_PY" > "$OUT"
+   sudo -n docker exec coalb_web rm -f $REMOTE_PY; rm -f $REMOTE_PY; \
+   if grep -q __DONE__ $REMOTE_OUT; then rm -f $REMOTE_OUT; fi" > "$OUT"
 
 if [ ! -s "$OUT" ]; then
   echo "失敗：沒有任何結果，請看上面的錯誤訊息，或到主機上查看 $REMOTE_OUT" >&2
