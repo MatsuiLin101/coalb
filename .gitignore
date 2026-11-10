@@ -29,5 +29,27 @@ ssl_*
 
 *.pub
 
-# Claude Code
+# Claude Code（.claude/settings.json 要保留追蹤）
 .claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+
+# AI / 自動化工具的本機暫存
+.playwright-mcp/
+.playwright/
+playwright-report/
+test-results/
+.ai/
+.aider*
+.cursor/
+.windsurf/
+.continue/
+.codex/
+.gemini/
+.specstory/
+.serena/
+
+# 程式執行時產生的暫存試算表（出錯時可能殘留）
+/src/*.xlsx
+/src/*.xls
+/src/*.ods
