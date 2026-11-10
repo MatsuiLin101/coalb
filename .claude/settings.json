@@ -23,5 +23,20 @@
       "Bash(ssh * apt upgrade*)",
       "Bash(ssh * apt-get upgrade*)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_secrets.py\"",
+            "timeout": 10,
+            "statusMessage": "檢查是否讀取機密"
+          }
+        ]
+      }
+    ]
   }
 }
