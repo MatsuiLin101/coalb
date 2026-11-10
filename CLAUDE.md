@@ -65,7 +65,7 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
 - **分支流程（git flow）**：
   1. 開發新功能時，從 `develop` 開 `feature/<說明>` 分支，在該分支上開發
   2. 測試時，把測試環境的分支切換到這個開發分支
-  3. 開發完成後，merge 回 `develop`
+  3. 功能確定完全開發完成後，才 merge 回 `develop`。commit 只會留在 feature 分支上；merge 回 `develop` 前一定要先問使用者，確認功能已經完成
   4. 要部署到正式機時，從 `develop` 走 release 流程 merge 到 `master`
   5. 緊急修正走 `hotfix/hX.Y.Z-說明`，修完 merge 回 `master` 和 `develop`
 - **merge 一律用 `--no-ff`**，保留分支的合併紀錄；不要 fast-forward，也不要 rebase 到目標分支
