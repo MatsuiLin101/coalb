@@ -68,6 +68,10 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
   3. 功能確定完全開發完成後，才 merge 回 `develop`。commit 只會留在 feature 分支上；merge 回 `develop` 前一定要先問使用者，確認功能已經完成
   4. 要部署到正式機時，從 `develop` 走 release 流程 merge 到 `master`
   5. 緊急修正走 `hotfix/hX.Y.Z-說明`，修完 merge 回 `master` 和 `develop`
+- **每次完成功能後，merge 回 develop 之前**，檢查以下文件是否需要一起更新，並在同一個 feature 分支上 commit：
+  - `CLAUDE.md` 的「已知狀態」和「兩台正式主機」
+  - `src/apps/coa/apis/__init__.py` 中該指令的資料來源和已知問題註解
+  - `get_reply_from_text()` 的「指令」說明文字，以及該指令的用法提示
 - **merge 一律用 `--no-ff`**，保留分支的合併紀錄；不要 fast-forward，也不要 rebase 到目標分支
 - tag 格式為 `vX.Y.Z-說明`（release）或 `hX.Y.Z-說明`（hotfix）
 - 不要直接在 `develop` 或 `master` 上開發功能
