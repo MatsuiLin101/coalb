@@ -28,3 +28,6 @@ dropzone.js
 ssl_*
 
 *.pub
+
+# Claude Code
+.claude/settings.local.json
