@@ -20,6 +20,25 @@
 | `src/core/celery.py` | `delay_proxy_parser`：代理站在背景執行爬蟲並寫入快取 |
 | `src/apps/line/webhook.py` | 直接複製進來的 linebot SDK 原始碼，不要修改 |
 
+## 本機開發（2026-11-11 實際跑過）
+
+```bash
+cd container/dev && docker compose up -d --build   # 第一次建置約 2 分半
+```
+
+- `src/envs/base.env` 要是 `USE_ENV=dev.env`。`src/` 整個掛進容器，`runserver` 會自動重新載入，改程式碼不用重建；只有改 requirements 才要 `--build`
+- 資料庫在 Docker volume `coalb-pgdata-dev`，`docker compose down` 不會刪掉它。新的 volume 要先執行 `docker exec coalb_web python manage.py migrate`
+- 網站在 http://localhost:8000/line/ ，正常會回 `Hi!`
+- dev 的 `PROXY_DOMAIN=http://localhost:8000`：「代理」其實就是打自己，由本機的 Celery 去爬。因為這台 Mac 在台灣，擋海外 IP 的網站在本機也連得到
+- 測試查詢（不用 `manage.py shell < 檔案`，見「驗證查詢功能」）：
+  ```bash
+  docker exec -w /code coalb_web python -c "import django; django.setup(); from apps.coa.views import get_reply_from_text as g; print(g('拍賣價 羊 113'))"
+  ```
+- 這台 Mac 是 x86_64，`seleniarm` 是 ARM 映像檔，要靠模擬執行，爬蟲比正式機慢（單一查詢約 20 秒）
+- 本機容器名稱跟正式機一樣（`coalb_web` 等），下指令前要確認是在本機還是 ssh 到主機上
+- LINE webhook 在本機收不到（沒有對外網址）；dev 用的是 LINE 測試 channel（`LINE_TEST_MODE=True`）。要測 webhook 需要另外架通道，這部分沒有驗證過
+- 沒有自動化測試，`make test` 的 pytest 也沒有安裝；`make format` 會在容器裡跑 flake8
+
 ## 兩台正式主機（重要）
 
 同一份程式部署在兩台主機，用 `src/envs/base.env` 的 `USE_ENV=prod.env` 載入設定。**兩台的 `prod.env` 檔名相同、內容不同**，主機角色就是靠這個區分的（`proxy.env` 實際上沒有使用）。
@@ -36,6 +55,13 @@
 - **代理機制**：政府網站擋海外 IP，所以主站把部分查詢用 HTTPS 打到代理站的 `/coa/proxy/parser/?token=PROXY_TOKEN&api=...`。代理站查 Redis 快取，沒有資料時丟給 Celery 去爬，**第一次只會回「抓取資料中，請稍後再試。」**，約 30 秒後再查一次才拿得到結果。錯誤通知信也是經代理站寄出的（`core/log.py`）
 - 目前經代理的查詢：產地價（`CropPriceOriginApiView`）、作物產量和種植面積（`CropProduceTotalApiView`），以及這兩個對應的 builder
 - 對兩台主機：唯讀檢查可以直接做；重開機、`docker compose` 重啟或重建、改設定、寫資料庫、部署之前，要先問使用者
+
+## Claude Code 設定（`.claude/`）
+
+- **要在 `coalb` 資料夾開 session**，`.claude/settings.json` 的權限、hook 和 skill 才會載入。從上層 `/Users/coder/Desktop/coa` 開 session 時，這些全都不會生效
+- `/verify-queries`：在主站跑一輪所有查詢指令，整理成正常／失敗清單和失敗原因。查詢清單在 `.claude/skills/verify-queries/query_test.py`
+- `/check-hosts`：對兩台主機做唯讀健康檢查（容器、磁碟、更新、防火牆、憑證、備份、流量）
+- hook `.claude/hooks/guard_secrets.py`：擋下會印出 `.env` 機密原文的 Bash 指令，本機和 ssh 到主機都算。遮蔽讀法、只看變數名稱、比對雜湊不會被擋
 
 ## 驗證查詢功能
 
@@ -62,6 +88,7 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
 
 ## 開發慣例
 
+- **GitHub**：`origin` 是 `git@github.com:MatsuiLin101/coalb.git`，兩台主機的 `~/coalb` 都指向這個 remote，目前都停在 `master`。push `develop` 或 `master` 前要先問使用者
 - **分支流程（git flow）**：
   1. 開發新功能時，從 `develop` 開 `feature/<說明>` 分支，在該分支上開發
   2. 測試時，把測試環境的分支切換到這個開發分支
