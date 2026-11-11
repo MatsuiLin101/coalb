@@ -53,7 +53,8 @@ cd container/dev && docker compose up -d --build   # 第一次建置約 2 分半
 - 兩台都要用 `sudo docker ...`，因為使用者不在 docker 群組
 - 兩個網域前面都有 Cloudflare；主機上的 nginx 搭配 Certbot 處理 TLS，再轉到容器的 8000 port
 - **代理機制**：政府網站擋海外 IP，所以主站把部分查詢用 HTTPS 打到代理站的 `/coa/proxy/parser/?token=PROXY_TOKEN&api=...`。代理站查 Redis 快取，沒有資料時丟給 Celery 去爬，**第一次只會回「抓取資料中，請稍後再試。」**，約 30 秒後再查一次才拿得到結果。錯誤通知信也是經代理站寄出的（`core/log.py`）
-- 目前經代理的查詢：產地價（`CropPriceOriginApiView`）、作物產量和種植面積（`CropProduceTotalApiView`），以及這兩個對應的 builder
+- 目前經代理的查詢：產地價（`CropPriceOriginApiView`）、作物產量和種植面積（`CropProduceTotalApiView`）、毛豬（`LivestockHogApiView`，尚未部署），以及前兩個對應的 builder
+- 新增經代理的查詢時，`proxy_parser`（`apps/coa/views.py`）和 `delay_proxy_parser`（`core/celery.py`）都要加上該 api，而且**兩台主機都要部署新版**：代理站沒更新的話會回「無法使用此功能」
 - 對兩台主機：唯讀檢查可以直接做；重開機、`docker compose` 重啟或重建、改設定、寫資料庫、部署之前，要先問使用者
 
 ## Claude Code 設定（`.claude/`）
@@ -82,7 +83,7 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
   - 年報（`Book.aspx`）：產值、生產毛額、農家所得、農牧戶、耕地面積、災害
   - 動態查詢（`InquireAdvance.aspx`）：總產值、就業人口、農保、老農津貼、獎助學金、批發、生產成本、工時、飼養場數、在養量、屠宰量、副產物
   - 新網站沒有擋海外 IP
-- **毛豬網站 `ppg.naif.org.tw`**：沒有改版，但開始擋海外 IP，從台灣 IP 連正常。修法是把它接上代理機制，網址改成 https
+- **毛豬網站 `ppg.naif.org.tw`**：沒有改版，但開始擋海外 IP，從台灣 IP 連正常。已在 `feature/hog-proxy` 接上代理機制、網址改成 https，並改成依欄位標題讀結果表格，本機測試正常（2026-11-11），**還沒部署到兩台正式主機**，正式機上仍然失效。頭數、重量、價格都是「規格豬」的數字（跟 2021 年需求確認表的範例數字核對過），回覆訊息三項都有標明
 - **正常的功能**：產地、產量、種植面積（經代理）、單位產值、單位產量、作物代碼（本地資料表）、拍賣價、零售價（`price.naif.org.tw`）
 - 兩台主機都沒有資料庫備份、都在等重開機套用更新、都沒有監控；樹莓派曾兩度整月離線（2025 年 10～11 月、2026 年 9 月）
 
@@ -105,7 +106,7 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
 - commit 訊息用 `feat:` / `fix:` / `docs:` 等前綴加英文短句
 - Lint：`make format`，也就是 flake8，設定見根目錄 `Makefile`。測試幾乎沒有，`tests.py` 裡只有 print
 - 使用者看到的訊息、程式註解、docstring 都用正體中文
-- 爬蟲用元素 ID 或固定 XPath 定位，網站改版就會失效；修的時候優先改成依欄位標題定位
+- 爬蟲用元素 ID 或固定 XPath 定位，網站改版就會失效；修的時候優先改成依欄位標題定位。讀結果表格可用 `apps/coa/utils.py` 的 `parse_table_by_header()`（支援 rowspan/colspan 多層標題，用法見 `livestockhog.py`），找不到欄位時要報錯，不要回傳別欄的數字
 
 ## 機密資料
 

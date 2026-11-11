@@ -143,3 +143,42 @@ def driver_select_xpath(driver, xpath, method, target, cancel=False):
         select.select_by_value(target)
     elif method == 'text':
         select.select_by_visible_text(target)
+
+
+def parse_table_by_header(html):
+    """
+    依欄位標題讀取 HTML 表格，取代用固定 XPath 指定第幾欄，網站調整欄位順序時也能讀對
+    支援 rowspan/colspan 的多層標題，上下層標題以「/」串接，例如「規格豬/平均價格」
+    html: 表格的 HTML（例如 selenium 元素的 outerHTML）
+    return: 每一列資料一個 dict，key 是欄位標題，value 是儲存格文字
+    """
+    soup = bs(html, 'html.parser')
+    rows = soup.find_all('tr')
+    header_rows = [tr for tr in rows if tr.find('th') and not tr.find('td')]
+    data_rows = [tr for tr in rows if tr.find('td')]
+
+    # 把每個標題儲存格展開到它佔據的所有 (列, 欄) 位置
+    grid = dict()
+    for r, tr in enumerate(header_rows):
+        c = 0
+        for th in tr.find_all('th'):
+            while (r, c) in grid:
+                c += 1
+            rowspan = int(th.get('rowspan', 1))
+            colspan = int(th.get('colspan', 1))
+            for dr in range(rowspan):
+                for dc in range(colspan):
+                    grid[(r + dr, c + dc)] = th.get_text(strip=True)
+            c += colspan
+
+    names = list()
+    if grid:
+        for c in range(max(col for _, col in grid) + 1):
+            parts = list()
+            for r in range(len(header_rows)):
+                text = grid.get((r, c))
+                if text and (not parts or parts[-1] != text):
+                    parts.append(text)
+            names.append('/'.join(parts))
+
+    return [dict(zip(names, [td.get_text(strip=True) for td in tr.find_all('td')])) for tr in data_rows]
