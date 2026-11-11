@@ -199,7 +199,7 @@ from .livestockslaughter import LivestockSlaughterApiView
 
 from .livestockbyproduct import LivestockByproductApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CE03、CE04，不再需要 builder）
 
 指令
 -副產

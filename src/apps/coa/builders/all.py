@@ -3,13 +3,11 @@ import traceback
 from apps.coa.builders.cropcost import CropCostBuilder
 from apps.coa.builders.cropprice import CropPriceOriginBuilder
 from apps.coa.builders.cropproduce import CropProduceTotalBuilder
-from apps.coa.builders.livestockbyproduct import LivestockByproductBuilder
 
 builders = [
     CropCostBuilder,
     CropPriceOriginBuilder,
     CropProduceTotalBuilder,
-    LivestockByproductBuilder,
 ]
 
 # Function to execute the build process for all builder classes
