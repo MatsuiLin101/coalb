@@ -208,3 +208,280 @@ class AnnualReportBasicApiView(BasicApiView):
                     return
         self.message = f"「{self.command_text}」年份必需在{list_years[0]}~{list_years[-1]}之間"
         raise CustomError(self.message)
+
+
+# 農業統計資料查詢（2026 年改版後的 agrstat.moa.gov.tw/moasdweb）共用的 JavaScript。
+# 網站的勾選清單是用加密過的 JSON（hidCode 隱藏欄位）在瀏覽器端畫出來的，
+# 直接改 JSON 裡的 Selected 再按「確定」，比一個一個點選單穩定。
+JS_INQUIRE_CODE_HELPERS = """
+var KEY = '2025000000000000';
+function readCode(id) {
+    var el = document.getElementById(id);
+    return el ? JSON.parse(DecryptCode(KEY, el.value)) : null;
+}
+function writeCode(id, obj) {
+    document.getElementById(id).value = EncryptCode(KEY, JSON.stringify(obj));
+}
+function codeName(label) {
+    // label 內可能有「全選」的 span，只取第一個文字節點
+    return (label.childNodes[0] ? label.childNodes[0].textContent : label.innerText).trim();
+}
+"""
+
+JS_INQUIRE_DIMENSIONS = JS_INQUIRE_CODE_HELPERS + """
+var prefix = arguments[0];
+var result = [];
+document.querySelectorAll('[id^="' + prefix + 'repTabs_ctl"][id$="_lnkTab"]').forEach(function (tab) {
+    var ctl = tab.id.replace(prefix + 'repTabs_', '').replace('_lnkTab', '');
+    var hids = document.querySelectorAll('[id^="' + prefix + 'repContents_' + ctl + '_"][id$="_hidCode"]');
+    hids.forEach(function (hid) {
+        var obj = readCode(hid.id);
+        result.push({
+            group: tab.innerText.trim(),
+            hid: hid.id,
+            codes: obj.CodeArray.map(function (c) {
+                return {name: c.CodeName.trim(), serial: c.SerialNo, depth: c.Depth, parents: c.ParentSerialNo};
+            })
+        });
+    });
+});
+return result;
+"""
+
+JS_INQUIRE_SET_CODES = JS_INQUIRE_CODE_HELPERS + """
+var obj = readCode(arguments[0]);
+var serials = arguments[1];
+[obj.CodeArray, obj.OriginCodeArray].forEach(function (array) {
+    (array || []).forEach(function (c) { c.Selected = serials.indexOf(c.SerialNo) > -1; });
+});
+writeCode(arguments[0], obj);
+"""
+
+JS_INQUIRE_ITEMS = JS_INQUIRE_CODE_HELPERS + """
+var tree = document.getElementById(arguments[0]);
+return Array.prototype.map.call(tree.querySelectorAll('label'), function (label) {
+    var box = document.getElementById(label.htmlFor);
+    return {name: codeName(label), id: label.htmlFor, checked: box.checked};
+});
+"""
+
+JS_INQUIRE_PERIOD = """
+var prefix = arguments[0], value = arguments[1], isMonth = arguments[2];
+var chkYear = document.getElementById(prefix + 'chkYearData');
+var chkMonth = document.getElementById(prefix + 'chkMonthData');
+var kind = isMonth ? 'Month' : 'Year';
+var begin = document.getElementById(prefix + 'ddl' + kind + 'Begin');
+var end = document.getElementById(prefix + 'ddl' + kind + 'End');
+if (!begin) {
+    return {ok: false, missing: true};
+}
+var options = Array.prototype.map.call(begin.options, function (o) { return o.text.trim(); });
+var values = Array.prototype.map.call(begin.options, function (o) { return o.value; });
+if (values.indexOf(value) < 0) {
+    return {ok: false, options: options};
+}
+var want = isMonth ? chkMonth : chkYear;
+var other = isMonth ? chkYear : chkMonth;
+if (want && !want.checked) { want.click(); }
+if (other && other.checked) { other.click(); }
+begin.value = value;
+end.value = value;
+return {ok: true};
+"""
+
+JS_INQUIRE_TABLE = """
+// 把結果表格（含 rowspan/colspan）展開成二維陣列
+function expand(rows) {
+    var grid = [];
+    Array.prototype.forEach.call(rows, function (tr, r) {
+        grid[r] = grid[r] || [];
+        var c = 0;
+        Array.prototype.forEach.call(tr.cells, function (cell) {
+            while (grid[r][c] !== undefined) { c++; }
+            var text = cell.innerText.replace(/\\u00a0/g, ' ').trim();
+            for (var i = 0; i < (cell.rowSpan || 1); i++) {
+                for (var j = 0; j < (cell.colSpan || 1); j++) {
+                    grid[r + i] = grid[r + i] || [];
+                    grid[r + i][c + j] = {text: text, cls: cell.className};
+                }
+            }
+            c += cell.colSpan || 1;
+        });
+    });
+    return grid;
+}
+var table = document.getElementById(arguments[0]);
+if (!table) { return null; }
+return {head: expand(table.tHead ? table.tHead.rows : []), body: expand(table.tBodies[0] ? table.tBodies[0].rows : [])};
+"""
+
+JS_INQUIRE_MESSAGE = """
+var boxes = Array.prototype.filter.call(document.querySelectorAll('.msgBoxContainer'), function (e) {
+    return e.offsetParent !== null;
+});
+return boxes.map(function (e) { return e.innerText.trim(); }).join('\\n');
+"""
+
+
+class InquireAdvanceBasicApiView(BasicApiView):
+    """
+    農業統計資料查詢（動態查詢）公版 ApiView
+
+    2026 年 agrstat 改版後，每個資料表都有固定的 qcode 網址，例如
+    https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CA02
+    子類別只要設定 qcode，再依序呼叫：
+        inquire_open() → inquire_dimension()（可多次）→ inquire_items() → inquire_period() → inquire_submit()
+    之後用 inquire_records() 取出結果。
+    """
+    url_inquire = 'https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode={}'
+    prefix = 'ctl00_ContentPlaceHolder1_ucInquireAdvance_'
+    qcode = ''
+
+    def inquire_id(self, name):
+        return f'{self.prefix}{name}'
+
+    def inquire_wait_ready(self):
+        WebDriverWait(self.driver, 30, 0.2).until(EC.presence_of_element_located((By.ID, self.inquire_id('btnInquire'))))
+        WebDriverWait(self.driver, 30, 0.2).until(lambda d: d.execute_script("return typeof DecryptCode === 'function'"))
+
+    def inquire_postback(self, name):
+        """按下會整頁送出的按鈕，等新頁面載入完成"""
+        old_html = self.driver.find_element(By.TAG_NAME, 'html')
+        self.driver.execute_script("var b = document.getElementById(arguments[0]); setTimeout(function () { b.click(); }, 0);", self.inquire_id(name))
+
+        def done(driver):
+            try:
+                old_html.tag_name
+            except Exception:
+                return 'reload'
+            if driver.execute_script(JS_INQUIRE_MESSAGE):
+                return 'message'
+            return False
+
+        state = WebDriverWait(self.driver, 60, 0.2).until(done)
+        if state == 'message':
+            message = self.driver.execute_script(JS_INQUIRE_MESSAGE)
+            self.message = f'「{self.command_text}」查詢失敗：{message}'
+            raise CustomError(self.message)
+        self.inquire_wait_ready()
+
+    def inquire_open(self, qcode=None):
+        if not getattr(self, 'driver', None):
+            self.driver = get_driver()
+        self.driver.get(self.url_inquire.format(qcode or self.qcode))
+        self.inquire_wait_ready()
+
+    @staticmethod
+    def match_names(options, keyword, multiple=False):
+        """
+        從選項名稱中找出符合關鍵字的項目
+        完全符合優先，其次是包含關鍵字；multiple=False 時只取第一個
+        """
+        keyword = keyword.replace('台', '臺')
+        exact = [o for o in options if o['name'].replace('台', '臺') == keyword]
+        matched = exact or [o for o in options if keyword in o['name'].replace('台', '臺')]
+        return matched if multiple else matched[:1]
+
+    def inquire_dimensions(self):
+        return self.driver.execute_script(JS_INQUIRE_DIMENSIONS, self.prefix)
+
+    def inquire_dimension(self, selections):
+        """
+        設定複分類的選項
+        selections: {分類名稱: [關鍵字, ...] 或 None（全選）}，關鍵字找不到時拋出 CustomError
+        回傳 {分類名稱: [實際選到的名稱, ...]}
+        """
+        dimensions = self.inquire_dimensions()
+        picked = dict()
+        for group, keywords in selections.items():
+            dimension = next((d for d in dimensions if d['group'] == group), None)
+            if dimension is None:
+                raise Exception(f'qcode={self.qcode} 找不到分類「{group}」，網站可能改版')
+            if keywords is None:
+                codes = dimension['codes']
+            else:
+                codes = list()
+                for keyword in keywords:
+                    matched = self.match_names(dimension['codes'], keyword, multiple=getattr(self, 'match_multiple', False))
+                    if not matched:
+                        self.message = f'查無{group}「{keyword}」'
+                        raise CustomError(self.message)
+                    codes += [c for c in matched if c not in codes]
+            self.driver.execute_script(JS_INQUIRE_SET_CODES, dimension['hid'], [c['serial'] for c in codes])
+            picked[group] = [c['name'] for c in codes]
+        self.inquire_postback('btnSaveItemDimension')
+        return picked
+
+    def inquire_items(self, names=None):
+        """勾選統計量；names 為 None 時全選"""
+        items = self.driver.execute_script(JS_INQUIRE_ITEMS, self.inquire_id('ucItemCode_panCodeTree'))
+        if names is None:
+            targets = items
+        else:
+            targets = list()
+            for name in names:
+                matched = self.match_names(items, name)
+                if not matched:
+                    raise Exception(f'qcode={self.qcode} 找不到統計量「{name}」，網站可能改版')
+                targets += matched
+        for item in targets:
+            if not item['checked']:
+                self.driver.execute_script("document.getElementById(arguments[0]).click();", item['id'])
+        return [item['name'] for item in targets]
+
+    def inquire_period(self, year, month=None):
+        value = f'{int(year):03d}{int(month):02d}' if month else f'{int(year):03d}'
+        result = self.driver.execute_script(JS_INQUIRE_PERIOD, self.prefix, value, bool(month))
+        if result['ok']:
+            return
+        if result.get('missing'):
+            if month:
+                self.message = f'「{self.command_text}」沒有月份的資料，請只輸入年份'
+            else:
+                self.message = f'「{self.command_text}」沒有年份的資料，請輸入「年份/月份」'
+            raise CustomError(self.message)
+        options = result['options']
+        if month:
+            date_start, date_end = [o.replace('月', '').replace('年', '/') for o in (options[0], options[-1])]
+        else:
+            date_start, date_end = [o.replace('年', '') for o in (options[0], options[-1])]
+        self.message = f'日期「{self.query_date}」無效，日期需介於「{date_start}」～「{date_end}」之間'
+        raise CustomError(self.message)
+
+    def inquire_submit(self):
+        self.inquire_postback('btnInquire')
+        WebDriverWait(self.driver, 30, 0.2).until(EC.presence_of_element_located((By.ID, self.inquire_id('tabResult'))))
+
+    def inquire_records(self):
+        """
+        把結果表格轉成清單，每一格一筆：
+        {'side': [表側標題...], 'head': [表頭標題...], 'value': '1,234'}
+        表頭標題由上到下，重複的（合併儲存格）只保留一次
+        """
+        table = self.driver.execute_script(JS_INQUIRE_TABLE, self.inquire_id('tabResult'))
+        head, body = table['head'], table['body']
+        side_count = sum(1 for cell in head[0] if 'HorVerCross' in cell['cls']) if head else 1
+
+        def dedup(texts):
+            result = list()
+            for text in texts:
+                if text and (not result or result[-1] != text):
+                    result.append(text)
+            return result
+
+        records = list()
+        for row in body:
+            side = dedup([cell['text'] for cell in row[:side_count]])
+            for col in range(side_count, len(row)):
+                path = dedup([head_row[col]['text'] for head_row in head if col < len(head_row) and 'HorDimSep' not in head_row[col]['cls']])
+                records.append({'side': side, 'head': path, 'value': row[col]['text']})
+        return records
+
+    @staticmethod
+    def find_record(records, *keywords):
+        """找出表頭（或表側）同時包含所有關鍵字的第一筆資料"""
+        for record in records:
+            texts = record['head'] + record['side']
+            if all(any(keyword == text or keyword in text for text in texts) for keyword in keywords):
+                return record
+        return None
