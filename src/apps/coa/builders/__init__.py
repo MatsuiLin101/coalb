@@ -1,4 +1,3 @@
-from .producevalue import *
 from .livestockfeedlot import *
 from .livestockfeedamount import *
 from .livestockslaughter import *
@@ -9,7 +8,6 @@ from .cropproduce import *
 
 
 def build():
-    TotalValueBuilder().build()
     LivestockFeedlotBuilder().build()
     LivestockFeedAmountBuilder().build()
     LivestockSlaughterBuilder().build()

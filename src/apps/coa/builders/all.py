@@ -7,7 +7,6 @@ from apps.coa.builders.livestockbyproduct import LivestockByproductBuilder
 from apps.coa.builders.livestockfeedamount import LivestockFeedAmountBuilder
 from apps.coa.builders.livestockfeedlot import LivestockFeedlotBuilder
 from apps.coa.builders.livestockslaughter import LivestockSlaughterBuilder
-from apps.coa.builders.producevalue import TotalValueBuilder
 
 builders = [
     CropCostBuilder,
@@ -17,7 +16,6 @@ builders = [
     LivestockFeedAmountBuilder,
     LivestockFeedlotBuilder,
     LivestockSlaughterBuilder,
-    TotalValueBuilder,
 ]
 
 # Function to execute the build process for all builder classes

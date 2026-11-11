@@ -6,14 +6,13 @@ class ProduceValueApiView(BasicApiView):
     產值api介面
 
     - ProduceValue(產值)
-        必需先執行 builder TotalValueBuilder 建立選項資料
 
     -- TotalValue(總產值)
-        Builder: TotalValueBuilder
+        Builder: None
         Proxy: False
         Data:
-            動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
-            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+            農業統計資料查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值-按縣市別]
+            https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CA02
 
     -- Value(產值)
         Builder: None
@@ -41,26 +40,17 @@ class ProduceValueApiView(BasicApiView):
             raise CustomError('查詢介面指令錯誤，請通知管理員處理。')
 
 
-class TotalValueApiView(BasicApiView):
+class TotalValueApiView(InquireAdvanceBasicApiView):
     """
     -- TotalValue(總產值)
-        動態查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值：縣市別×農業別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        農業統計資料查詢 [農業生產統計]>>[農業產值結構與指標]>>[農業產值-按縣市別]
+        https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CA02
     """
+    qcode = 'CA02'
+    categories = ['農產', '林產', '畜產', '漁產']
+
     def __init__(self, params):
         self.driver = None
-        self.url = 'https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx'
-        self.text_title = '農業產值結構與指標'
-        self.text_group = '農業產值：縣市別×農業別'
-        self.id_group = 'ctl00_cphMain_uctlInquireAdvance_lstFieldGroup'
-        self.id_city = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension'
-        self.id_category = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl02_lstDimension'
-        self.id_search = 'ctl00_cphMain_uctlInquireAdvance_btnQuery'
-        self.id_start_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearBegin'
-        self.id_end_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearEnd'
-        self.id_query = 'ctl00_cphMain_uctlInquireAdvance_btnQuery2'
-        self.id_table = 'ctl00_cphMain_uctlInquireAdvance_tabResult'
-        self.id_back = 'ctl00_cphMain_uctlInquireAdvance_btnBack2'
         self.message = ''
         self.params = params
 
@@ -77,80 +67,22 @@ class TotalValueApiView(BasicApiView):
         self.command_text = ' '.join(text for text in params)
 
     def get_data(self):
-        self.parser()
+        self.inquire_open()
+        selections = {'農業別': None}
         if self.city is not None:
-            self.get_city()
-        self.get_query()
-        self.get_table()
-        self.get_result()
+            selections['縣市別'] = [self.city]
+        picked = self.inquire_dimension(selections)
+        self.inquire_items()
+        self.inquire_period(self.year)
+        self.inquire_submit()
+        records = self.inquire_records()
 
-        if self.city is not None:
-            self.message = f'{self.year}年 {self.obj_city.name} 總產值：\n' + f'農業：{self.result_1}(千元)\n' + f'農產：{self.result_2}(千元)\n' + f'林產：{self.result_3}(千元)\n' + f'畜產：{self.result_4}(千元)\n' + f'漁產：{self.result_5}(千元)'
-        else:
-            self.message = f'{self.year}年 總產值：\n' + f'農業：{self.result_1}(千元)\n' + f'農產：{self.result_2}(千元)\n' + f'林產：{self.result_3}(千元)\n' + f'畜產：{self.result_4}(千元)\n' + f'漁產：{self.result_5}(千元)'
-
-    def parser(self):
-        super(TotalValueApiView, self).parser()
-        # 進入畜禽產品飼養數量統計頁面
-        self.driver.find_element(By.LINK_TEXT, self.text_title).click()
-
-    def get_city(self):
-        # 是否有完全符合name的物件
-        try:
-            self.obj_city = TotalValue.objects.get(name=self.city, sub_class='city')
-            return
-        except Exception as e:
-            pass
-
-        # 是否有部分符合name的物件
-        try:
-            self.obj_city = TotalValue.objects.get(name__icontains=self.city, sub_class='city')
-            return
-        except Exception as e:
-            pass
-
-        # 是否有完全符合search_name的物件
-        try:
-            self.obj_city = TotalValue.objects.get(search_name=self.city, sub_class='city')
-            return
-        except Exception as e:
-            pass
-
-        # 可能有多種結果，請使用者改用詳細關鍵字
-        qs = TotalValue.objects.filter(name__icontains=self.city, sub_class='city')
-        if qs.count() > 0:
-            list_city = list(qs.values_list('search_name', flat=True))
-            message = '\n'.join([city for city in list_city])
-            self.message = f'城市「{self.city}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
-        else:
-            self.message = f'查無城市「{self.city}」'
-        raise CustomError(self.message)
-
-    def get_query(self):
-        driver_select(self.driver, self.id_group, 'text', self.text_group)
-        # 選擇城市
-        if self.city is not None:
-            time.sleep(0.5)
-            driver_select(self.driver, self.id_city, 'value', self.obj_city.value, True)
-
-        # 選擇全部農業別
-        time.sleep(0.5)
-        qs_category = TotalValue.objects.filter(sub_class='category')
-        for obj in qs_category:
-            driver_select(self.driver, self.id_category, 'value', obj.value)
-
-        # 送出查詢
-        btn_search = self.driver.find_element(By.ID, self.id_search)
-        btn_search.click()
-
-    def get_result(self):
-        WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
-        table = self.driver.find_element(By.ID, self.id_table)
-        self.result_1 = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_element(By.CSS_SELECTOR, '.ValueLeftTop').text
-        self.result_2 = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_elements(By.CSS_SELECTOR, '.ValueTop')[0].text
-        self.result_3 = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_elements(By.CSS_SELECTOR, '.ValueTop')[1].text
-        self.result_4 = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_elements(By.CSS_SELECTOR, '.ValueTop')[2].text
-        self.result_5 = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_elements(By.CSS_SELECTOR, '.ValueTop')[3].text
+        # 第一欄是合計（農業），其餘依農業別
+        results = [records[0]['value']] + [self.find_record(records, category)['value'] for category in self.categories]
+        title = f'{self.year}年 {picked["縣市別"][0]} 總產值：\n' if self.city is not None else f'{self.year}年 總產值：\n'
+        self.message = title + '\n'.join(
+            f'{name}：{value}(千元)' for name, value in zip(['農業'] + self.categories, results)
+        )
 
 
 class ValueApiView(AnnualReportBasicApiView):

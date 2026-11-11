@@ -4,7 +4,7 @@ coa.apis package
 
 from .producevalue import ProduceValueApiView
 '''
-資料來源：動態查詢、年報
+資料來源：動態查詢（總產值 qcode=CA02，不再需要 builder）、年報
 
 指令(choose)
 -總產值
