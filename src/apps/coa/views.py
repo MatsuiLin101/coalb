@@ -478,6 +478,7 @@ def proxy_parser(request):
         - 根據 `api` 參數將請求路由到適當的 API 處理器：
             - `CropPriceOriginApiView`: 處理作物價格來源資料的請求。
             - `CropProduceTotalApiView`: 處理作物生產總量資料的請求。
+            - `LivestockHogApiView`: 處理毛豬交易量、價格、重量資料的請求。
         - 解析並處理請求參數。
         - 將回應與錯誤分別記錄到 `ProxyLog` 和 `TracebackLog` 模型。
         - 根據 API 呼叫結果或錯誤處理的結果回傳適當的 HTTP 回應。
@@ -500,6 +501,8 @@ def proxy_parser(request):
             api_class = CropPriceOriginApiView
         elif api == 'CropProduceTotalApiView':
             api_class = CropProduceTotalApiView
+        elif api == 'LivestockHogApiView':
+            api_class = LivestockHogApiView
         else:
             proxy_log.response = '無法使用此功能, api錯誤'
             proxy_log.save(update_fields=['response'])

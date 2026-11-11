@@ -152,6 +152,9 @@ from .livestockhog import LivestockHogApiView
 已修改
 更改指令統一為「毛豬」
 保留「交易量」、「價格」、「重量」指令
+
+2026/11/11 網站限制海外IP，改用proxy取得資料，網址改為https
+- 第一次查詢只會回「抓取資料中，請稍後再試。」，約30秒後再查才有結果
 '''
 
 from .livestockprice import LivestockPriceApiView

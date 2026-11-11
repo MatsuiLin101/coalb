@@ -1,3 +1,12 @@
+import json
+
+from django.urls import reverse
+
+from core.settings import (
+    PROXY_DOMAIN,
+    PROXY_TOKEN
+)
+
 from .configs import *
 
 
@@ -9,13 +18,14 @@ class LivestockHogApiView(BasicApiView):
     - price(價格)
     - weight(重量)
         Builder: None
-        Proxy: False
+        Proxy: True（網站擋海外 IP，主站經代理站查詢）
         Data:
-            畜產行情資訊網 http://ppg.naif.org.tw/naif/MarketInformation/Pig/twStatistics.aspx
+            畜產行情資訊網 https://ppg.naif.org.tw/naif/MarketInformation/Pig/twStatistics.aspx
     """
-    def __init__(self, params):
+    def __init__(self, params, use_proxy=False):
         self.driver = None
-        self.url = 'http://ppg.naif.org.tw/naif/MarketInformation/Pig/twStatistics.aspx'
+        self.use_proxy = use_proxy
+        self.url = 'https://ppg.naif.org.tw/naif/MarketInformation/Pig/twStatistics.aspx'
         self.check_month = 'ContentPlaceHolder_main_RadioButton_m'
         self.select_month_start_year = 'ContentPlaceHolder_main_DropDownList_m_begYear'
         self.select_month_start_month = 'ContentPlaceHolder_main_DropDownList_m_begMonth'
@@ -43,6 +53,22 @@ class LivestockHogApiView(BasicApiView):
             raise CustomError('毛豬(不包含澎湖)的指令為「毛豬 年份」或「毛豬 年份/月份」，例如：\n「毛豬 108」\n「毛豬 108/12」\n\n也使用替代指令查詢(皆可帶入月份)，例如：\n「交易量 豬 107」\n「價格 豬 108/12」\n「重量 豬 109/1」')
 
         self.command_text = ' '.join(text for text in params)
+
+    def choose_api(self):
+        """由 LINE 指令進來時一律經代理站查詢；代理站的 Celery 直接建立物件，不會經過這裡"""
+        return LivestockHogApiView(self.params, use_proxy=True)
+
+    def execute_api(self):
+        if self.use_proxy:
+            data = json.dumps({
+                'params': self.params
+            })
+            res = requests.get(f"{PROXY_DOMAIN}{reverse('coa:proxy_parser')}?token={PROXY_TOKEN}&api=LivestockHogApiView&data={data}")
+            if res.status_code != 200:
+                return '該功能維護中...'
+            return res.text
+        else:
+            return super(LivestockHogApiView, self).execute_api()
 
     def verify_date(self):
         try:
