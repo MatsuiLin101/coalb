@@ -101,7 +101,7 @@ class ValueApiView(AnnualReportBasicApiView):
         self.chapter = '(四)農產品生產量值'
 
         if len(params) != 3:
-            raise CustomError('產值的指令為「產值 品項 年份」，例如：\n「產值 稻米 110」')
+            raise CustomError('產值的指令為「產值 品項 年份」，例如：\n「產值 稻米 113」')
 
         self.command = params[0]
         self.product = params[1]
