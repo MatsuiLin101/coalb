@@ -83,7 +83,7 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
   - 年報（`Book.aspx`）：產值、生產毛額、農家所得、農牧戶、耕地面積、災害
   - 動態查詢（`InquireAdvance.aspx`）：總產值、就業人口、農保、老農津貼、獎助學金、批發、生產成本、工時、飼養場數、在養量、屠宰量、副產物
   - 新網站沒有擋海外 IP
-- **毛豬網站 `ppg.naif.org.tw`**：沒有改版，但開始擋海外 IP，從台灣 IP 連正常。已在 `feature/hog-proxy` 接上代理機制、網址改成 https，本機測試正常（2026-11-11），**還沒部署到兩台正式主機**，正式機上仍然失效
+- **毛豬網站 `ppg.naif.org.tw`**：沒有改版，但開始擋海外 IP，從台灣 IP 連正常。已在 `feature/hog-proxy` 接上代理機制、網址改成 https，並改成依欄位標題讀結果表格，本機測試正常（2026-11-11），**還沒部署到兩台正式主機**，正式機上仍然失效。頭數、重量、價格都是「規格豬」的數字（跟 2021 年需求確認表的範例數字核對過），回覆訊息三項都有標明
 - **正常的功能**：產地、產量、種植面積（經代理）、單位產值、單位產量、作物代碼（本地資料表）、拍賣價、零售價（`price.naif.org.tw`）
 - 兩台主機都沒有資料庫備份、都在等重開機套用更新、都沒有監控；樹莓派曾兩度整月離線（2025 年 10～11 月、2026 年 9 月）
 
@@ -106,7 +106,7 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
 - commit 訊息用 `feat:` / `fix:` / `docs:` 等前綴加英文短句
 - Lint：`make format`，也就是 flake8，設定見根目錄 `Makefile`。測試幾乎沒有，`tests.py` 裡只有 print
 - 使用者看到的訊息、程式註解、docstring 都用正體中文
-- 爬蟲用元素 ID 或固定 XPath 定位，網站改版就會失效；修的時候優先改成依欄位標題定位
+- 爬蟲用元素 ID 或固定 XPath 定位，網站改版就會失效；修的時候優先改成依欄位標題定位。讀結果表格可用 `apps/coa/utils.py` 的 `parse_table_by_header()`（支援 rowspan/colspan 多層標題，用法見 `livestockhog.py`），找不到欄位時要報錯，不要回傳別欄的數字
 
 ## 機密資料
 

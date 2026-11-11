@@ -17,6 +17,7 @@ class LivestockHogApiView(BasicApiView):
     - amount(交易量)
     - price(價格)
     - weight(重量)
+        三項都取「規格豬」欄位，依欄位標題讀取（parse_table_by_header）
         Builder: None
         Proxy: True（網站擋海外 IP，主站經代理站查詢）
         Data:
@@ -52,7 +53,7 @@ class LivestockHogApiView(BasicApiView):
             self.product = params[1]
             self.query_date = params[2]
         else:
-            raise CustomError('毛豬(不包含澎湖)的指令為「毛豬 年份」或「毛豬 年份/月份」，例如：\n「毛豬 108」\n「毛豬 108/12」\n\n也使用替代指令查詢(皆可帶入月份)，例如：\n「交易量 豬 107」\n「價格 豬 108/12」\n「重量 豬 109/1」')
+            raise CustomError('毛豬(不包含澎湖，數字為規格豬)的指令為「毛豬 年份」或「毛豬 年份/月份」，例如：\n「毛豬 108」\n「毛豬 108/12」\n\n也使用替代指令查詢(皆可帶入月份)，例如：\n「交易量 豬 107」\n「價格 豬 108/12」\n「重量 豬 109/1」')
 
         self.command_text = ' '.join(text for text in params)
 
