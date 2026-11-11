@@ -1,11 +1,9 @@
 import traceback
 
-from apps.coa.builders.cropcost import CropCostBuilder
 from apps.coa.builders.cropprice import CropPriceOriginBuilder
 from apps.coa.builders.cropproduce import CropProduceTotalBuilder
 
 builders = [
-    CropCostBuilder,
     CropPriceOriginBuilder,
     CropProduceTotalBuilder,
 ]

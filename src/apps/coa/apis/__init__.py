@@ -128,7 +128,7 @@ from .cropproduce import CropProduceApiView, CropProduceTotalApiView
 
 from .cropcost import CropCostApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=DA02、DA03，不再需要 builder）
 
 指令(choos)
 -成本、生產成本
