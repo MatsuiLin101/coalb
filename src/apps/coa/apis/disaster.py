@@ -12,11 +12,11 @@ class DisasterApiView(AnnualReportBasicApiView):
             年報
             十、農業災害
             1農業災害產物及民間設施估計損失
-            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+            https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
     """
     def __init__(self, params):
         super(DisasterApiView, self).__init__(params)
-        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl76_dtlFile_ctl00_lnkFile'
+        self.chapter = '1農業災害產物及民間設施估計損失'
 
         if len(params) != 2:
             raise CustomError('災害的指令為「災害 年份」，例如：\n「災害 110」')
