@@ -129,46 +129,15 @@ class Allowance(WelfareApiView):
     老農津貼api介面
 
     - Allowance(老農津貼)
-        動態查詢 [社會保險及社會指標統計]>>[社會福利統計]>>[老農津貼人數]、[老農津貼金額]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=BC01
     """
-    def __init__(self, params):
-        super(Allowance, self).__init__(params)
-        self.text_title = '社會福利統計'
-        self.text_group_1 = '老農津貼人數'
-        self.text_group_2 = '老農津貼金額'
-
-        if not 2 <= len(params) <= 3:
-            raise CustomError('老農津貼的指令為「老農津貼 年份」或「老農津貼 年份/月份」，例如：\n「老農津貼 108」\n「老農津貼 108/3」\n\n也可加上縣市「老農津貼 縣市 年份」或「老農津貼 縣市 年份/月份」，例如：\n「老農津貼 高雄 109」\n「老農津貼 高雄 109/3」')
-        self.command = params[0]
-        if len(params) == 3:
-            self.city = params[1].replace('台', '臺')
-            self.query_date = params[2]
-        else:
-            self.city = None
-            self.query_date = params[1]
-        self.command_text = ' '.join(text for text in params)
+    qcode = 'BC01'
+    usage = '老農津貼的指令為「老農津貼 年份」或「老農津貼 年份/月份」，例如：\n「老農津貼 113」\n「老農津貼 114/6」\n\n也可加上縣市「老農津貼 縣市 年份」或「老農津貼 縣市 年份/月份」，例如：\n「老農津貼 高雄 113」\n「老農津貼 高雄 114/6」'
 
     def get_data(self):
-        self.parser(self.id_group, self.text_group_1)
-        self.get_table()
-        self.get_result()
-        result1 = self.result
-        self.parser_second(self.id_group, self.text_group_2)
-        self.get_table()
-        self.get_result()
-        result2 = self.result
-
-        self.message = f"{self.year}年_month__city_ 老農津貼人數：{result1}(人)\n"
-        self.message += f"{self.year}年_month__city_ 老農津貼金額：{result2}(元)"
-        if self.month:
-            self.message = self.message.replace('_month_', f"{self.month}月")
-        else:
-            self.message = self.message.replace('_month_', '')
-        if self.city:
-            self.message = self.message.replace('_city_', f" {self.city}")
-        else:
-            self.message = self.message.replace('_city_', '')
+        city, (result1, result2) = self.query(['老農津貼人數', '老農津貼金額'])
+        self.message = f"{self.title(city)} 老農津貼人數：{result1}\n"
+        self.message += f"{self.title(city)} 老農津貼金額：{result2}"
 
 
 class Scholarship(WelfareApiView):
