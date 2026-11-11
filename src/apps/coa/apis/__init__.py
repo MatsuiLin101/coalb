@@ -181,7 +181,7 @@ from .livestockfeedlot import LivestockFeedlotApiView
 
 from .livestockfeedamount import LivestockFeedAmountApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CD01、CD02，不再需要 builder）
 
 指令
 -在養
