@@ -15,7 +15,7 @@ class CropPriceApiView(BasicApiView):
     農耕價格api介面
 
     - CropPriceApiView(價格)
-        必需先執行 builder CropPriceOriginBuilder 及 CropPriceWholesaleBuilder 建立選項資料
+        必需先執行 builder CropPriceOriginBuilder 建立產地價的選項資料
 
     -- CropPriceOrigin(產地價)
         Builder: CropPriceOriginBuilder
@@ -25,11 +25,11 @@ class CropPriceApiView(BasicApiView):
             https://apis.afa.gov.tw/pagepub/AppContentPage.aspx?itemNo=PRI105
 
     -— CropPriceWholesale(批發價)
-        Builder: CropPriceWholesaleBuilder
+        Builder: None
         Proxy: False
         Data:
-            動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
-            https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+            農業統計資料查詢 qcode=CH04（蔬菜）、CH06（果品）、CH01（白米）
+            https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CH04
     """
     def __init__(self, params):
         self.params = params
@@ -233,161 +233,87 @@ class CropPriceOriginApiView(CropPriceApiView):
             self.message = self.message.replace('_month_', '')
 
 
-class CropPriceWholesaleApiView(CropPriceApiView):
+class CropPriceWholesaleApiView(InquireAdvanceBasicApiView):
     """
     -— CropPriceWholesale(批發價)
-        動態查詢 [農產品運銷統計]>>[農產品價格統計]>>[蔬菜批發價格：蔬菜別]、[果品批發價格：果品別]、[白米批發(躉售)價格：稻種別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        農業統計資料查詢 [農業生產統計]>>[農產品價格統計]>>[蔬菜批發價格-按批發蔬菜別]、[果品批發價格-按批發果品別]、[稻米產地及批發價格-按稻種別]
+        https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CH04
+        https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CH06
+        https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=CH01
+        蔬菜和白米只有年資料，果品有年和月資料
     """
+    # (qcode, 品項分類名稱, 統計量名稱)
+    tables = [
+        ('CH04', '批發蔬菜別', '蔬菜批發價格'),
+        ('CH06', '批發果品別', '果品批發價格'),
+        ('CH01', '稻種別', '白米批發(躉售)價格'),
+    ]
+    max_products = 5
+
     def __init__(self, params):
         self.driver = None
-        self.url = 'https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx'
-        self.text_title = '農產品價格統計'
-        self.text_group1 = '蔬菜批發價格：蔬菜別'
-        self.text_group2 = '果品批發價格：果品別'
-        self.text_group3 = '白米批發(躉售)價格：稻種別'
-        self.id_group = 'ctl00_cphMain_uctlInquireAdvance_lstFieldGroup'
-        self.id_product = 'ctl00_cphMain_uctlInquireAdvance_dtlDimension_ctl00_lstDimension'
-        self.id_search = 'ctl00_cphMain_uctlInquireAdvance_btnQuery'
-        self.id_check_year = 'ctl00_cphMain_uctlInquireAdvance_chkYear'
-        self.id_start_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearBegin'
-        self.id_end_year = 'ctl00_cphMain_uctlInquireAdvance_ddlYearEnd'
-        self.id_check_month = 'ctl00_cphMain_uctlInquireAdvance_chkMonth'
-        self.id_start_month = 'ctl00_cphMain_uctlInquireAdvance_ddlMonthBegin'
-        self.id_end_month = 'ctl00_cphMain_uctlInquireAdvance_ddlMonthEnd'
-        self.id_query = 'ctl00_cphMain_uctlInquireAdvance_btnQuery2'
-        self.id_table = 'ctl00_cphMain_uctlInquireAdvance_tabResult'
-        self.id_back = 'ctl00_cphMain_uctlInquireAdvance_btnBack2'
-        self.option_selected = None
-        self.result = list()
+        self.year = ''
+        self.month = None
         self.message = ''
         self.params = params
 
         if len(params) != 3:
-            raise CustomError('批發的指令為「批發 品項 年份」也可加上月份「批發 品項 年份/月份」，例如：\n「批發 甘藍 108」\n「批發 甘藍 109/1」')
+            raise CustomError('批發的指令為「批發 品項 年份」，果品也可加上月份「批發 品項 年份/月份」，例如：\n「批發 甘藍 113」\n「批發 香蕉 114/6」')
 
         self.command = params[0]
         self.product = params[1]
         self.query_date = params[2]
         self.command_text = ' '.join(text for text in params)
 
-    def parser(self):
-        super(CropPriceWholesaleApiView, self).parser()
-        # 進入農產品價格統計頁面
-        self.driver.find_element(By.LINK_TEXT, self.text_title).click()
+    def verify_date(self):
+        CropPriceApiView.verify_date(self)
 
-    def get_product(self):
-        # 根據使用者輸入的product選擇對應的group
-        # 可能有多種結果，請使用者改用詳細關鍵字
-        qs = CropPriceWholesale.objects.filter(name=self.product, sub_class='product')
-        if qs.count()> 0:
-            self.query_set = qs
-            return
-        qs = CropPriceWholesale.objects.filter(name__icontains=self.product, sub_class='product')
-        if qs.count() > 5:
-            list_product = list(qs.values_list('name', flat=True))
-            message = '\n'.join([product for product in list_product])
-            self.message = f'品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n' + message
-            raise CustomError(self.message)
-        elif qs.count() == 0:
-            self.message = f'查無品項「{self.product}」'
-            raise CustomError(self.message)
-        else:
-            self.query_set = qs
-
-    def get_query(self, obj):
-        if self.option_selected != obj.main_class:
-            # 選擇主分類
-            self.option_selected = obj.main_class
-            driver_select(self.driver, self.id_group, 'text', obj.main_class)
-        # 選擇產品
-        time.sleep(1)
-        driver_select(self.driver, self.id_product, 'value', obj.value, True)
-        # 送出查詢
-        btn_search = self.driver.find_element(By.ID, self.id_search)
-        btn_search.click()
-
-    def get_table(self, obj):
+    def query_table(self, group, item, products):
+        """在已開啟的資料表查詢多個品項，回傳每個品項一行的結果"""
         try:
-            check_year = self.driver.find_element(By.ID, self.id_check_year)
-        except Exception as e:
-            check_year = None
-        try:
-            check_month = self.driver.find_element(By.ID, self.id_check_month)
-        except Exception as e:
-            check_month = None
-
-        if self.month and check_month is not None:
-            if check_year:
-                check_year.click()
-            try:
-                driver_select(self.driver, self.id_start_month, 'value', self.select_date)
-                driver_select(self.driver, self.id_end_month, 'value', self.select_date)
-            except Exception as e:
-                options = self.driver.find_element(By.ID, self.id_start_month).text.replace(' ', '').replace('年', '/').replace('月', '')
-                options = options.split('\n')
-                date_start = options[0]
-                date_end = options[-1]
-                self.result.append(f'{obj.name}：日期超過範圍，請選擇日期於「{date_start}」～「{date_end}」之間')
-                raise CustomError()
-        elif self.month and check_month is None:
-            options = self.driver.find_element(By.ID, self.id_start_year).text.replace(' ', '').replace('年', '')
-            options = options.split('\n')
-            date_start = options[0]
-            date_end = options[-1]
-            self.result.append(f'{obj.name}：只有年資料沒有月份資料，請選擇年份「{date_start}」～「{date_end}」之間')
-            raise CustomError()
-        elif self.month is None and check_year is None:
-            options = self.driver.find_element(By.ID, self.id_start_month).text.replace(' ', '').replace('年', '/').replace('月', '')
-            options = options.split('\n')
-            date_start = options[0]
-            date_end = options[-1]
-            self.result.append(f'{obj.name}：只有月份資料沒有年資料，請選擇日期於「{date_start}」～「{date_end}」之間')
-            raise CustomError()
-        else:
-            if check_month:
-                check_month.click()
-            try:
-                driver_select(self.driver, self.id_start_year, 'value', self.select_date)
-                driver_select(self.driver, self.id_end_year, 'value', self.select_date)
-            except Exception as e:
-                options = self.driver.find_element(By.ID, self.id_start_year).text.replace(' ', '').replace('年', '')
-                options = options.split('\n')
-                date_start = options[0]
-                date_end = options[-1]
-                self.result.append(f'{obj.name}：年份「{self.query_date}」超出範圍，年份需介於「{date_start}」～「{date_end}」之間')
-                raise CustomError()
-
-        btn_query = self.driver.find_element(By.ID, self.id_query)
-        btn_query.click()
-
-    def get_result(self, obj):
-        WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
-        table = self.driver.find_element(By.ID, self.id_table)
-        result = self.driver.find_element(By.CSS_SELECTOR, '.VerDim').parent.find_element(By.CSS_SELECTOR, '.ValueLeftTop').text
-        unit = self.driver.find_element(By.ID, self.id_table).find_elements(By.TAG_NAME, 'tr')[0].text
-        unit = '(' + unit.split('（')[-1].replace('）', '') + ')'
-        if '...' in result:
-            self.result.append(f'{obj.name}：查無結果')
-        else:
-            self.result.append(f'{obj.name}：{result}{unit}')
-
-    def get_back(self):
-        btn_back = self.driver.find_element(By.ID, self.id_back)
-        btn_back.click()
+            self.inquire_period(self.year, self.month)
+        except CustomError as e:
+            reason = str(e).replace(f'「{self.command_text}」', '')
+            return [f'{product}：{reason}' for product in products]
+        self.inquire_dimension({group: products})
+        self.inquire_items([item])
+        self.inquire_period(self.year, self.month)
+        self.inquire_submit()
+        records = self.inquire_records()
+        lines = list()
+        for product in products:
+            record = self.find_record(records, product)
+            unit = re.search(r'\(([^()]*)\)\s*$', record['head'][0])
+            if record['value'].strip() in ['', '-', '…', '...']:
+                lines.append(f'{product}：查無結果')
+            else:
+                lines.append(f'{product}：{record["value"]}{f"({unit.group(1)})" if unit else ""}')
+        return lines
 
     def get_data(self):
-        self.parser()
-        self.get_product()
-        for obj in self.query_set:
-            try:
-                self.get_query(obj)
-                self.get_table(obj)
-                self.get_result(obj)
-            except CustomError:
-                pass
-            self.get_back()
-        if self.month:
-            self.message = f'{self.year}年{self.month}月 {self.product} 批發：\n' + '\n'.join(result for result in self.result)
-        else:
-            self.message = f'{self.year}年 {self.product} 批發：\n' + '\n'.join(result for result in self.result)
+        found = list()
+        for qcode, group, item in self.tables:
+            self.qcode = qcode
+            self.inquire_open()
+            dimension = next(d for d in self.inquire_dimensions() if d['group'] == group)
+            products = [c['name'] for c in self.match_names(dimension['codes'], self.product, multiple=True)]
+            if products:
+                found.append((qcode, group, item, products))
+
+        count = sum(len(products) for *_, products in found)
+        if count == 0:
+            self.message = f'查無品項「{self.product}」'
+            raise CustomError(self.message)
+        if count > self.max_products:
+            names = [name for *_, products in found for name in products]
+            self.message = f'品項「{self.product}」有多個搜尋結果，請改用完整關鍵字如下：\n' + '\n'.join(names)
+            raise CustomError(self.message)
+
+        result = list()
+        for qcode, group, item, products in found:
+            self.qcode = qcode
+            self.inquire_open()
+            result += self.query_table(group, item, products)
+
+        date = f'{self.year}年{self.month}月' if self.month else f'{self.year}年'
+        self.message = f'{date} {self.product} 批發：\n' + '\n'.join(result)

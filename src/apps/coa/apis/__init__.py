@@ -89,7 +89,8 @@ from .welfare import WelfareApiView
 
 from .cropprice import CropPriceApiView, CropPriceOriginApiView
 '''
-資料來源：產地價查報、動態查詢
+資料來源：產地價查報、動態查詢（批發 qcode=CH04、CH06、CH01，不再需要 builder）
+批發的蔬菜和白米只有年資料，果品有月資料
 
 指令(choose)
 -產地
