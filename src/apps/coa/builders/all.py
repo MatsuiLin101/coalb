@@ -5,7 +5,6 @@ from apps.coa.builders.cropprice import CropPriceOriginBuilder
 from apps.coa.builders.cropproduce import CropProduceTotalBuilder
 from apps.coa.builders.livestockbyproduct import LivestockByproductBuilder
 from apps.coa.builders.livestockfeedamount import LivestockFeedAmountBuilder
-from apps.coa.builders.livestockfeedlot import LivestockFeedlotBuilder
 from apps.coa.builders.livestockslaughter import LivestockSlaughterBuilder
 
 builders = [
@@ -14,7 +13,6 @@ builders = [
     CropProduceTotalBuilder,
     LivestockByproductBuilder,
     LivestockFeedAmountBuilder,
-    LivestockFeedlotBuilder,
     LivestockSlaughterBuilder,
 ]
 

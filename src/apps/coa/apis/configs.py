@@ -485,3 +485,63 @@ class InquireAdvanceBasicApiView(BasicApiView):
             if all(any(keyword == text or keyword in text for text in texts) for keyword in keywords):
                 return record
         return None
+
+
+class ProductCityInquireApiView(InquireAdvanceBasicApiView):
+    """
+    「指令 品項 年份」或「指令 品項 年份 縣市」的農業統計資料查詢公版
+    例如場數、在養量、屠宰量、副產物產量
+
+    子類別設定：
+        tables: [(qcode, 品項分類名稱, 統計量名稱), ...]，依序找出含有該品項的資料表
+        label: 回覆時的統計量名稱
+        usage: 參數錯誤時的用法說明
+    """
+    tables = []
+    label = ''
+    usage = ''
+
+    def __init__(self, params):
+        self.driver = None
+        self.message = ''
+
+        if len(params) not in [3, 4]:
+            raise CustomError(self.usage)
+
+        self.command = params[0]
+        self.product = params[1]
+        self.query_date = params[2]
+        self.city = params[3].replace('台', '臺') if len(params) == 4 else None
+        self.command_text = ' '.join(text for text in params)
+
+    def find_table(self):
+        """開啟含有該品項的資料表，回傳 (品項分類名稱, 統計量名稱)"""
+        options = list()
+        for qcode, group, item in self.tables:
+            self.qcode = qcode
+            self.inquire_open()
+            dimension = next(d for d in self.inquire_dimensions() if d['group'] == group)
+            if self.match_names(dimension['codes'], self.product):
+                return group, item
+            options += [c['name'] for c in dimension['codes']]
+        self.message = f'查無品項「{self.product}」，可查詢的品項如下：\n' + '、'.join(options)
+        raise CustomError(self.message)
+
+    def get_data(self):
+        group, item = self.find_table()
+        selections = {group: [self.product]}
+        if self.city is not None:
+            selections['縣市別'] = [self.city]
+        picked = self.inquire_dimension(selections)
+        self.inquire_items([item])
+        self.inquire_period(self.year)
+        self.inquire_submit()
+        record = self.inquire_records()[0]
+
+        # 單位可能在品項名稱「牛乳(公斤)」或統計量表頭「家畜飼養頭數(頭)」
+        product = picked[group][0]
+        unit = re.search(r'\(([^()]*)\)\s*$', product) or re.search(r'\(([^()]*)\)\s*$', record['head'][0])
+        product = re.sub(r'\([^()]*\)\s*$', '', product)
+        city = f' {picked["縣市別"][0]}' if self.city is not None else ''
+        unit = f'({unit.group(1)})' if unit else ''
+        self.message = f'{self.year}年 {product}{city} {self.label}：{record["value"]}{unit}'

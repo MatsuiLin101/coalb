@@ -172,7 +172,7 @@ from .livestockprice import LivestockPriceApiView
 
 from .livestockfeedlot import LivestockFeedlotApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CD01、CD02，不再需要 builder）
 
 指令
 -場數
