@@ -83,6 +83,7 @@ class AnnualReportBasicApiView(BasicApiView):
     url = 'https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx'
     prefix = 'ctl00_ContentPlaceHolder1_'
     book_name = '農業統計年報'
+    all_sheets = False
 
     def __init__(self, params):
         self.driver = None
@@ -170,9 +171,13 @@ class AnnualReportBasicApiView(BasicApiView):
             f.write(res.content)
 
         try:
-            # pandas 搭配 odf 將 ods 轉檔成 xlsx（只取第一個工作表，欄位位置與舊版相同）
-            df = pd.read_excel(ods_name, engine="odf")
-            df.to_excel(xlsx_name, index=False, engine="openpyxl")
+            # pandas 搭配 odf 將 ods 轉檔成 xlsx；預設只取第一個工作表，all_sheets 為 True 時保留全部
+            sheets = pd.read_excel(ods_name, engine="odf", sheet_name=None if self.all_sheets else 0)
+            if not self.all_sheets:
+                sheets = {'Sheet1': sheets}
+            with pd.ExcelWriter(xlsx_name, engine="openpyxl") as writer:
+                for sheet_name, df in sheets.items():
+                    df.to_excel(writer, sheet_name=sheet_name, index=False)
             self.xlsx_name = xlsx_name
         finally:
             os.remove(ods_name)

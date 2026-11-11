@@ -21,7 +21,7 @@ class ProduceValueApiView(BasicApiView):
             年報
             一、農業經濟指標
             (四)農產品生產量值
-            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+            https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
     """
     def __init__(self, params):
         self.params = params
@@ -91,11 +91,14 @@ class ValueApiView(AnnualReportBasicApiView):
         年報
         一、農業經濟指標
         (四)農產品生產量值
-        https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+        https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
+        品項分散在多個工作表（農產、畜產等），所以要讀取全部工作表
     """
+    all_sheets = True
+
     def __init__(self, params):
         super(ValueApiView, self).__init__(params)
-        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl06_dtlFile_ctl00_lnkFile'
+        self.chapter = '(四)農產品生產量值'
 
         if len(params) != 3:
             raise CustomError('產值的指令為「產值 品項 年份」，例如：\n「產值 稻米 110」')
