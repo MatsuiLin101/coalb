@@ -77,18 +77,16 @@ class BasicApiView(ABC):
 class AnnualReportBasicApiView(BasicApiView):
     """
     年報用公版ApiView
+    子類別設定 self.chapter 為年報中的章節名稱，例如「(一)國內生產毛額與經濟成長率」
     如果年報持續報錯，或是轉檔失敗，且時間在6~8月左右，可能是年報更新導致抓不到更新的年報
     """
+    url = 'https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx'
+    prefix = 'ctl00_ContentPlaceHolder1_'
+    book_name = '農業統計年報'
+
     def __init__(self, params):
         self.driver = None
-        self.url = 'https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx'
-        self.radio_history = 'ctl00_cphMain_uctlBook_rdoPeriodAll'
-        self.btn_total = 'ctl00_cphMain_uctlBook_chkQCategoryAll'
-        self.btn_book = 'ctl00_cphMain_uctlBook_dltQCategory_ctl00_chkQCategory'
-        self.btn_search = 'ctl00_cphMain_uctlBook_btnQuery'
-        self.id_table = 'ctl00_cphMain_uctlBook_grdBook'
-        self.id_book1 = ''
-        self.id_book2 = ''
+        self.chapter = ''
         self.xlsx_name = ''
         self.message = ''
         self.row = ''
@@ -116,71 +114,68 @@ class AnnualReportBasicApiView(BasicApiView):
             if self.xlsx_name:
                 os.remove(self.xlsx_name)
 
+    def list_books(self):
+        """回傳最新兩期年報的 [(年報名稱, postback 目標), ...]"""
+        self.driver.get(self.url)
+        WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, f'{self.prefix}grdBook')))
+        books = self.driver.execute_script("""
+            return Array.prototype.map.call(document.querySelectorAll('[id$="_btnBookName"]'), function (a) {
+                var match = (a.getAttribute('href') || '').match(/__doPostBack\\('([^']+)'/);
+                return [a.innerText.trim(), match ? match[1] : ''];
+            });
+        """)
+        return [book for book in books if self.book_name in book[0]][:2]
+
+    def find_chapter_file(self, target):
+        """開啟年報，回傳章節第一個檔案（ods）的網址，找不到時回傳 None"""
+        old_html = self.driver.find_element(By.TAG_NAME, 'html')
+        self.driver.execute_script("var t = arguments[0]; setTimeout(function () { __doPostBack(t, ''); }, 0);", target)
+        WebDriverWait(self.driver, 30, 0.1).until(EC.staleness_of(old_html))
+        WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[id$="_lnkChapter"]')))
+        return self.driver.execute_script("""
+            var prefix = arguments[0], chapter = arguments[1];
+            var links = document.querySelectorAll('[id^="' + prefix + 'repChapter_"][id$="_lnkChapter"]');
+            for (var i = 0; i < links.length; i++) {
+                if (links[i].innerText.trim() === chapter) {
+                    var file = document.getElementById(links[i].id.replace('_lnkChapter', '_dtlFile_ctl00_lnkFile'));
+                    return file ? file.href : null;
+                }
+            }
+            return null;
+        """, self.prefix, self.chapter)
+
     def download(self):
         """
-        避免年報更新時的空窗期，抓取最新一期的年報及前一期的年報，並備註資料來源
+        避免年報更新時的空窗期，抓取最新一期的年報，找不到章節時改用前一期，並備註資料來源
         """
-        # download ods and transfer to xlsx
         self.driver = get_driver()
-        try:
+        ods_href = None
+        for name, target in self.list_books():
+            ods_href = self.find_chapter_file(target)
+            if ods_href:
+                self.source = name
+                break
             self.driver.get(self.url)
-            WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.btn_search)))
-            self.driver.find_element(By.ID, self.radio_history).click()
-            self.driver.find_element(By.ID, self.btn_total).click()
-            self.driver.find_element(By.ID, self.btn_book).click()
-            self.driver.find_element(By.ID, self.btn_search).click()
-            WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_table)))
-            table = self.driver.find_element(By.ID, self.id_table)
-            reports = table.find_elements(By.TAG_NAME, 'a')
-            for report in reports:
-                if '農業統計年報' in report.text and self.id_book1 == '':
-                    self.id_book1 = report.get_attribute('id')
-                    self.source1 = report.text
-                    continue
-                elif '農業統計年報' in report.text and self.id_book2 == '':
-                    self.id_book2 = report.get_attribute('id')
-                    self.source2 = report.text
-                    continue
-                elif self.id_book1 and self.id_book2:
-                    break
+        if not ods_href:
+            raise Exception(f'年報中找不到章節「{self.chapter}」，網站可能改版')
 
-            try:
-                self.driver.find_element(By.ID, self.id_book1).click()
-                ods = self.driver.find_element(By.ID, self.id_ods)
-                self.source = self.source1
-            except Exception as e:
-                try:
-                    self.driver.get(self.url)
-                    WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.btn_search)))
-                    self.driver.find_element(By.ID, self.radio_history).click()
-                    self.driver.find_element(By.ID, self.btn_total).click()
-                    self.driver.find_element(By.ID, self.btn_book).click()
-                    self.driver.find_element(By.ID, self.btn_search).click()
-                    WebDriverWait(self.driver, 30, 0.1).until(EC.presence_of_element_located((By.ID, self.id_book2)))
-                    self.driver.find_element(By.ID, self.id_book2).click()
-                    ods = self.driver.find_element(By.ID, self.id_ods)
-                    self.source = self.source2
-                except Exception as e:
-                    raise
+        # 產生 ods 及 xlsx 臨時檔名
+        ods_name = f'ods_{int(datetime.datetime.now().timestamp() * 1000)}.ods'
+        xlsx_name = ods_name.replace('.ods', '.xlsx')
 
-            # 產生 ods 及 xlsx 臨時檔名
-            ods_href = ods.get_attribute('href')
-            ods_name = f'ods_{int(datetime.datetime.now().timestamp())}.ods'
-            xlsx_name = ods_name.replace('.ods', '.xlsx')
+        # 抓取 ods 之後保存
+        res = requests.get(ods_href, timeout=60)
+        res.raise_for_status()
+        with open(ods_name, 'wb') as f:
+            f.write(res.content)
 
-            # 抓取 ods 之後保存
-            res = requests.get(ods_href)
-            with open(ods_name, 'wb') as f:
-                f.write(res.content)
-
-            # pandas 搭配 odf 將 ods 轉檔成 xlsx
+        try:
+            # pandas 搭配 odf 將 ods 轉檔成 xlsx（只取第一個工作表，欄位位置與舊版相同）
             df = pd.read_excel(ods_name, engine="odf")
             df.to_excel(xlsx_name, index=False, engine="openpyxl")
-
             self.xlsx_name = xlsx_name
+        finally:
             os.remove(ods_name)
-        except Exception as e:
-            raise
 
     def open_wb(self):
         """
