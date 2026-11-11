@@ -190,7 +190,7 @@ from .livestockfeedamount import LivestockFeedAmountApiView
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CE05、CE06，不再需要 builder）
 
 指令
 -屠宰
