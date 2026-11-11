@@ -134,7 +134,7 @@ def get_reply_from_text(command_text):
         reply += '生產成本(包含生產費用、粗收益、淨收入率、工時)\n\n'
 
         reply += '畜禽類：\n'
-        reply += '毛豬(包含交易量、拍賣價、平均重量)\n'
+        reply += '毛豬(規格豬的交易量、拍賣價、平均重量)\n'
         reply += '拍賣價\n'
         reply += '產地價\n'
         reply += '零售價\n'

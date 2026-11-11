@@ -155,6 +155,10 @@ from .livestockhog import LivestockHogApiView
 
 2026/11/11 網站限制海外IP，改用proxy取得資料，網址改為https
 - 第一次查詢只會回「抓取資料中，請稍後再試。」，約30秒後再查才有結果
+
+2026/11/11 改用欄位標題讀取結果表格（utils.parse_table_by_header），不再用固定XPath
+- 依需求確認表的範例數字核對過，頭數、重量、價格都取「規格豬」欄位，回覆訊息三項都標明規格豬
+- 網站改了欄位標題或日期對不上時會報錯並留錯誤編號，不會回傳錯的欄位
 '''
 
 from .livestockprice import LivestockPriceApiView

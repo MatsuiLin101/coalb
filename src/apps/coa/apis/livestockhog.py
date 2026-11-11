@@ -37,9 +37,11 @@ class LivestockHogApiView(BasicApiView):
         self.check_penghu = 'ContentPlaceHolder_main_CheckBox_penghu'
         self.btn_query = 'ContentPlaceHolder_main_Button_query'
         self.table = 'ContentPlaceHolder_main_GridView_data'
-        self.xpath_amount = '/html/body/form/div[7]/div/div/div[3]/div/table/tbody/tr[3]/td[5]'
-        self.xpath_price = '/html/body/form/div[7]/div/div/div[3]/div/table/tbody/tr[3]/td[7]'
-        self.xpath_weight = '/html/body/form/div[7]/div/div/div[3]/div/table/tbody/tr[3]/td[6]'
+        # 結果表格的欄位標題（兩層標題以「/」串接），依需求確認表，頭數、重量、價格都取規格豬
+        self.col_date = '日期'
+        self.col_amount = '規格豬/成交頭數'
+        self.col_weight = '規格豬/平均重量'
+        self.col_price = '規格豬/平均價格'
         self.message = ''
         self.params = params
 
@@ -145,10 +147,25 @@ class LivestockHogApiView(BasicApiView):
             else:
                 self.message = f'{self.year - 1911}年 豬 查無資料'
             return
-        amount = self.driver.find_element(By.XPATH, self.xpath_amount).text
-        price = self.driver.find_element(By.XPATH, self.xpath_price).text
-        weight = self.driver.find_element(By.XPATH, self.xpath_weight).text
+        rows = parse_table_by_header(table.get_attribute('outerHTML'))
+
+        # 網站改了欄位標題時直接報錯，不要回傳錯的欄位
+        columns = [self.col_date, self.col_amount, self.col_weight, self.col_price]
+        missing = [col for col in columns if not rows or col not in rows[0]]
+        if missing:
+            raise Exception(f'毛豬結果表格找不到欄位 {missing}，網站可能改版，目前的欄位：{list(rows[0]) if rows else []}')
+
+        # 核對日期欄，避免讀到別的年份或月份
+        query_date = f'{self.year}-{self.month:02d}' if self.month else str(self.year)
+        row = next((row for row in rows if row[self.col_date] == query_date), None)
+        if row is None:
+            raise Exception(f'毛豬結果表格找不到日期「{query_date}」的資料，表格中的日期：{[row[self.col_date] for row in rows]}')
+
+        amount = row[self.col_amount]
+        weight = row[self.col_weight]
+        price = row[self.col_price]
         if self.month:
-            self.message = f'{self.year - 1911}年{self.month}月 豬(不含澎湖)\n成交頭數：{amount}(頭)\n平均重量：{weight}(公斤)\n平均價格(規格豬)：{price}(元/公斤)'
+            title = f'{self.year - 1911}年{self.month}月 豬(不含澎湖)'
         else:
-            self.message = f'{self.year - 1911}年 豬(不含澎湖)\n成交頭數：{amount}(頭)\n平均重量：{weight}(公斤)\n平均價格(規格豬)：{price}(元/公斤)'
+            title = f'{self.year - 1911}年 豬(不含澎湖)'
+        self.message = f'{title}\n成交頭數(規格豬)：{amount}(頭)\n平均重量(規格豬)：{weight}(公斤)\n平均價格(規格豬)：{price}(元/公斤)'
