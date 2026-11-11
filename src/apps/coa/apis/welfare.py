@@ -145,43 +145,12 @@ class Scholarship(WelfareApiView):
     農漁民子女獎助學金api介面
 
     - Scholarship(農漁民子女獎助學金)
-        動態查詢 [社會保險及社會指標統計]>>[社會福利統計]>>[農漁民子弟就學獎助學金發放件數]、[農漁民子弟就學獎助學金發放金額：縣市別]
-        https://agrstat.moa.gov.tw/sdweb/public/inquiry/InquireAdvance.aspx
+        https://agrstat.moa.gov.tw/moasdweb/inquire/InquireAdvance.aspx?qcode=BC02
     """
-    def __init__(self, params):
-        super(Scholarship, self).__init__(params)
-        self.text_title = '社會福利統計'
-        self.text_group_1 = '農漁民子弟就學獎助學金發放件數'
-        self.text_group_2 = '農漁民子弟就學獎助學金發放金額：縣市別'
-
-        if not 2 <= len(params) <= 3:
-            raise CustomError('獎助學金的指令為「獎助學金 年份」或「獎助學金 年份/月份」，例如：\n「獎助學金 108」\n「獎助學金 108/3」\n\n也可加上縣市「獎助學金 縣市 年份」或「獎助學金 縣市 年份/月份」，例如：\n「獎助學金 高雄 109」\n「獎助學金 高雄 109/3」')
-        self.command = params[0]
-        if len(params) == 3:
-            self.city = params[1].replace('台', '臺')
-            self.query_date = params[2]
-        else:
-            self.city = None
-            self.query_date = params[1]
-        self.command_text = ' '.join(text for text in params)
+    qcode = 'BC02'
+    usage = '獎助學金的指令為「獎助學金 年份」，例如：\n「獎助學金 113」\n\n也可加上縣市「獎助學金 縣市 年份」，例如：\n「獎助學金 高雄 113」'
 
     def get_data(self):
-        self.parser(self.id_group, self.text_group_1)
-        self.get_table()
-        self.get_result()
-        result1 = self.result
-        self.parser_second(self.id_group, self.text_group_2)
-        self.get_table()
-        self.get_result()
-        result2 = self.result
-
-        self.message = f"{self.year}年_month__city_ 農漁民子女獎助學金發放件數：{result1}(件)\n"
-        self.message += f"{self.year}年_month__city_ 農漁民子女獎助學金金額：{result2}(元)"
-        if self.month:
-            self.message = self.message.replace('_month_', f"{self.month}月")
-        else:
-            self.message = self.message.replace('_month_', '')
-        if self.city:
-            self.message = self.message.replace('_city_', f" {self.city}")
-        else:
-            self.message = self.message.replace('_city_', '')
+        city, (result1, result2) = self.query(['農漁民子弟就學獎助學金發放件數', '農漁民子弟就學獎助學金發放金額'])
+        self.message = f"{self.title(city)} 農漁民子女獎助學金發放件數：{result1}\n"
+        self.message += f"{self.title(city)} 農漁民子女獎助學金金額：{result2}"

@@ -82,12 +82,9 @@ from .welfare import WelfareApiView
 -津貼、老農津貼
 -獎助學金
 
-已修正
-Scholarship無法查詢到縣市
-獎助學金沒有提供縣市月份資料，應該是有帶月份才會查詢不到
-
-待優化
-改善縣市查詢方式
+2026/11 agrstat 改版後改用 qcode=BB01、BC01、BC02，縣市直接依名稱選取
+人數和金額在同一張表，一次查詢就能取得；單位取自表頭
+獎助學金只有年資料，沒有月資料
 '''
 
 from .cropprice import CropPriceApiView, CropPriceOriginApiView
