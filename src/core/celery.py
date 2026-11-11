@@ -34,6 +34,7 @@ def delay_proxy_parser(api: str, params: list):
     from django.core.cache import cache
     from apps.coa.apis.cropprice import CropPriceOriginApiView
     from apps.coa.apis.cropproduce import CropProduceTotalApiView
+    from apps.coa.apis.livestockhog import LivestockHogApiView
     from apps.log.models import TracebackLog
 
     try:
@@ -49,6 +50,8 @@ def delay_proxy_parser(api: str, params: list):
             api_class = CropPriceOriginApiView
         elif api == 'CropProduceTotalApiView':
             api_class = CropProduceTotalApiView
+        elif api == 'LivestockHogApiView':
+            api_class = LivestockHogApiView
         else:
             return 'API not found'
 
