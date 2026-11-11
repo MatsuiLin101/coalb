@@ -56,11 +56,13 @@ from .farmerarea import FarmerAreaApiView
 
 from .laborforce import LaborforceApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=BA05 農業就業人口-按行業別）
 
 指令
 -勞動力
 -就業人口
+
+2026/11 agrstat 改版後只有年資料，不再支援「就業人口 年份/月份」
 '''
 
 from .disaster import DisasterApiView
