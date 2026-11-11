@@ -12,11 +12,11 @@ class FarmerApiView(AnnualReportBasicApiView):
             年報
             五、農家與農家經濟
             1臺灣地區總戶口與農牧戶
-            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+            https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
     """
     def __init__(self, params):
         super(FarmerApiView, self).__init__(params)
-        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl27_dtlFile_ctl00_lnkFile'
+        self.chapter = '1總戶口與農牧戶'
 
         if len(params) != 2:
             raise CustomError('農牧戶戶數/人口數的指令為「農牧戶 年份」，例如：\n「農牧戶 110」')
