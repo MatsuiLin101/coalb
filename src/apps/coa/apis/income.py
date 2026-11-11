@@ -12,11 +12,11 @@ class IncomeApiView(AnnualReportBasicApiView):
             年報
             五、農家與農家經濟
             3農家所得
-            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+            https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
     """
     def __init__(self, params):
         super(IncomeApiView, self).__init__(params)
-        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl29_dtlFile_ctl00_lnkFile'
+        self.chapter = '3農家所得'
 
         if len(params) != 2:
             raise CustomError('農家所得的指令為「農家所得 年份」，例如：\n「農家所得 110」')

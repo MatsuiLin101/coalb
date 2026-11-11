@@ -23,7 +23,7 @@ from apps.user.models import CustomUser, DatabaseControl, CustomSetting, AnyToke
 from apps.coa.apis import *
 from apps.coa.builders import CropPriceOriginBuilder, CropProduceTotalBuilder
 from apps.coa.utils import CustomError, get_driver
-from apps.coa.models import ProductCode, CropProduceUnit, LivestockByproduct, CropProduceTotal
+from apps.coa.models import ProductCode, CropProduceUnit, CropProduceTotal
 
 
 
@@ -81,8 +81,7 @@ def get_reply_from_text(command_text):
         elif len(list_params) == 4:
             product = list_params[1]
 
-            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
-            if query_set.count() > 0:
+            if LivestockByproductApiView.is_product(product):
                 command_text = command_text.replace('產量', '產量（副產物產量）')
                 api_view = LivestockByproductApiView
 
@@ -93,8 +92,7 @@ def get_reply_from_text(command_text):
                 command_text = command_text.replace('產量', '產量（作物產量）')
                 api_view = CropProduceApiView
 
-            query_set = LivestockByproduct.objects.filter(name__icontains=product, sub_class='product')
-            if query_set.count() > 0:
+            if LivestockByproductApiView.is_product(product):
                 command_text = command_text.replace('產量', '產量（副產物產量）')
                 api_view = LivestockByproductApiView
         else:

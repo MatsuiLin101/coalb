@@ -77,14 +77,17 @@ ssh -i /Users/coder/Desktop/mlozo/ssh/oracle-coalb-ssh-key ubuntu@144.24.60.152 
 - 失敗時回覆裡會有錯誤編號，可以到 `apps.log.models.TracebackLog` 用 id 查詳細錯誤
 - 長時間的批次測試要在主機上用 `nohup` 背景執行並寫到檔案，SSH 連線可能中途斷掉
 
-## 已知狀態（2026-11-10）
+## 已知狀態（2026-11-11）
 
-- **agrstat.moa.gov.tw 改版**：舊網址 `/sdweb/public/...` 變成 404，新網站在 `/moasdweb/...`，頁面結構全部換掉。所有用 agrstat 的指令都失效：
-  - 年報（`Book.aspx`）：產值、生產毛額、農家所得、農牧戶、耕地面積、災害
-  - 動態查詢（`InquireAdvance.aspx`）：總產值、就業人口、農保、老農津貼、獎助學金、批發、生產成本、工時、飼養場數、在養量、屠宰量、副產物
+- **agrstat.moa.gov.tw 改版**：舊網址 `/sdweb/public/...` 變成 404，新網站在 `/moasdweb/...`。`feature/agrstat-moasdweb` 已全部改寫，本機測試正常（2026-11-11），**還沒部署到正式主機**，正式機上仍然失效：
+  - 年報（`Book.aspx`）：產值、生產毛額、農家所得、農牧戶、耕地面積、災害。`AnnualReportBasicApiView` 改成依章節名稱（`self.chapter`）找 ods 檔
+  - 動態查詢（`InquireAdvance.aspx?qcode=XXXX`）：總產值、就業人口、農保、老農津貼、獎助學金、批發、生產成本、工時、飼養場數、在養量、屠宰量、副產物。共用 `InquireAdvanceBasicApiView`：網站的勾選清單是加密的 JSON（`hidCode`，用頁面上的 `DecryptCode`/`EncryptCode` 解開），直接改 `Selected` 再按確定；統計量則要點畫面上的核取方塊，否則會跳「【統計量】未勾選」
+  - 這些指令不再需要 builder，相關 builder 已刪除；舊的資料表（`TotalValue`、`Livestock*`、`CropCost`、`CropPriceWholesale`）還留著沒刪
+  - 改版後的差異：就業人口、獎助學金、蔬菜和白米批發價只有年資料；生產費用改稱生產成本（生產成本總計）
   - 新網站沒有擋海外 IP
+  - `apps/line/utils.py` 還是舊網址，但沒有任何地方呼叫，是沒用到的舊程式
 - **毛豬網站 `ppg.naif.org.tw`**：沒有改版，但開始擋海外 IP，從台灣 IP 連正常。已在 `feature/hog-proxy` 接上代理機制、網址改成 https，並改成依欄位標題讀結果表格，本機測試正常（2026-11-11），**還沒部署到兩台正式主機**，正式機上仍然失效。頭數、重量、價格都是「規格豬」的數字（跟 2021 年需求確認表的範例數字核對過），回覆訊息三項都有標明
-- **正常的功能**：產地、產量、種植面積（經代理）、單位產值、單位產量、作物代碼（本地資料表）、拍賣價、零售價（`price.naif.org.tw`）
+- **正式機上正常的功能**：產地、產量、種植面積（經代理）、單位產值、單位產量、作物代碼（本地資料表）、拍賣價、零售價（`price.naif.org.tw`）
 - 兩台主機都沒有資料庫備份、都在等重開機套用更新、都沒有監控；樹莓派曾兩度整月離線（2025 年 10～11 月、2026 年 9 月）
 
 ## 開發慣例

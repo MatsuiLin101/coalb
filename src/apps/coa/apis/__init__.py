@@ -4,7 +4,7 @@ coa.apis package
 
 from .producevalue import ProduceValueApiView
 '''
-資料來源：動態查詢、年報
+資料來源：動態查詢（總產值 qcode=CA02，不再需要 builder）、年報
 
 指令(choose)
 -總產值
@@ -56,11 +56,13 @@ from .farmerarea import FarmerAreaApiView
 
 from .laborforce import LaborforceApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=BA05 農業就業人口-按行業別）
 
 指令
 -勞動力
 -就業人口
+
+2026/11 agrstat 改版後只有年資料，不再支援「就業人口 年份/月份」
 '''
 
 from .disaster import DisasterApiView
@@ -80,17 +82,15 @@ from .welfare import WelfareApiView
 -津貼、老農津貼
 -獎助學金
 
-已修正
-Scholarship無法查詢到縣市
-獎助學金沒有提供縣市月份資料，應該是有帶月份才會查詢不到
-
-待優化
-改善縣市查詢方式
+2026/11 agrstat 改版後改用 qcode=BB01、BC01、BC02，縣市直接依名稱選取
+人數和金額在同一張表，一次查詢就能取得；單位取自表頭
+獎助學金只有年資料，沒有月資料
 '''
 
 from .cropprice import CropPriceApiView, CropPriceOriginApiView
 '''
-資料來源：產地價查報、動態查詢
+資料來源：產地價查報、動態查詢（批發 qcode=CH04、CH06、CH01，不再需要 builder）
+批發的蔬菜和白米只有年資料，果品有月資料
 
 指令(choose)
 -產地
@@ -129,7 +129,7 @@ from .cropproduce import CropProduceApiView, CropProduceTotalApiView
 
 from .cropcost import CropCostApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=DA02、DA03，不再需要 builder）
 
 指令(choos)
 -成本、生產成本
@@ -180,7 +180,7 @@ from .livestockprice import LivestockPriceApiView
 
 from .livestockfeedlot import LivestockFeedlotApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CD01、CD02，不再需要 builder）
 
 指令
 -場數
@@ -189,7 +189,7 @@ from .livestockfeedlot import LivestockFeedlotApiView
 
 from .livestockfeedamount import LivestockFeedAmountApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CD01、CD02，不再需要 builder）
 
 指令
 -在養
@@ -198,7 +198,7 @@ from .livestockfeedamount import LivestockFeedAmountApiView
 
 from .livestockslaughter import LivestockSlaughterApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CE05、CE06，不再需要 builder）
 
 指令
 -屠宰
@@ -207,7 +207,7 @@ from .livestockslaughter import LivestockSlaughterApiView
 
 from .livestockbyproduct import LivestockByproductApiView
 '''
-資料來源：動態查詢
+資料來源：動態查詢（qcode=CE03、CE04，不再需要 builder）
 
 指令
 -副產

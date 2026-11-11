@@ -12,11 +12,11 @@ class GrossApiView(AnnualReportBasicApiView):
             年報
             一、農業經濟指標
             (一)國內生產毛額與經濟成長率
-            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+            https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
     """
     def __init__(self, params):
         super(GrossApiView, self).__init__(params)
-        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl03_dtlFile_ctl00_lnkFile'
+        self.chapter = '(一)國內生產毛額與經濟成長率'
 
         if len(params) != 2:
             raise CustomError('生產毛額的指令為「生產毛額 年份」，例如：\n「生產毛額 105」')

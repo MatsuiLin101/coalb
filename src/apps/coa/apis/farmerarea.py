@@ -13,11 +13,11 @@ class FarmerAreaApiView(AnnualReportBasicApiView):
             八、農業土地及自然環境
             (一)農業土地
             2農耕土地面積
-            https://agrstat.moa.gov.tw/sdweb/public/book/Book.aspx
+            https://agrstat.moa.gov.tw/moasdweb/book/Book.aspx
     """
     def __init__(self, params):
         super(FarmerAreaApiView, self).__init__(params)
-        self.id_ods = 'ctl00_cphMain_uctlBook_repChapter_ctl51_dtlFile_ctl00_lnkFile'
+        self.chapter = '2農耕土地面積'
 
         if len(params) != 2:
             raise CustomError('耕地面積的指令為「耕地面積 年份」，例如：\n「耕地面積 110」')
